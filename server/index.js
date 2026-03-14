@@ -15,14 +15,25 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 dotenv.config();
 const app = express();
 
+const normalizeOrigin = (origin = "") => origin.trim().replace(/\/+$/, "");
 const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
   .split(",")
-  .map((origin) => origin.trim());
+  .map((origin) => normalizeOrigin(origin))
+  .filter(Boolean);
+const allowVercelPreviews = process.env.ALLOW_VERCEL_PREVIEWS === "true";
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  const normalized = normalizeOrigin(origin);
+  if (allowedOrigins.includes(normalized)) return true;
+  if (allowVercelPreviews && normalized.endsWith(".vercel.app")) return true;
+  return false;
+};
 
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+      if (isAllowedOrigin(origin)) return callback(null, true);
       return callback(new Error("CORS blocked for origin: " + origin));
     }
   })
