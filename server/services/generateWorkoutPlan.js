@@ -1,101 +1,183 @@
-const daySplit = [
-  { day: "Monday", muscleGroups: ["Chest", "Triceps"] },
-  { day: "Tuesday", muscleGroups: ["Back", "Biceps"] },
-  { day: "Wednesday", muscleGroups: ["Shoulders", "Abs"] },
-  { day: "Thursday", muscleGroups: ["Legs"] },
-  { day: "Friday", muscleGroups: ["Full Body", "Cardio"] },
-  { day: "Saturday", muscleGroups: ["Arms", "Core"] },
-  { day: "Sunday", muscleGroups: ["Rest", "Stretching"] }
+const dayCodes = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+const defaultWeek = [
+  {
+    day: "Mon",
+    name: "Push Focus",
+    muscles: "Chest / Shoulders / Triceps",
+    exercises: [
+      { name: "Bench Press", muscle: "Chest", sets: "4", reps: "6-10", rest: "90s" },
+      { name: "Incline Dumbbell Press", muscle: "Chest", sets: "3", reps: "8-12", rest: "75s" },
+      { name: "Shoulder Press", muscle: "Shoulders", sets: "3", reps: "8-12", rest: "75s" },
+      { name: "Cable Pushdown", muscle: "Triceps", sets: "3", reps: "10-15", rest: "60s" }
+    ]
+  },
+  {
+    day: "Tue",
+    name: "Pull Focus",
+    muscles: "Back / Biceps",
+    exercises: [
+      { name: "Pull-Up", muscle: "Back", sets: "4", reps: "6-10", rest: "90s" },
+      { name: "One-Arm Row", muscle: "Back", sets: "3", reps: "8-12", rest: "75s" },
+      { name: "Lat Pulldown", muscle: "Back", sets: "3", reps: "10-12", rest: "75s" },
+      { name: "Hammer Curl", muscle: "Biceps", sets: "3", reps: "10-12", rest: "60s" }
+    ]
+  },
+  {
+    day: "Wed",
+    name: "Leg Strength",
+    muscles: "Quads / Glutes / Hamstrings",
+    exercises: [
+      { name: "Back Squat", muscle: "Quads", sets: "4", reps: "5-8", rest: "120s" },
+      { name: "Romanian Deadlift", muscle: "Hamstrings", sets: "3", reps: "8-10", rest: "90s" },
+      { name: "Walking Lunge", muscle: "Glutes", sets: "3", reps: "10/leg", rest: "75s" },
+      { name: "Calf Raise", muscle: "Calves", sets: "4", reps: "12-15", rest: "45s" }
+    ]
+  },
+  {
+    day: "Thu",
+    name: "Recovery & Core",
+    muscles: "Core / Mobility",
+    exercises: [
+      { name: "Plank", muscle: "Core", sets: "3", reps: "45-60s", rest: "45s" },
+      { name: "Dead Bug", muscle: "Core", sets: "3", reps: "10/side", rest: "45s" },
+      { name: "Hip Flexor Stretch", muscle: "Mobility", sets: "3", reps: "45s", rest: "30s" },
+      { name: "Thoracic Rotations", muscle: "Mobility", sets: "2", reps: "12", rest: "30s" }
+    ]
+  },
+  {
+    day: "Fri",
+    name: "Upper Power",
+    muscles: "Chest / Back / Shoulders",
+    exercises: [
+      { name: "Incline Press", muscle: "Chest", sets: "4", reps: "6-8", rest: "90s" },
+      { name: "Barbell Row", muscle: "Back", sets: "4", reps: "6-8", rest: "90s" },
+      { name: "Dips", muscle: "Chest", sets: "3", reps: "8-12", rest: "75s" },
+      { name: "Face Pull", muscle: "Shoulders", sets: "3", reps: "12-15", rest: "60s" }
+    ]
+  },
+  {
+    day: "Sat",
+    name: "Lower + Conditioning",
+    muscles: "Legs / Conditioning",
+    exercises: [
+      { name: "Front Squat", muscle: "Quads", sets: "4", reps: "6-8", rest: "90s" },
+      { name: "Hip Thrust", muscle: "Glutes", sets: "3", reps: "8-12", rest: "75s" },
+      { name: "Kettlebell Swing", muscle: "Posterior Chain", sets: "4", reps: "15", rest: "45s" },
+      { name: "Bike Intervals", muscle: "Conditioning", sets: "6", reps: "30s on", rest: "60s" }
+    ]
+  },
+  {
+    day: "Sun",
+    name: "Active Recovery",
+    muscles: "Full Body Mobility",
+    exercises: [
+      { name: "Brisk Walk", muscle: "Cardio", sets: "1", reps: "20-30 min", rest: "-" },
+      { name: "Hamstring Stretch", muscle: "Mobility", sets: "2", reps: "60s", rest: "30s" },
+      { name: "Couch Stretch", muscle: "Mobility", sets: "2", reps: "60s", rest: "30s" },
+      { name: "Breathing Drill", muscle: "Recovery", sets: "1", reps: "5 min", rest: "-" }
+    ]
+  }
 ];
 
-const templates = {
-  gym: {
-    Monday: ["Barbell Bench Press", "Incline Dumbbell Press", "Cable Fly", "Rope Pushdown"],
-    Tuesday: ["Barbell Row", "Lat Pulldown", "Seated Cable Row", "EZ-Bar Curl"],
-    Wednesday: ["Overhead Press", "Dumbbell Lateral Raise", "Face Pull", "Cable Crunch"],
-    Thursday: ["Back Squat", "Romanian Deadlift", "Leg Press", "Walking Lunges"],
-    Friday: ["Kettlebell Swings", "Burpees", "Cable Woodchop", "Bike Sprints"],
-    Saturday: ["Close-Grip Bench Press", "Hammer Curl", "Triceps Dips", "Hanging Leg Raise"],
-    Sunday: ["Light Mobility Flow", "Hamstring Stretch Series", "Thoracic Rotation", "Deep Breathing"]
-  },
-  home: {
-    Monday: ["Push-Ups", "Decline Push-Ups", "Chair Dips", "Band Triceps Extension"],
-    Tuesday: ["Pull-Ups", "Band Rows", "Superman Hold", "Backpack Biceps Curl"],
-    Wednesday: ["Pike Push-Ups", "Band Lateral Raise", "Plank Shoulder Tap", "V-Ups"],
-    Thursday: ["Bodyweight Squat", "Bulgarian Split Squat", "Glute Bridge", "Jump Squats"],
-    Friday: ["Mountain Climbers", "Jump Rope", "High Knees", "Bear Crawl"],
-    Saturday: ["Diamond Push-Ups", "Band Curls", "Plank to Push-Up", "Dead Bug"],
-    Sunday: ["Sun Salutation", "Hip Opener Flow", "Ankle Mobility Drill", "Box Breathing"]
+const extractJSONArray = (text) => {
+  const start = text.indexOf("[");
+  const end = text.lastIndexOf("]");
+
+  if (start === -1 || end === -1 || end <= start) {
+    throw new Error("No JSON array found in Anthropic response");
   }
+
+  return JSON.parse(text.slice(start, end + 1));
 };
 
-const goalConfig = {
-  bodybuilder: { sets: 5, reps: "8-12", restSeconds: 90, focus: "muscle hypertrophy" },
-  athlete: { sets: 4, reps: "4-8 explosive", restSeconds: 120, focus: "power and speed" },
-  maintain_health: { sets: 3, reps: "10", restSeconds: 75, focus: "general fitness" },
-  weight_loss: { sets: 4, reps: "40s on / 20s off", restSeconds: 30, focus: "circuit conditioning" },
-  flexibility: { sets: 3, reps: "45-60s hold", restSeconds: 30, focus: "mobility and recovery" }
-};
+const cleanExercise = (exercise, index) => ({
+  name: String(exercise?.name || `Exercise ${index + 1}`),
+  muscle: String(exercise?.muscle || "General"),
+  sets: String(exercise?.sets || "3"),
+  reps: String(exercise?.reps || "8-12"),
+  rest: String(exercise?.rest || "60s")
+});
 
-const buildInstructions = (name, goal) => {
-  if (goal === "flexibility") {
-    return [
-      `Start ${name} with slow nasal breathing.`,
-      "Move through the full pain-free range of motion.",
-      "Hold end range with posture control before returning."
-    ];
+const normalizeWeekPlan = (plan) =>
+  dayCodes.map((day, index) => {
+    const incoming = Array.isArray(plan) ? plan[index] || {} : {};
+    const fallback = defaultWeek[index];
+    const exercisesSource = Array.isArray(incoming.exercises) && incoming.exercises.length > 0
+      ? incoming.exercises
+      : fallback.exercises;
+
+    return {
+      day,
+      name: String(incoming.name || fallback.name),
+      muscles: String(incoming.muscles || fallback.muscles),
+      exercises: exercisesSource.slice(0, 8).map(cleanExercise)
+    };
+  });
+
+const buildPrompt = ({ goal, location, level, height, weight }) => `
+Create a 7-day workout plan for a user with:
+- Goal: ${goal}
+- Training location: ${location}
+- Experience level: ${level}
+- Height: ${height} cm
+- Weight: ${weight} kg
+
+Return ONLY valid JSON (no markdown, no extra text) as an array of exactly 7 objects in order Mon..Sun using this schema:
+[
+  {
+    "day": "Mon",
+    "name": "Push Day",
+    "muscles": "Chest / Shoulders / Triceps",
+    "exercises": [
+      { "name": "Exercise Name", "muscle": "Chest", "sets": "4", "reps": "8-10", "rest": "90s" }
+    ]
   }
-  return [
-    `Set up for ${name} with stable posture and neutral spine.`,
-    "Perform each rep with controlled eccentric and strong concentric effort.",
-    "Stop the set when form quality drops."
-  ];
-};
+]
 
-const buildTips = (goal) => {
-  const common = ["Hydrate between sets.", "Keep a training log for progressive overload."];
-  if (goal === "athlete") return [...common, "Prioritize bar speed over chasing fatigue."];
-  if (goal === "weight_loss") return [...common, "Minimize rest and keep heart rate elevated."];
-  if (goal === "bodybuilder") return [...common, "Use full ROM and controlled tempo for muscle tension."];
-  if (goal === "flexibility") return [...common, "Never force painful stretches."];
-  return [...common, "Train consistently 3-5 days each week."];
-};
+Rules:
+- Include 4-6 exercises per day.
+- Keep exercises realistic for ${location}.
+- Fit the plan to ${level} level.
+- Sunday should be recovery-focused.
+- Keep set/rep/rest values concise strings.
+`;
 
-export const generateWorkoutPlan = (user) => {
-  const location = user.workoutLocation === "home" ? "home" : "gym";
-  const goal = goalConfig[user.goal] ? user.goal : "maintain_health";
-  const config = goalConfig[goal];
+const generateWorkoutPlan = async ({ goal, location, level, height, weight }) => {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return defaultWeek;
+  }
 
-  return {
-    goal,
-    workoutLocation: location,
-    weeklySchedule: daySplit.map(({ day, muscleGroups }) => {
-      const exercises = (templates[location][day] || []).map((name) => ({
-        name,
-        sets: config.sets,
-        reps: config.reps,
-        restSeconds: config.restSeconds,
-        videoUrl: "",
-        instructions: buildInstructions(name, goal),
-        tips: buildTips(goal)
-      }));
-
-      if (day === "Sunday") {
-        return {
-          day,
-          muscleGroups,
-          exercises: exercises.map((exercise) => ({
-            ...exercise,
-            sets: 2,
-            reps: goal === "flexibility" ? "60s hold" : "20-30 min light flow",
-            restSeconds: 20
-          }))
-        };
-      }
-
-      return { day, muscleGroups, exercises };
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": process.env.ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01"
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 2200,
+      temperature: 0.3,
+      messages: [
+        {
+          role: "user",
+          content: buildPrompt({ goal, location, level, height, weight })
+        }
+      ]
     })
-  };
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Anthropic request failed: ${response.status} ${errorText}`);
+  }
+
+  const payload = await response.json();
+  const text = payload?.content?.find((item) => item.type === "text")?.text || "";
+  const parsed = extractJSONArray(text);
+
+  return normalizeWeekPlan(parsed);
 };
 
 export default generateWorkoutPlan;
