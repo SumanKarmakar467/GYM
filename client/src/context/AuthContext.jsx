@@ -1,58 +1,83 @@
 import { createContext, useEffect, useMemo, useState } from "react";
-import api from "../api/api";
+import api, { setClientToken } from "../api/api";
 
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const persistAuth = (token, profile) => {
-    localStorage.setItem("gymforge_token", token);
-    setUser(profile);
+  const setAuthState = ({ nextUser, nextToken }) => {
+    setUser(nextUser || null);
+    setToken(nextToken || "");
+    setClientToken(nextToken || "");
+
+    if (nextToken) {
+      localStorage.setItem("gymforge_token", nextToken);
+    } else {
+      localStorage.removeItem("gymforge_token");
+    }
   };
 
-  const clearAuth = () => {
-    localStorage.removeItem("gymforge_token");
-    setUser(null);
+  const refreshUser = async () => {
+    const { data } = await api.get("/auth/me");
+    setUser(data.user);
+    return data.user;
   };
 
-  const login = async (email, password) => {
+  const register = async ({ name, email, password }) => {
+    const { data } = await api.post("/auth/register", { name, email, password });
+    setAuthState({ nextUser: data.user, nextToken: data.token });
+    return data.user;
+  };
+
+  const login = async ({ email, password }) => {
     const { data } = await api.post("/auth/login", { email, password });
-    persistAuth(data.token, data.user);
+    setAuthState({ nextUser: data.user, nextToken: data.token });
     return data.user;
   };
 
-  const register = async (payload) => {
-    const { data } = await api.post("/auth/register", payload);
-    persistAuth(data.token, data.user);
-    return data.user;
-  };
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch {
+      // ignore server-side logout errors and still clear local auth state
+    }
 
-  const logout = () => clearAuth();
+    setAuthState({ nextUser: null, nextToken: "" });
+  };
 
   useEffect(() => {
-    const init = async () => {
-      const token = localStorage.getItem("gymforge_token");
-      if (!token) {
-        setLoading(false);
-        return;
-      }
+    const bootstrap = async () => {
+      const persistedToken = localStorage.getItem("gymforge_token") || "";
+      setClientToken(persistedToken);
+      setToken(persistedToken);
+
       try {
-        const { data } = await api.get("/auth/me");
-        setUser(data.user);
+        await refreshUser();
       } catch {
-        clearAuth();
+        setAuthState({ nextUser: null, nextToken: "" });
       } finally {
         setLoading(false);
       }
     };
-    init();
+
+    bootstrap();
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, login, register, logout, setUser }),
-    [user, loading]
+    () => ({
+      user,
+      token,
+      loading,
+      register,
+      login,
+      logout,
+      refreshUser,
+      setUser
+    }),
+    [user, token, loading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
