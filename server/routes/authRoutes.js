@@ -1,5 +1,5 @@
 import express from "express";
-import { login, me, register } from "../controllers/authController.js";
+import { completeOnboarding, login, logout, me, register } from "../controllers/authController.js";
 import protect from "../middleware/protect.js";
 
 const router = express.Router();
@@ -7,5 +7,8 @@ const router = express.Router();
 router.post("/register", register);
 router.post("/login", login);
 router.get("/me", protect, me);
+router.post("/logout", logout);
+router.post("/onboarding", protect, completeOnboarding);
+router.put("/onboarding", protect, completeOnboarding);
 
 export default router;
