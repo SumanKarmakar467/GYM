@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 const statTargets = [
   { label: "Workouts Generated", value: 18420, suffix: "+" },
-  { label: "API Endpoints", value: 13, suffix: "" },
+  { label: "API Endpoints", value: 11, suffix: "" },
   { label: "Pages", value: 6, suffix: "" },
   { label: "JavaScript", value: 100, suffix: "%" }
 ];
@@ -29,13 +29,15 @@ const features = [
     )
   },
   {
-    title: "Wallpaper Generator",
-    text: "Create custom gym wallpapers that match your mindset and keep your motivation visible.",
+    title: "Progress Dashboard",
+    text: "Track weekly completion, day-level focus, and streak consistency in one dashboard view.",
     icon: (
       <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <rect x="3" y="4" width="18" height="16" rx="2.5" />
-        <circle cx="9" cy="10" r="1.5" />
-        <path d="m5 18 5-5 3.5 3.5 2.5-2.5 3 4" />
+        <path d="M4 18h16" />
+        <path d="m6 14 3-3 3 2 5-5" />
+        <circle cx="9" cy="11" r="1" />
+        <circle cx="12" cy="13" r="1" />
+        <circle cx="17" cy="8" r="1" />
       </svg>
     )
   },
@@ -164,7 +166,7 @@ const LandingPage = () => {
               Your AI-powered fitness companion
             </h2>
             <p className="mt-4 max-w-xl text-slate-300">
-              GymForge combines AI workout planning, daily task focus, custom wallpaper generation, and secure auth to keep your
+              GymForge combines AI workout planning, daily task focus, progress tracking, and secure auth to keep your
               progress clear every day.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">

@@ -130,7 +130,7 @@ const RegisterPage = () => {
             ))}
           </div>
           <p className="mt-6 text-sm text-slate-300">
-            Features included: workout generator, daily todo tracker, wallpaper creator, and JWT-secured account access.
+            Features included: workout generator, daily todo tracker, progress dashboard, and JWT-secured account access.
           </p>
         </section>
       </main>

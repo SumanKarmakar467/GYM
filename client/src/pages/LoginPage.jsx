@@ -5,7 +5,7 @@ import useAuth from "../hooks/useAuth";
 const highlights = [
   "AI workout plans built around your goals",
   "Daily tracker with date-based filtering",
-  "Custom gym wallpaper generation engine"
+  "Weekly streak and progress insights"
 ];
 
 const LoginPage = () => {
@@ -63,7 +63,7 @@ const LoginPage = () => {
           <div className="mt-7 space-y-3">
             {highlights.map((item) => (
               <div key={item} className="flex items-center gap-3 rounded-xl border border-white/10 bg-black/30 px-3 py-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/20 text-blue-200">✓</span>
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/20 text-blue-200">v</span>
                 <p className="text-sm text-slate-200">{item}</p>
               </div>
             ))}
@@ -163,3 +163,5 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+
+

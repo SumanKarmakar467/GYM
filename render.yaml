@@ -3,7 +3,6 @@ services:
     name: gymforge-server
     env: node
     rootDir: server
-    plan: free
     buildCommand: npm install
     startCommand: npm start
     envVars:
@@ -11,7 +10,9 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
       - key: FRONTEND_URL
         sync: false
       - key: PORT
-        value: 10000
+        value: 5001
