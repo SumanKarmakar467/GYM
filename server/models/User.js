@@ -4,20 +4,39 @@ const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String, required: true, minlength: 6, select: false },
-    age: { type: Number, required: true, min: 10, max: 100 },
-    weight: { type: Number, required: true, min: 20 },
-    height: { type: Number, required: true, min: 80 },
+    passwordHash: { type: String, required: true, select: false },
+    height: { type: Number, default: null },
+    weight: { type: Number, default: null },
+    age: { type: Number, default: null },
+    gender: { type: String, default: "" },
     goal: {
       type: String,
-      required: true,
-      enum: ["athlete", "bodybuilder", "weight_loss", "maintain_health", "flexibility"]
+      enum: [
+        "Aesthetic",
+        "Bodybuilder",
+        "Fat Loss",
+        "Maintain Health",
+        "Strength & Power",
+        "Functional Fitness"
+      ],
+      default: null
     },
-    workoutLocation: { type: String, required: true, enum: ["home", "gym"] },
+    location: {
+      type: String,
+      enum: ["Home", "Gym"],
+      default: null
+    },
+    level: {
+      type: String,
+      enum: ["Beginner", "Intermediate", "Advanced"],
+      default: null
+    },
+    onboardingComplete: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now }
   },
-  { timestamps: false }
+  { versionKey: false }
 );
 
 const User = mongoose.model("User", userSchema);
+
 export default User;
