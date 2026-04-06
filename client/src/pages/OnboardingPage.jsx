@@ -1,203 +1,223 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import api from "../api/api";
+import { Navigate, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 
-const goalCards = [
-  { key: "athlete", title: "Athlete", icon: "⚡", desc: "Power and explosiveness" },
-  { key: "bodybuilder", title: "Bodybuilder", icon: "💪", desc: "High volume muscle gain" },
-  { key: "weight_loss", title: "Weight Loss", icon: "🔥", desc: "Fat burn and conditioning" },
-  { key: "maintain_health", title: "Maintain Health", icon: "🫀", desc: "Balanced fitness routine" },
-  { key: "flexibility", title: "Flexibility", icon: "🧘", desc: "Mobility and recovery" }
+const goals = [
+  "Aesthetic",
+  "Bodybuilder",
+  "Fat Loss",
+  "Maintain Health",
+  "Strength & Power",
+  "Functional Fitness"
 ];
 
-const steps = 4;
+const levels = ["Beginner", "Intermediate", "Advanced"];
+
+const locations = [
+  { key: "Home", text: "Dumbbells, bodyweight, resistance bands, and compact equipment." },
+  { key: "Gym", text: "Full racks, barbells, machines, cables, and free weights." }
+];
+
+const genders = ["Male", "Female", "Other"];
 
 const OnboardingPage = () => {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    age: "",
-    weight: "",
     height: "",
+    weight: "",
+    age: "",
+    gender: "Male",
     goal: "",
-    workoutLocation: "home"
+    location: "Home",
+    level: "Beginner"
   });
 
-  const bmi = useMemo(() => {
-    if (!form.weight || !form.height) return null;
-    const h = Number(form.height) / 100;
-    if (!h) return null;
-    return (Number(form.weight) / (h * h)).toFixed(1);
-  }, [form.weight, form.height]);
+  if (user?.onboardingComplete) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
-  const validateStep = () => {
-    if (step === 1) return form.name.length > 1 && form.email.includes("@") && form.password.length >= 6;
-    if (step === 2) return Number(form.age) > 0 && Number(form.weight) > 0 && Number(form.height) > 0;
-    if (step === 3) return !!form.goal;
-    if (step === 4) return !!form.workoutLocation;
-    return false;
-  };
-
-  const next = () => {
-    if (!validateStep()) return;
-    setStep((s) => Math.min(steps, s + 1));
-  };
-
-  const prev = () => setStep((s) => Math.max(1, s - 1));
-
-  const submit = async () => {
-    if (!validateStep()) return;
-    setLoading(true);
-    setError("");
-    try {
-      await register({
-        ...form,
-        age: Number(form.age),
-        weight: Number(form.weight),
-        height: Number(form.height)
-      });
-      await api.post("/workout/generate");
-      navigate("/dashboard");
-    } catch (err) {
-      setError(err?.response?.data?.message || "Onboarding failed");
-    } finally {
-      setLoading(false);
+  const stepValid = useMemo(() => {
+    if (step === 1) {
+      return Number(form.height) > 0 && Number(form.weight) > 0 && Number(form.age) > 0 && !!form.gender;
     }
+
+    if (step === 2) {
+      return !!form.goal;
+    }
+
+    if (step === 3) {
+      return !!form.location;
+    }
+
+    return !!form.level;
+  }, [form, step]);
+
+  const goNext = () => {
+    if (!stepValid) return;
+    setStep((prev) => Math.min(4, prev + 1));
+  };
+
+  const goBack = () => {
+    setStep((prev) => Math.max(1, prev - 1));
+  };
+
+  const submit = () => {
+    if (!stepValid) return;
+
+    navigate("/generating", {
+      state: {
+        onboardingData: {
+          height: Number(form.height),
+          weight: Number(form.weight),
+          age: Number(form.age),
+          gender: form.gender,
+          goal: form.goal,
+          location: form.location,
+          level: form.level
+        }
+      }
+    });
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-3xl mx-auto panel p-6">
-        <div className="mb-6">
-          <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-            <div className="h-full bg-accent transition-all duration-300" style={{ width: `${(step / steps) * 100}%` }} />
-          </div>
-          <p className="text-xs text-white/60 mt-2">Step {step} of 4</p>
+    <div className="min-h-screen px-5 py-8 sm:px-8">
+      <div className="mx-auto w-full max-w-3xl rounded-3xl border border-white/10 bg-surface p-6 sm:p-8">
+        <h1 className="font-heading text-5xl text-zinc-100">Onboarding</h1>
+        <p className="mt-1 text-zinc-400">Step {step} of 4</p>
+
+        <div className="mt-5 flex items-center gap-2">
+          {[1, 2, 3, 4].map((item) => (
+            <span
+              key={item}
+              className={`h-2.5 flex-1 rounded-full transition ${item <= step ? "bg-fire" : "bg-zinc-700"}`}
+            />
+          ))}
         </div>
 
-        <div className="animate-fade-slide-in">
-          {step === 1 && (
-            <div className="space-y-3">
-              <h2 className="text-xl font-bold">Basic Profile</h2>
+        {step === 1 ? (
+          <section className="mt-7 space-y-4">
+            <h2 className="font-heading text-4xl">Body Stats</h2>
+            <div className="grid gap-3 sm:grid-cols-3">
               <input
-                className="w-full rounded-lg bg-black/30 border border-white/15 px-3 py-2"
-                placeholder="Name"
-                value={form.name}
-                onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                type="number"
+                className="input-dark"
+                placeholder="Height (cm)"
+                value={form.height}
+                onChange={(event) => setForm((prev) => ({ ...prev, height: event.target.value }))}
+                required
               />
               <input
-                className="w-full rounded-lg bg-black/30 border border-white/15 px-3 py-2"
-                placeholder="Email"
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                type="number"
+                className="input-dark"
+                placeholder="Weight (kg)"
+                value={form.weight}
+                onChange={(event) => setForm((prev) => ({ ...prev, weight: event.target.value }))}
+                required
               />
               <input
-                className="w-full rounded-lg bg-black/30 border border-white/15 px-3 py-2"
-                placeholder="Password (min 6)"
-                type="password"
-                value={form.password}
-                onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
+                type="number"
+                className="input-dark"
+                placeholder="Age"
+                value={form.age}
+                onChange={(event) => setForm((prev) => ({ ...prev, age: event.target.value }))}
+                required
               />
             </div>
-          )}
+            <select
+              className="input-dark"
+              value={form.gender}
+              onChange={(event) => setForm((prev) => ({ ...prev, gender: event.target.value }))}
+            >
+              {genders.map((gender) => (
+                <option key={gender} value={gender}>
+                  {gender}
+                </option>
+              ))}
+            </select>
+          </section>
+        ) : null}
 
-          {step === 2 && (
-            <div className="space-y-3">
-              <h2 className="text-xl font-bold">Body Metrics</h2>
-              <div className="grid md:grid-cols-3 gap-3">
-                <input
-                  className="rounded-lg bg-black/30 border border-white/15 px-3 py-2"
-                  placeholder="Age"
-                  type="number"
-                  value={form.age}
-                  onChange={(e) => setForm((p) => ({ ...p, age: e.target.value }))}
-                />
-                <input
-                  className="rounded-lg bg-black/30 border border-white/15 px-3 py-2"
-                  placeholder="Weight kg"
-                  type="number"
-                  value={form.weight}
-                  onChange={(e) => setForm((p) => ({ ...p, weight: e.target.value }))}
-                />
-                <input
-                  className="rounded-lg bg-black/30 border border-white/15 px-3 py-2"
-                  placeholder="Height cm"
-                  type="number"
-                  value={form.height}
-                  onChange={(e) => setForm((p) => ({ ...p, height: e.target.value }))}
-                />
-              </div>
-              {bmi && <p className="text-white/80">BMI preview: {bmi}</p>}
+        {step === 2 ? (
+          <section className="mt-7">
+            <h2 className="font-heading text-4xl">Select Goal</h2>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {goals.map((goal) => (
+                <button
+                  key={goal}
+                  type="button"
+                  onClick={() => setForm((prev) => ({ ...prev, goal }))}
+                  className={`rounded-2xl border px-4 py-3 text-left transition ${
+                    form.goal === goal
+                      ? "border-fire bg-[rgba(255,77,0,0.15)] text-zinc-100"
+                      : "border-white/10 bg-card text-zinc-300 hover:border-fire"
+                  }`}
+                >
+                  {goal}
+                </button>
+              ))}
             </div>
-          )}
+          </section>
+        ) : null}
 
-          {step === 3 && (
-            <div>
-              <h2 className="text-xl font-bold mb-3">Choose Your Goal</h2>
-              <div className="grid md:grid-cols-2 gap-3">
-                {goalCards.map((goal) => (
-                  <button
-                    key={goal.key}
-                    onClick={() => setForm((p) => ({ ...p, goal: goal.key }))}
-                    className={`text-left rounded-xl p-4 border transition ${
-                      form.goal === goal.key ? "border-accent bg-accent/10" : "border-white/10 bg-white/5"
-                    }`}
-                  >
-                    <p className="text-lg">{goal.icon}</p>
-                    <p className="font-semibold">{goal.title}</p>
-                    <p className="text-sm text-white/70">{goal.desc}</p>
-                  </button>
-                ))}
-              </div>
+        {step === 3 ? (
+          <section className="mt-7">
+            <h2 className="font-heading text-4xl">Training Location</h2>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {locations.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => setForm((prev) => ({ ...prev, location: item.key }))}
+                  className={`rounded-2xl border p-4 text-left transition ${
+                    form.location === item.key
+                      ? "border-fire bg-[rgba(255,77,0,0.15)]"
+                      : "border-white/10 bg-card hover:border-fire"
+                  }`}
+                >
+                  <p className="font-heading text-3xl">{item.key}</p>
+                  <p className="mt-1 text-sm text-zinc-400">{item.text}</p>
+                </button>
+              ))}
             </div>
-          )}
+          </section>
+        ) : null}
 
-          {step === 4 && (
-            <div>
-              <h2 className="text-xl font-bold mb-3">Workout Location</h2>
-              <div className="grid md:grid-cols-2 gap-3">
-                {["home", "gym"].map((place) => (
-                  <button
-                    key={place}
-                    onClick={() => setForm((p) => ({ ...p, workoutLocation: place }))}
-                    className={`rounded-xl p-6 border transition-transform duration-300 ${
-                      form.workoutLocation === place
-                        ? "border-accent bg-accent/10 -translate-y-1"
-                        : "border-white/10 bg-white/5"
-                    }`}
-                  >
-                    <p className="text-lg font-bold capitalize">{place}</p>
-                    <p className="text-sm text-white/70">
-                      {place === "home" ? "Bodyweight + resistance bands" : "Full equipment access"}
-                    </p>
-                  </button>
-                ))}
-              </div>
+        {step === 4 ? (
+          <section className="mt-7">
+            <h2 className="font-heading text-4xl">Experience Level</h2>
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              {levels.map((level) => (
+                <button
+                  key={level}
+                  type="button"
+                  onClick={() => setForm((prev) => ({ ...prev, level }))}
+                  className={`rounded-2xl border px-4 py-4 transition ${
+                    form.level === level
+                      ? "border-fire bg-[rgba(255,77,0,0.15)]"
+                      : "border-white/10 bg-card hover:border-fire"
+                  }`}
+                >
+                  {level}
+                </button>
+              ))}
             </div>
-          )}
-        </div>
+          </section>
+        ) : null}
 
-        {error && <p className="text-red-400 text-sm mt-4">{error}</p>}
-
-        <div className="flex justify-between mt-6">
-          <button onClick={prev} disabled={step === 1} className="px-4 py-2 rounded-lg border border-white/20 disabled:opacity-40">
+        <div className="mt-7 flex items-center justify-between">
+          <button type="button" onClick={goBack} className="btn-ghost" disabled={step === 1}>
             Back
           </button>
+
           {step < 4 ? (
-            <button onClick={next} className="px-4 py-2 rounded-lg bg-accent text-black font-semibold">
-              Next
+            <button type="button" onClick={goNext} className="btn-primary" disabled={!stepValid}>
+              Continue
             </button>
           ) : (
-            <button onClick={submit} disabled={loading} className="px-4 py-2 rounded-lg bg-accent text-black font-semibold">
-              {loading ? "Creating..." : "Finish"}
+            <button type="button" onClick={submit} className="btn-primary" disabled={!stepValid}>
+              Generate My Plan
             </button>
           )}
         </div>
