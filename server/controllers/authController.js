@@ -19,12 +19,31 @@ const sanitizeUser = (user) => ({
   createdAt: user.createdAt
 });
 
-const onboardingRequiredFields = ["height", "weight", "age", "gender", "goal", "location", "level"];
+const onboardingRequiredTextFields = ["gender", "goal", "location", "level"];
+const allowedGoals = [
+  "Aesthetic",
+  "Bodybuilder",
+  "Fat Loss",
+  "Maintain Health",
+  "Strength & Power",
+  "Functional Fitness"
+];
+const allowedLocations = ["Home", "Gym"];
+const allowedLevels = ["Beginner", "Intermediate", "Advanced"];
+const allowedGenders = ["Male", "Female", "Other"];
+
+const toFinitePositiveNumber = (value) => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return null;
+  }
+  return parsed;
+};
 
 const parseOnboardingPayload = (body = {}) => ({
-  height: Number(body.height),
-  weight: Number(body.weight),
-  age: Number(body.age),
+  height: toFinitePositiveNumber(body.height),
+  weight: toFinitePositiveNumber(body.weight),
+  age: toFinitePositiveNumber(body.age),
   gender: body.gender,
   goal: body.goal,
   location: body.location,
@@ -32,11 +51,20 @@ const parseOnboardingPayload = (body = {}) => ({
 });
 
 const hasCompleteOnboardingPayload = (payload) => {
-  const fieldsPresent = onboardingRequiredFields.every(
+  const fieldsPresent = onboardingRequiredTextFields.every(
     (field) => payload[field] !== undefined && payload[field] !== null && payload[field] !== ""
   );
 
-  return fieldsPresent && Number.isFinite(payload.height) && Number.isFinite(payload.weight) && Number.isFinite(payload.age);
+  return (
+    fieldsPresent &&
+    payload.height !== null &&
+    payload.weight !== null &&
+    payload.age !== null &&
+    allowedGenders.includes(payload.gender) &&
+    allowedGoals.includes(payload.goal) &&
+    allowedLocations.includes(payload.location) &&
+    allowedLevels.includes(payload.level)
+  );
 };
 
 export const register = async (req, res) => {
