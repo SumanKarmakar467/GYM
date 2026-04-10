@@ -1,10 +1,12 @@
 import express from "express";
-import { generatePlan, getMyPlan } from "../controllers/workoutController.js";
+import { deleteMyPlan, generatePlan, getMyPlan } from "../controllers/workoutController.js";
 import protect from "../middleware/protect.js";
 
 const router = express.Router();
 
-router.post("/generate", protect, generatePlan);
-router.get("/me", protect, getMyPlan);
+router.use(protect);
+router.post("/generate", generatePlan);
+router.get("/me", getMyPlan);
+router.delete("/me", deleteMyPlan);
 
 export default router;

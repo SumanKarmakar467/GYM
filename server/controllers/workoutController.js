@@ -1,83 +1,83 @@
+import OnboardingProfile from "../models/OnboardingProfile.js";
+import TodoItem from "../models/TodoItem.js";
 import WorkoutPlan from "../models/WorkoutPlan.js";
 import generateWorkoutPlan from "../services/generateWorkoutPlan.js";
 
-const requiredTextFields = ["gender", "goal", "location", "level"];
-const allowedGoals = [
-  "Aesthetic",
-  "Bodybuilder",
-  "Fat Loss",
-  "Maintain Health",
-  "Strength & Power",
-  "Functional Fitness"
-];
-const allowedLocations = ["Home", "Gym"];
-const allowedLevels = ["Beginner", "Intermediate", "Advanced"];
-const allowedGenders = ["Male", "Female", "Other"];
-
-const toFinitePositiveNumber = (value) => {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    return null;
-  }
-  return parsed;
+const formatDateYmd = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 };
 
-const hasValidTextFields = (payload) =>
-  requiredTextFields.every(
-    (field) => payload[field] !== undefined && payload[field] !== null && payload[field] !== ""
-  );
+const addDays = (date, days) => {
+  const copy = new Date(date);
+  copy.setDate(copy.getDate() + days);
+  return copy;
+};
 
-const parseIncomingPayload = (body = {}) => ({
-  height: toFinitePositiveNumber(body.height),
-  weight: toFinitePositiveNumber(body.weight),
-  age: toFinitePositiveNumber(body.age),
-  gender: body.gender,
-  goal: body.goal,
-  location: body.location,
-  level: body.level
-});
+const seedTodosFromPlan = async (userId, plan) => {
+  const todos = [];
+  const startDate = new Date();
+  startDate.setHours(0, 0, 0, 0);
 
-const hasValidPayload = (payload) =>
-  hasValidTextFields(payload) &&
-  payload.height !== null &&
-  payload.weight !== null &&
-  payload.age !== null &&
-  allowedGenders.includes(payload.gender) &&
-  allowedGoals.includes(payload.goal) &&
-  allowedLocations.includes(payload.location) &&
-  allowedLevels.includes(payload.level);
+  plan.weeks.forEach((week, weekIndex) => {
+    week.days.forEach((day, dayIndex) => {
+      if (day.isRestDay || !Array.isArray(day.exercises) || day.exercises.length === 0) {
+        return;
+      }
+
+      const workoutDate = addDays(startDate, weekIndex * 7 + dayIndex);
+
+      day.exercises.forEach((exercise, exerciseIndex) => {
+        todos.push({
+          userId,
+          date: formatDateYmd(workoutDate),
+          weekNum: week.weekNumber,
+          dayNum: dayIndex + 1,
+          exerciseId: `w${week.weekNumber}-d${dayIndex + 1}-e${exerciseIndex + 1}`,
+          exerciseName: exercise.name,
+          exerciseIndex: exerciseIndex,
+          completed: false,
+          completedAt: null
+        });
+      });
+    });
+  });
+
+  if (todos.length > 0) {
+    await TodoItem.insertMany(todos);
+  }
+};
 
 export const generatePlan = async (req, res) => {
   try {
-    const incoming = parseIncomingPayload(req.body);
+    const profile = await OnboardingProfile.findOne({ userId: req.user._id });
 
-    if (!hasValidPayload(incoming)) {
-      return res.status(400).json({ message: "All onboarding fields are required." });
+    if (!profile) {
+      return res.status(400).json({ message: "Complete onboarding before generating a workout plan." });
     }
 
-    req.user.height = incoming.height;
-    req.user.weight = incoming.weight;
-    req.user.age = incoming.age;
-    req.user.gender = incoming.gender;
-    req.user.goal = incoming.goal;
-    req.user.location = incoming.location;
-    req.user.level = incoming.level;
-    req.user.onboardingComplete = true;
-    await req.user.save();
+    const generated = await generateWorkoutPlan(profile);
 
-    const weekPlan = await generateWorkoutPlan(incoming);
+    await WorkoutPlan.deleteMany({ userId: req.user._id });
+    await TodoItem.deleteMany({ userId: req.user._id });
 
-    const plan = await WorkoutPlan.create({
+    const savedPlan = await WorkoutPlan.create({
       userId: req.user._id,
-      goal: incoming.goal,
-      location: incoming.location,
-      level: incoming.level,
-      weekPlan
+      planName: generated.planName,
+      goal: profile.goal,
+      environment: profile.environment,
+      durationWeeks: profile.durationWeeks,
+      generatedAt: new Date(),
+      weeks: generated.weeks
     });
 
-    return res.status(201).json(plan);
-  } catch (error) {
-    return res.status(500).json({ message: "Failed to generate workout plan.", error: error.message });
+    await seedTodosFromPlan(req.user._id, savedPlan);
+
+    return res.status(201).json(savedPlan);
+  } catch {
+    return res.status(500).json({ message: "Failed to generate workout plan." });
   }
 };
 
@@ -86,11 +86,22 @@ export const getMyPlan = async (req, res) => {
     const plan = await WorkoutPlan.findOne({ userId: req.user._id }).sort({ createdAt: -1 });
 
     if (!plan) {
-      return res.status(404).json({ message: "Workout plan not found." });
+      return res.json(null);
     }
 
     return res.json(plan);
-  } catch (error) {
-    return res.status(500).json({ message: "Failed to fetch workout plan.", error: error.message });
+  } catch {
+    return res.status(500).json({ message: "Failed to fetch workout plan." });
+  }
+};
+
+export const deleteMyPlan = async (req, res) => {
+  try {
+    await WorkoutPlan.deleteMany({ userId: req.user._id });
+    await TodoItem.deleteMany({ userId: req.user._id });
+
+    return res.json({ message: "Workout plan deleted." });
+  } catch {
+    return res.status(500).json({ message: "Failed to delete workout plan." });
   }
 };
