@@ -4,34 +4,12 @@ const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    passwordHash: { type: String, required: true, select: false },
-    height: { type: Number, default: null },
-    weight: { type: Number, default: null },
-    age: { type: Number, default: null },
-    gender: { type: String, default: "" },
-    goal: {
-      type: String,
-      enum: [
-        "Aesthetic",
-        "Bodybuilder",
-        "Fat Loss",
-        "Maintain Health",
-        "Strength & Power",
-        "Functional Fitness"
-      ],
-      default: null
-    },
-    location: {
-      type: String,
-      enum: ["Home", "Gym"],
-      default: null
-    },
-    level: {
-      type: String,
-      enum: ["Beginner", "Intermediate", "Advanced"],
-      default: null
-    },
-    onboardingComplete: { type: Boolean, default: false },
+    role: { type: String, enum: ["user", "admin"], default: "user", index: true },
+    passwordHash: { type: String, select: false },
+    googleId: { type: String, default: null, index: true },
+    avatar: { type: String, default: "" },
+    isOnboarded: { type: Boolean, default: false },
+    refreshToken: { type: String, default: null, select: false },
     createdAt: { type: Date, default: Date.now }
   },
   { versionKey: false }

@@ -1,118 +1,106 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import User from "../models/User.js";
-import WorkoutPlan from "../models/WorkoutPlan.js";
-import generateWorkoutPlan from "../services/generateWorkoutPlan.js";
-import { clearAuthCookie, setAuthCookie, signAuthToken } from "../utils/auth.js";
+import {
+  REFRESH_COOKIE_NAME,
+  clearAuthCookies,
+  setAuthCookies,
+  signAccessToken,
+  signRefreshToken,
+  verifyRefreshToken
+} from "../services/tokenService.js";
+import { verifyFirebaseIdToken } from "../services/firebaseAuth.js";
+
+const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
+
+const getAdminEmails = () => {
+  const fromList = String(process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((email) => normalizeEmail(email))
+    .filter(Boolean);
+
+  const fromSingle = normalizeEmail(process.env.ADMIN_EMAIL);
+
+  const adminEmails = new Set([...fromList, fromSingle]);
+  return adminEmails;
+};
+
+const getAdminPassword = () => String(process.env.ADMIN_PASSWORD || "");
+
+const isAdminEmail = (email) => getAdminEmails().has(normalizeEmail(email));
 
 const sanitizeUser = (user) => ({
   id: user._id,
   name: user.name,
   email: user.email,
-  height: user.height,
-  weight: user.weight,
-  age: user.age,
-  gender: user.gender,
-  goal: user.goal,
-  location: user.location,
-  level: user.level,
-  onboardingComplete: user.onboardingComplete,
+  role: user.role || "user",
+  avatar: user.avatar,
+  isOnboarded: Boolean(user.isOnboarded),
   createdAt: user.createdAt
 });
 
-const onboardingRequiredTextFields = ["gender", "goal", "location", "level"];
-const allowedGoals = [
-  "Aesthetic",
-  "Bodybuilder",
-  "Fat Loss",
-  "Maintain Health",
-  "Strength & Power",
-  "Functional Fitness"
-];
-const allowedLocations = ["Home", "Gym"];
-const allowedLevels = ["Beginner", "Intermediate", "Advanced"];
-const allowedGenders = ["Male", "Female", "Other"];
+const issueAuthTokens = async (res, user) => {
+  const accessToken = signAccessToken(user._id);
+  const refreshToken = signRefreshToken(user._id);
 
-const toFinitePositiveNumber = (value) => {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    return null;
-  }
-  return parsed;
-};
+  user.refreshToken = refreshToken;
+  await user.save();
 
-const parseOnboardingPayload = (body = {}) => ({
-  height: toFinitePositiveNumber(body.height),
-  weight: toFinitePositiveNumber(body.weight),
-  age: toFinitePositiveNumber(body.age),
-  gender: body.gender,
-  goal: body.goal,
-  location: body.location,
-  level: body.level
-});
+  setAuthCookies(res, accessToken, refreshToken);
 
-const hasCompleteOnboardingPayload = (payload) => {
-  const fieldsPresent = onboardingRequiredTextFields.every(
-    (field) => payload[field] !== undefined && payload[field] !== null && payload[field] !== ""
-  );
-
-  return (
-    fieldsPresent &&
-    payload.height !== null &&
-    payload.weight !== null &&
-    payload.age !== null &&
-    allowedGenders.includes(payload.gender) &&
-    allowedGoals.includes(payload.goal) &&
-    allowedLocations.includes(payload.location) &&
-    allowedLevels.includes(payload.level)
-  );
+  return { accessToken, refreshToken };
 };
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const name = String(req.body?.name || "").trim();
+    const email = normalizeEmail(req.body?.email);
+    const password = String(req.body?.password || "");
 
     if (!name || !email || !password) {
-      return res.status(400).json({ message: "Name, email and password are required." });
+      return res.status(400).json({ message: "Name, email, and password are required." });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters." });
+    if (password.length < 8) {
+      return res.status(400).json({ message: "Password must be at least 8 characters." });
     }
 
-    const exists = await User.findOne({ email: email.toLowerCase() });
-    if (exists) {
+    const existingUser = await User.findOne({ email }).select("+passwordHash");
+    if (existingUser?.passwordHash) {
       return res.status(409).json({ message: "Email is already registered." });
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    if (existingUser && !existingUser.passwordHash) {
+      return res.status(409).json({ message: "This email is registered with Google. Use Google Sign In." });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
     const user = await User.create({
       name,
       email,
+      role: isAdminEmail(email) ? "admin" : "user",
       passwordHash
     });
 
-    const token = signAuthToken(user._id);
-    setAuthCookie(res, token);
+    await issueAuthTokens(res, user);
 
-    return res.status(201).json({
-      token,
-      user: sanitizeUser(user)
-    });
-  } catch (error) {
-    return res.status(500).json({ message: "Registration failed.", error: error.message });
+    return res.status(201).json({ user: sanitizeUser(user) });
+  } catch {
+    return res.status(500).json({ message: "Registration failed." });
   }
 };
 
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = normalizeEmail(req.body?.email);
+    const password = String(req.body?.password || "");
 
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required." });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() }).select("+passwordHash");
-    if (!user) {
+    const user = await User.findOne({ email }).select("+passwordHash +refreshToken");
+
+    if (!user || !user.passwordHash) {
       return res.status(401).json({ message: "Invalid credentials." });
     }
 
@@ -121,61 +109,174 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials." });
     }
 
-    const token = signAuthToken(user._id);
-    setAuthCookie(res, token);
+    await issueAuthTokens(res, user);
 
-    return res.json({
-      token,
-      user: sanitizeUser(user)
-    });
-  } catch (error) {
-    return res.status(500).json({ message: "Login failed.", error: error.message });
+    return res.json({ user: sanitizeUser(user) });
+  } catch {
+    return res.status(500).json({ message: "Login failed." });
   }
 };
 
-export const me = async (req, res) => {
-  return res.json({ user: sanitizeUser(req.user) });
+export const me = async (req, res) => res.json({ user: sanitizeUser(req.user) });
+
+export const firebaseAuth = async (req, res) => {
+  try {
+    const idToken = String(req.body?.idToken || "");
+    const payload = await verifyFirebaseIdToken(idToken);
+
+    const firebaseUid = String(payload.user_id || payload.sub || "");
+    const email = normalizeEmail(payload.email);
+    const name = String(payload.name || email.split("@")[0] || "GymForge User");
+    const avatar = String(payload.picture || "");
+    const shouldBeAdmin = isAdminEmail(email);
+
+    if (!firebaseUid || !email) {
+      return res.status(400).json({ message: "Invalid Firebase token payload." });
+    }
+
+    let user = await User.findOne({
+      $or: [{ googleId: firebaseUid }, { email }]
+    }).select("+refreshToken");
+
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        role: shouldBeAdmin ? "admin" : "user",
+        googleId: firebaseUid,
+        avatar
+      });
+      user = await User.findById(user._id).select("+refreshToken");
+    } else {
+      let changed = false;
+      if (!user.googleId) {
+        user.googleId = firebaseUid;
+        changed = true;
+      }
+      if (!user.avatar && avatar) {
+        user.avatar = avatar;
+        changed = true;
+      }
+      if (!user.name && name) {
+        user.name = name;
+        changed = true;
+      }
+      if (shouldBeAdmin && user.role !== "admin") {
+        user.role = "admin";
+        changed = true;
+      }
+      if (changed) {
+        await user.save();
+      }
+    }
+
+    await issueAuthTokens(res, user);
+    return res.json({ user: sanitizeUser(user) });
+  } catch {
+    return res.status(401).json({ message: "Firebase authentication failed." });
+  }
+};
+
+export const adminLogin = async (req, res) => {
+  try {
+    const email = normalizeEmail(req.body?.email);
+    const password = String(req.body?.password || "");
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required." });
+    }
+
+    if (!getAdminPassword() || getAdminEmails().size === 0) {
+      return res.status(503).json({ message: "Admin credentials are not configured on server." });
+    }
+
+    if (!isAdminEmail(email) || password !== getAdminPassword()) {
+      return res.status(401).json({ message: "Invalid admin credentials." });
+    }
+
+    let user = await User.findOne({ email }).select("+refreshToken");
+
+    if (!user) {
+      user = await User.create({
+        name: "Admin",
+        email,
+        role: "admin",
+        isOnboarded: true
+      });
+
+      user = await User.findById(user._id).select("+refreshToken");
+    } else if (user.role !== "admin") {
+      user.role = "admin";
+      if (!user.isOnboarded) {
+        user.isOnboarded = true;
+      }
+      await user.save();
+    }
+
+    await issueAuthTokens(res, user);
+    return res.json({ user: sanitizeUser(user) });
+  } catch {
+    return res.status(500).json({ message: "Admin login failed." });
+  }
 };
 
 export const logout = async (req, res) => {
-  clearAuthCookie(res);
-  return res.json({ message: "Logged out successfully." });
-};
-
-export const completeOnboarding = async (req, res) => {
   try {
-    const incoming = parseOnboardingPayload(req.body);
+    const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME];
 
-    if (!hasCompleteOnboardingPayload(incoming)) {
-      return res.status(400).json({ message: "All onboarding fields are required." });
+    if (refreshToken) {
+      await User.updateOne({ refreshToken }, { $set: { refreshToken: null } });
     }
 
-    req.user.height = incoming.height;
-    req.user.weight = incoming.weight;
-    req.user.age = incoming.age;
-    req.user.gender = incoming.gender;
-    req.user.goal = incoming.goal;
-    req.user.location = incoming.location;
-    req.user.level = incoming.level;
-    req.user.onboardingComplete = true;
-    await req.user.save();
+    clearAuthCookies(res);
+    return res.json({ message: "Logged out." });
+  } catch {
+    clearAuthCookies(res);
+    return res.json({ message: "Logged out." });
+  }
+};
 
-    const weekPlan = await generateWorkoutPlan(incoming);
+export const refresh = async (req, res) => {
+  try {
+    const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME];
 
-    const plan = await WorkoutPlan.create({
-      userId: req.user._id,
-      goal: incoming.goal,
-      location: incoming.location,
-      level: incoming.level,
-      weekPlan
-    });
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Missing refresh token." });
+    }
 
-    return res.status(201).json({
-      message: "Onboarding completed successfully.",
-      user: sanitizeUser(req.user),
-      plan
-    });
-  } catch (error) {
-    return res.status(500).json({ message: "Onboarding failed.", error: error.message });
+    const decoded = verifyRefreshToken(refreshToken);
+    const user = await User.findById(decoded.id).select("+refreshToken");
+
+    if (!user || user.refreshToken !== refreshToken) {
+      clearAuthCookies(res);
+      return res.status(401).json({ message: "Invalid refresh token." });
+    }
+
+    await issueAuthTokens(res, user);
+
+    return res.json({ user: sanitizeUser(user) });
+  } catch {
+    clearAuthCookies(res);
+    return res.status(401).json({ message: "Refresh token expired." });
+  }
+};
+
+export const googleAuthUnavailable = (req, res) => {
+  return res.status(503).json({ message: "Google OAuth is not configured on this server." });
+};
+
+export const googleCallback = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("+refreshToken");
+
+    await issueAuthTokens(res, user);
+
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const destination = user.isOnboarded ? "/dashboard" : "/onboarding";
+
+    return res.redirect(`${frontendUrl}${destination}`);
+  } catch {
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    return res.redirect(`${frontendUrl}/login?error=google_callback_failed`);
   }
 };

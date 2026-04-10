@@ -1,16 +1,14 @@
-import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import { getTokenFromRequest } from "../utils/auth.js";
+import { getAccessTokenFromRequest, verifyAccessToken } from "../services/tokenService.js";
 
 const protect = async (req, res, next) => {
   try {
-    const token = getTokenFromRequest(req);
-
+    const token = getAccessTokenFromRequest(req);
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = verifyAccessToken(token);
     const user = await User.findById(decoded.id);
 
     if (!user) {
