@@ -1,61 +1,70 @@
-# GymForge (MERN)
+# GymForge
 
-GymForge is a full-stack fitness platform built with MongoDB, Express, React (Vite), and Node.js.
+GymForge is a full-stack MERN app for AI-generated physique plans and daily training tracking.
 
-## Project Structure
+## Stack
 
-- `client/` - React + Vite + Tailwind frontend
-- `server/` - Express + MongoDB backend
+- Frontend: React 18 + Vite + Tailwind + Framer Motion + React Query + Firebase Auth
+- Backend: Node + Express + MongoDB + Passport Google OAuth + JWT cookies
+- AI: Anthropic Claude (`claude-sonnet-4-20250514`)
 
-## Core Features
+## Features
 
-- Public landing page
-- Register/Login with JWT auth in `httpOnly` cookies
-- 4-step onboarding wizard
-- AI-generated 7-day workout plan via Anthropic (`claude-sonnet-4-20250514`)
-- Dashboard with 3 tabs:
-  - Workout Plan
-  - To-Do List
-  - Profile
+- Landing, auth, onboarding wizard, plan generation, plan viewer, workout detail, tracker, profile
+- Firebase Authentication (email/password + Google popup) on client
+- Backend Firebase ID token exchange (`POST /api/auth/firebase`) -> JWT access (15m) + refresh (7d) in HttpOnly cookies
+- Claude-based structured plan generation
+- Auto-seeded exercise todos, weekly stats, streak endpoint
 
-## Environment Variables
+## Environment
 
-Create `.env` at repo root:
-
-```env
-MONGO_URI=...
-JWT_SECRET=...
-ANTHROPIC_API_KEY=...
-FRONTEND_URL=http://localhost:5173
-PORT=5001
-VITE_API_URL=http://localhost:5001/api
-```
+Copy `.env.example` to `.env` and fill values.
+The Vite client reads variables from the repo root `.env` (configured via `client/vite.config.js` with `envDir: ".."`).
+For admin panel access, set `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and matching `VITE_ADMIN_EMAIL`.
 
 ## Run Locally
 
-1. Install backend deps:
-   - `cd server && npm install`
-2. Install frontend deps:
-   - `cd ../client && npm install`
-3. Start backend:
-   - `cd ../server && npm run dev`
-4. Start frontend:
-   - `cd ../client && npm run dev`
+1. `cd server && npm install`
+2. `cd ../client && npm install`
+3. `cd ../server && npm run dev`
+4. `cd ../client && npm run dev`
 
-## API Routes
+Server runs on `http://localhost:5000` and client on `http://localhost:5173`.
 
+## API Endpoints
+
+### Auth
 - `POST /api/auth/register`
 - `POST /api/auth/login`
-- `GET /api/auth/me`
+- `POST /api/auth/admin-login`
+- `POST /api/auth/firebase`
 - `POST /api/auth/logout`
+- `POST /api/auth/refresh`
+- `GET /api/auth/me`
+- `GET /api/auth/google`
+- `GET /api/auth/google/callback`
+
+### Onboarding
+- `POST /api/onboarding`
+- `GET /api/onboarding/me`
+
+### Workout
 - `POST /api/workout/generate`
 - `GET /api/workout/me`
+- `DELETE /api/workout/me`
+
+### Todos
 - `GET /api/todos?date=YYYY-MM-DD`
 - `POST /api/todos`
 - `PATCH /api/todos/:id`
 - `DELETE /api/todos/:id`
+- `GET /api/todos/stats`
+- `GET /api/todos/streak`
 
-## Deployment
+### Profile
+- `GET /api/profile/me`
+- `PATCH /api/profile/me`
 
-- Backend: Render (`server/` as root) using `render.yaml`
-- Frontend: Vercel (`client/` as root) using `client/vercel.json`
+### Admin (requires `role=admin`)
+- `GET /api/admin/overview`
+- `GET /api/admin/users`
