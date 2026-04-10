@@ -4,18 +4,24 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: "#080b10",
-        panel: "#121826",
-        accent: "#39FF14"
+        bgPrimary: "var(--bg-primary)",
+        bgSecondary: "var(--bg-secondary)",
+        bgAccent: "var(--bg-accent)",
+        textPrimary: "var(--text-primary)",
+        textSecondary: "var(--text-secondary)",
+        brandPrimary: "var(--color-primary)",
+        brandSecondary: "var(--color-secondary)",
+        brandAccent: "var(--color-accent)",
+        borderSubtle: "var(--border-subtle)",
+        success: "var(--success)",
+        warning: "var(--warning)",
+        danger: "var(--danger)"
       },
-      keyframes: {
-        "fade-slide-in": {
-          "0%": { opacity: "0", transform: "translateY(8px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" }
-        }
-      },
-      animation: {
-        "fade-slide-in": "fade-slide-in 350ms ease-out"
+      fontFamily: {
+        display: ["Bebas Neue", "sans-serif"],
+        heading: ["Montserrat", "sans-serif"],
+        body: ["Inter", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"]
       }
     }
   },
