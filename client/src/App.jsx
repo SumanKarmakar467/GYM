@@ -74,11 +74,11 @@ const App = () => (
 
     <Route
       path="/workout"
-      element={(
+      element={
         <ProtectedRoute>
-          <Navigate to="/plan" replace />
+          <WorkoutDetailPage />
         </ProtectedRoute>
-      )}
+      }
     />
 
     <Route
