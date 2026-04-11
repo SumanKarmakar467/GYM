@@ -73,6 +73,15 @@ const App = () => (
     />
 
     <Route
+      path="/workout"
+      element={(
+        <ProtectedRoute>
+          <Navigate to="/plan" replace />
+        </ProtectedRoute>
+      )}
+    />
+
+    <Route
       path="/tracker"
       element={
         <ProtectedRoute>
