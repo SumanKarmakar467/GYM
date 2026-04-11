@@ -10,6 +10,7 @@ import OnboardingPage from "./pages/OnboardingPage";
 import PlanPage from "./pages/PlanPage";
 import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
+import WallpaperPage from "./pages/WallpaperPage";
 import WorkoutDetailPage from "./pages/WorkoutDetailPage";
 
 const App = () => (
@@ -95,6 +96,15 @@ const App = () => (
       element={
         <ProtectedRoute>
           <ProfilePage />
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/wallpaper"
+      element={
+        <ProtectedRoute>
+          <WallpaperPage />
         </ProtectedRoute>
       }
     />
