@@ -1,112 +1,186 @@
-import { motion } from "framer-motion";
+﻿import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const stats = [
-  { label: "Users", value: "10,000+" },
-  { label: "Physique Types", value: "5" },
-  { label: "Exercises", value: "100+" },
-  { label: "AI Powered", value: "24/7" }
-];
+const heroLines = ["Build Your Best Body.", "Track Every Rep.", "Forge Your Legacy."];
 
-const physiques = [
-  { name: "Bodybuilder", desc: "Hypertrophy and sculpted size" },
-  { name: "Calisthenics", desc: "Bodyweight mastery and control" },
-  { name: "Powerlifter", desc: "Raw strength in big 3 lifts" },
-  { name: "CrossFit", desc: "Hybrid fitness and conditioning" },
-  { name: "Athlete", desc: "Speed, agility, and explosiveness" }
+const features = [
+  {
+    icon: "🧠",
+    title: "AI Workout Generator",
+    description: "Tell us your goal and experience. Get a personalized plan in seconds."
+  },
+  {
+    icon: "✅",
+    title: "Daily Todo Tracker",
+    description: "Stay consistent with date-aware habit tracking and streak rewards."
+  },
+  {
+    icon: "🖼️",
+    title: "Motivational Wallpapers",
+    description: "Generate custom gym wallpapers to keep you locked in."
+  }
 ];
 
 const LandingPage = () => {
-  return (
-    <div className="relative min-h-screen overflow-x-hidden bg-bgPrimary text-white">
-      <div className="hex-grid pointer-events-none" />
+  const [typedLine, setTypedLine] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
 
-      <header className="sticky top-0 z-20 border-b border-borderSubtle bg-black/55 backdrop-blur-md">
+  useEffect(() => {
+    let lineIndex = 0;
+    let charIndex = 0;
+    let deleting = false;
+    let pauseTicks = 0;
+
+    const interval = window.setInterval(() => {
+      const currentLine = heroLines[lineIndex];
+
+      if (!deleting && charIndex === currentLine.length) {
+        pauseTicks += 1;
+        if (pauseTicks < 8) {
+          return;
+        }
+        deleting = true;
+      }
+
+      if (deleting && charIndex === 0) {
+        deleting = false;
+        pauseTicks = 0;
+        lineIndex = (lineIndex + 1) % heroLines.length;
+      }
+
+      charIndex += deleting ? -1 : 1;
+      setTypedLine(currentLine.slice(0, charIndex));
+    }, 90);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const scrollToFeatures = () => {
+    document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
+    setMenuOpen(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      <style>{`
+        @keyframes heroOrbFloat {
+          0% { transform: translate3d(-20px, -10px, 0) scale(1); }
+          50% { transform: translate3d(20px, 18px, 0) scale(1.08); }
+          100% { transform: translate3d(-20px, -10px, 0) scale(1); }
+        }
+      `}</style>
+
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-black/55 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 md:px-6">
-          <span className="font-display text-4xl tracking-wide text-brandPrimary">GymForge</span>
-          <div className="flex items-center gap-3">
-            <Link to="/login" className="btn-ghost text-sm">
+          <Link to="/" className="font-heading text-2xl tracking-wide text-orange-400">GymForge</Link>
+
+          <nav className="hidden items-center gap-3 md:flex">
+            <Link to="/login" className="rounded-lg border border-white/15 px-4 py-2 text-sm transition hover:-translate-y-0.5 hover:border-orange-400/70">
               Login
             </Link>
-            <Link to="/register" className="btn-primary text-sm">
-              Sign Up
+            <Link to="/register" className="rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-2 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:shadow-[0_10px_25px_rgba(249,115,22,0.35)]">
+              Get Started
             </Link>
+          </nav>
+
+          <button
+            type="button"
+            className="grid h-10 w-10 place-items-center rounded-lg border border-white/15 md:hidden"
+            onClick={() => setMenuOpen((prev) => !prev)}
+            aria-label="Toggle menu"
+            aria-expanded={menuOpen}
+          >
+            <span className="space-y-1.5">
+              <span className="block h-0.5 w-5 bg-white" />
+              <span className="block h-0.5 w-5 bg-white" />
+              <span className="block h-0.5 w-5 bg-white" />
+            </span>
+          </button>
+        </div>
+
+        <div className={`overflow-hidden border-t border-white/10 bg-[#101010] transition-all duration-300 md:hidden ${menuOpen ? "max-h-40" : "max-h-0"}`}>
+          <div className="space-y-2 px-4 py-3">
+            <Link to="/login" onClick={() => setMenuOpen(false)} className="block rounded-lg border border-white/15 px-4 py-2 text-sm">
+              Login
+            </Link>
+            <Link to="/register" onClick={() => setMenuOpen(false)} className="block rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-2 text-sm font-semibold text-black">
+              Get Started
+            </Link>
+            <button type="button" onClick={scrollToFeatures} className="block w-full rounded-lg border border-white/15 px-4 py-2 text-left text-sm">
+              See Features
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 md:px-6 md:pt-16">
-        <section className="grid items-center gap-10 md:grid-cols-[1.1fr_0.9fr]">
-          <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8 }}>
-            <p className="font-mono text-xs uppercase tracking-[0.22em] text-brandSecondary">AI Physique Platform</p>
-            <h1 className="font-display text-6xl leading-[0.92] text-brandPrimary md:text-8xl">Transform Your Body</h1>
-            <p className="mt-4 max-w-xl text-lg text-textSecondary">Powered by AI.</p>
-            <p className="mt-4 max-w-xl text-textSecondary">
-              Build personalized training blueprints by goal, environment, and timeline. Track daily progress, streaks,
-              and consistency in one dark, high-energy workspace.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/register" className="btn-primary">
-                Start Your Journey
-              </Link>
-              <a href="#how" className="btn-ghost">
-                See How It Works
-              </a>
-            </div>
-          </motion.div>
+      <main>
+        <section className="relative flex min-h-screen items-center overflow-hidden">
+          <div className="pointer-events-none absolute -right-20 top-20 h-72 w-72 rounded-full bg-gradient-to-br from-purple-500/40 via-fuchsia-500/25 to-orange-500/45 blur-3xl" style={{ animation: "heroOrbFloat 9s ease-in-out infinite" }} />
 
-          <div className="card p-6 md:p-8">
-            <h2 className="font-heading text-xl">5 Physique Archetypes</h2>
-            <div className="mt-4 space-y-3">
-              {physiques.map((item) => (
-                <article key={item.name} className="rounded-xl border border-borderSubtle bg-bgSecondary px-4 py-3">
-                  <p className="font-heading text-sm text-brandSecondary">{item.name}</p>
-                  <p className="text-sm text-textSecondary">{item.desc}</p>
-                </article>
-              ))}
+          <div className="relative z-10 mx-auto w-full max-w-6xl px-4 py-24 md:px-6">
+            <p className="text-xs uppercase tracking-[0.4em] text-orange-300">GymForge Platform</p>
+            <h1 className="mt-4 min-h-[5.5rem] max-w-3xl text-4xl font-bold leading-tight md:min-h-[7rem] md:text-6xl">
+              {typedLine}
+              <span className="ml-1 animate-pulse text-orange-400">|</span>
+            </h1>
+            <p className="mt-6 max-w-2xl text-base text-zinc-300 md:text-lg">
+              AI-powered workout plans, habit tracking, and motivation — built for athletes who mean it.
+            </p>
+
+            <div className="mt-10 flex flex-wrap gap-3">
+              <Link to="/register" className="rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-6 py-3 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(249,115,22,0.35)]">
+                Start For Free →
+              </Link>
+              <button
+                type="button"
+                onClick={scrollToFeatures}
+                className="rounded-lg border border-white/15 px-6 py-3 text-sm transition hover:-translate-y-0.5 hover:border-orange-400/70"
+              >
+                See How It Works
+              </button>
             </div>
           </div>
         </section>
 
-        <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((item) => (
-            <article key={item.label} className="card p-4 text-center">
-              <p className="font-display text-5xl text-brandPrimary">{item.value}</p>
-              <p className="text-xs uppercase tracking-wide text-textSecondary">{item.label}</p>
-            </article>
-          ))}
+        <section id="features" className="mx-auto w-full max-w-6xl px-4 py-20 md:px-6">
+          <h2 className="text-3xl font-bold md:text-4xl">Why Athletes Pick GymForge</h2>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {features.map((feature) => (
+              <article
+                key={feature.title}
+                className="rounded-2xl border border-white/10 bg-[#141414] p-6 transition hover:-translate-y-1 hover:shadow-[0_18px_35px_rgba(0,0,0,0.45)]"
+              >
+                <p className="text-3xl">{feature.icon}</p>
+                <h3 className="mt-4 text-xl font-semibold">{feature.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-300">{feature.description}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
-        <section id="how" className="mt-12 grid gap-4 md:grid-cols-3">
-          {[
-            ["1. Onboard", "Enter metrics, goal, environment, and timeline."],
-            ["2. Generate", "Claude builds your structured week-by-week plan."],
-            ["3. Track", "Complete exercise cards and grow your streak daily."]
-          ].map(([title, text]) => (
-            <article key={title} className="card p-5 transition hover:-translate-y-1 hover:border-brandPrimary">
-              <h3 className="font-heading text-lg text-brandSecondary">{title}</h3>
-              <p className="mt-2 text-sm text-textSecondary">{text}</p>
-            </article>
-          ))}
-        </section>
-
-        <section className="mt-10 grid gap-4 md:grid-cols-2">
-          <article className="card p-5">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-brandSecondary">Realtime Engine</p>
-            <h3 className="mt-2 text-xl font-semibold">⚡ Real-time: Live workout tracking with instant updates</h3>
-            <p className="mt-2 text-sm text-textSecondary">
-              Progress syncs continuously so your completion status, streak, and weekly stats stay fresh.
-            </p>
-          </article>
-          <article className="card p-5">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-brandSecondary">Design Language</p>
-            <h3 className="mt-2 text-xl font-semibold">🎨 Modern Design: Electric Cyan + Volt Green</h3>
-            <p className="mt-2 text-sm text-textSecondary">
-              A high-energy neon visual system built around #00E5FF and #39FF14.
-            </p>
-          </article>
+        <section className="mx-auto w-full max-w-6xl px-4 pb-20 md:px-6">
+          <div className="mx-auto max-w-2xl rounded-2xl border border-white/10 bg-[#131313] p-8 text-center md:p-10">
+            <p className="text-2xl font-bold md:text-3xl">100% Free. No credit card. No BS.</p>
+            <Link
+              to="/register"
+              className="mt-6 inline-flex rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-6 py-3 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(249,115,22,0.35)]"
+            >
+              Create Your Account →
+            </Link>
+          </div>
         </section>
       </main>
+
+      <footer className="border-t border-white/10 px-4 py-8 text-sm text-zinc-400 md:px-6">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-3 md:flex-row md:items-center">
+          <p>© 2025 GymForge. Built for athletes.</p>
+          <div className="flex items-center gap-4">
+            <a href="https://github.com/SumanKarmakar467/GYM" target="_blank" rel="noreferrer" className="hover:text-orange-300">GitHub</a>
+            <a href="#" className="hover:text-orange-300">Privacy</a>
+            <a href="#" className="hover:text-orange-300">Terms</a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
