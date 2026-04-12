@@ -39,6 +39,7 @@ const workoutPlanSchema = new mongoose.Schema(
     goal: { type: String, required: true },
     level: { type: String, default: "" },
     daysPerWeek: { type: String, default: "" },
+    durationLabel: { type: String, default: "" },
     equipment: { type: String, default: "" },
     environment: { type: String, required: true },
     durationWeeks: { type: Number, required: true },

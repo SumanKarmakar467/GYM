@@ -1,3 +1,4 @@
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import api from "../api/api";
 import EmptyState from "../components/EmptyState";
@@ -7,6 +8,7 @@ import { addDays, getStartOfWeek, toYmd } from "../utils/date";
 const dayLetters = ["M", "T", "W", "T", "F", "S", "S"];
 
 const TodoListPage = () => {
+  const prefersReducedMotion = useReducedMotion();
   const todayKey = toYmd(new Date());
   const [selectedDate, setSelectedDate] = useState(todayKey);
   const [weekStatus, setWeekStatus] = useState({});
@@ -79,9 +81,7 @@ const TodoListPage = () => {
           fetchTodosByDate(todayKey)
         ]);
 
-        if (!active) {
-          return;
-        }
+        if (!active) return;
 
         setWeekStatus(Object.fromEntries(statusEntries));
         setTodos(selectedTodos);
@@ -135,9 +135,7 @@ const TodoListPage = () => {
   const createTodo = async (event) => {
     event.preventDefault();
     const exerciseName = newTodo.trim();
-    if (!exerciseName || submitting) {
-      return;
-    }
+    if (!exerciseName || submitting) return;
 
     setSubmitting(true);
     try {
@@ -160,7 +158,7 @@ const TodoListPage = () => {
   };
 
   return (
-    <div className="page-enter min-h-screen">
+    <div className="min-h-screen">
       <AppNavbar />
       <main className="mx-auto w-full max-w-5xl px-4 pb-10 md:px-6">
         <section className="card p-5 md:p-6">
@@ -168,19 +166,26 @@ const TodoListPage = () => {
           <p className="mt-2 text-sm text-textSecondary">Pick a day and stay accountable.</p>
 
           <div className="mt-5 grid grid-cols-7 gap-2">
-            {weekDates.map((item) => (
-              <button
+            {weekDates.map((item, index) => (
+              <motion.button
                 key={item.key}
                 type="button"
                 disabled={loadingWeek}
                 onClick={() => onSelectDate(item.key)}
-                className={`rounded-xl border px-1 py-2 text-center ${getPillClass(item.key)} ${
-                  selectedDate === item.key ? "ring-2 ring-brandPrimary" : ""
-                } ${item.key === todayKey ? "border-brandPrimary" : ""}`}
+                initial={prefersReducedMotion ? false : { opacity: 0, x: -10 }}
+                animate={prefersReducedMotion ? false : { opacity: 1, x: 0 }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.3, delay: prefersReducedMotion ? 0 : index * 0.06 }}
+                className={`relative overflow-hidden rounded-xl border px-1 py-2 text-center ${getPillClass(item.key)} ${item.key === todayKey ? "border-brandPrimary" : ""}`}
               >
-                <p className="text-xs font-semibold">{item.letter}</p>
-                <p className="mt-1 text-sm">{item.date.getDate()}</p>
-              </button>
+                {selectedDate === item.key ? (
+                  <motion.span
+                    layoutId="day-indicator"
+                    className="absolute inset-0 rounded-xl border border-orange-400/70 bg-orange-500/20"
+                  />
+                ) : null}
+                <span className="relative z-10 block text-xs font-semibold">{item.letter}</span>
+                <span className="relative z-10 mt-1 block text-sm">{item.date.getDate()}</span>
+              </motion.button>
             ))}
           </div>
         </section>
@@ -190,41 +195,51 @@ const TodoListPage = () => {
             [1, 2, 3].map((item) => <div key={item} className="card h-14 animate-pulse bg-white/5" />)
           ) : todos.length === 0 ? (
             <EmptyState
-              icon="📝"
+              icon="??"
               title="No todos for this day. Add one below."
               subtitle="Start small and keep your streak alive."
               ctaLabel=""
               ctaLink=""
             />
           ) : (
-            todos.map((todo) => (
-              <article key={todo._id} className="card flex items-center justify-between gap-3 p-4">
-                <button
-                  type="button"
-                  onClick={() => toggleTodo(todo)}
-                  className="flex items-center gap-3 text-left"
+            <AnimatePresence>
+              {todos.map((todo) => (
+                <motion.article
+                  key={todo._id}
+                  initial={prefersReducedMotion ? false : { opacity: 0, x: -20 }}
+                  animate={prefersReducedMotion ? false : { opacity: 1, x: 0 }}
+                  exit={prefersReducedMotion ? false : { opacity: 0, x: 20, height: 0 }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 0.24 }}
+                  className="card flex items-center justify-between gap-3 overflow-hidden p-4"
                 >
-                  <span
-                    className={`grid h-6 w-6 place-items-center rounded-full border text-xs ${
-                      todo.completed ? "border-emerald-400 bg-emerald-500 text-black" : "border-borderSubtle"
-                    }`}
-                  >
-                    {todo.completed ? "✓" : ""}
-                  </span>
-                  <span className={todo.completed ? "text-textSecondary line-through" : "text-white"}>
-                    {todo.exerciseName}
-                  </span>
-                </button>
+                  <div className="flex items-center gap-3">
+                    <motion.button
+                      whileTap={prefersReducedMotion ? undefined : { scale: 0.85 }}
+                      type="button"
+                      onClick={() => toggleTodo(todo)}
+                      className={`grid h-6 w-6 place-items-center rounded-full border text-xs ${
+                        todo.completed ? "border-emerald-400 bg-emerald-500 text-black" : "border-borderSubtle"
+                      }`}
+                      aria-label={`Mark ${todo.exerciseName} as ${todo.completed ? "incomplete" : "complete"}`}
+                    >
+                      {todo.completed ? "?" : ""}
+                    </motion.button>
 
-                <button
-                  type="button"
-                  onClick={() => deleteTodo(todo._id)}
-                  className="rounded-lg border border-rose-500/60 px-3 py-1 text-xs text-rose-200 hover:bg-rose-500/10"
-                >
-                  Delete
-                </button>
-              </article>
-            ))
+                    <span className={`todo-check-text ${todo.completed ? "is-done text-textSecondary" : "text-white"}`}>
+                      {todo.exerciseName}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => deleteTodo(todo._id)}
+                    className="rounded-lg border border-rose-500/60 px-3 py-1 text-xs text-rose-200 hover:bg-rose-500/10 focus-visible:bg-rose-500/10"
+                  >
+                    Delete
+                  </button>
+                </motion.article>
+              ))}
+            </AnimatePresence>
           )}
         </section>
 

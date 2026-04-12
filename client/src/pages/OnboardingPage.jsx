@@ -1,4 +1,5 @@
-﻿import { useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 
@@ -16,10 +17,10 @@ const wizardSteps = [
     options: ["Beginner", "Intermediate", "Advanced"]
   },
   {
-    key: "daysPerWeek",
-    title: "Days Per Week",
-    subtitle: "Pick your weekly commitment.",
-    options: ["3 days", "4 days", "5 days", "6 days"]
+    key: "duration",
+    title: "Plan Duration",
+    subtitle: "Choose how long you want the program to run.",
+    options: ["1 week", "1 month", "3 months", "6 months"]
   },
   {
     key: "equipment",
@@ -31,18 +32,16 @@ const wizardSteps = [
 
 const OnboardingPage = () => {
   const navigate = useNavigate();
+  const prefersReducedMotion = useReducedMotion();
   const [step, setStep] = useState(1);
-  const [answers, setAnswers] = useState({ goal: "", level: "", daysPerWeek: "", equipment: "" });
+  const [direction, setDirection] = useState(1);
+  const [answers, setAnswers] = useState({ goal: "", level: "", duration: "", equipment: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const currentStep = wizardSteps[step - 1];
 
-  const selectedValue = useMemo(
-    () => answers[currentStep.key],
-    [answers, currentStep.key]
-  );
-
+  const selectedValue = useMemo(() => answers[currentStep.key], [answers, currentStep.key]);
   const progressPercent = `${(step / wizardSteps.length) * 100}%`;
 
   const chooseOption = (option) => {
@@ -52,14 +51,16 @@ const OnboardingPage = () => {
   };
 
   const goBack = () => {
-    if (loading) return;
+    if (loading || step === 1) return;
     setError("");
+    setDirection(-1);
     setStep((prev) => Math.max(1, prev - 1));
   };
 
   const goNext = () => {
-    if (!selectedValue || loading) return;
+    if (!selectedValue || loading || step === wizardSteps.length) return;
     setError("");
+    setDirection(1);
     setStep((prev) => Math.min(wizardSteps.length, prev + 1));
   };
 
@@ -86,40 +87,56 @@ const OnboardingPage = () => {
         <h1 className="mt-2 text-3xl font-bold">Step {step} of 4</h1>
 
         <div className="mt-5 h-2 overflow-hidden rounded-full bg-zinc-800">
-          <div className="h-full bg-brandPrimary transition-all duration-300" style={{ width: progressPercent }} />
+          <div
+            className="h-full bg-brandPrimary"
+            style={{ width: progressPercent, transition: prefersReducedMotion ? "none" : "width 0.4s ease" }}
+          />
         </div>
 
-        <section className="mt-6">
-          <h2 className="text-2xl font-semibold">{currentStep.title}</h2>
-          <p className="mt-1 text-textSecondary">{currentStep.subtitle}</p>
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.section
+            key={currentStep.key}
+            custom={direction}
+            initial={prefersReducedMotion ? false : (dir) => ({ x: dir > 0 ? 60 : -60, opacity: 0 })}
+            animate={prefersReducedMotion ? false : { x: 0, opacity: 1 }}
+            exit={prefersReducedMotion ? false : (dir) => ({ x: dir > 0 ? -60 : 60, opacity: 0 })}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.35, ease: "easeInOut" }}
+            className="mt-6"
+          >
+            <h2 className="text-2xl font-semibold">{currentStep.title}</h2>
+            <p className="mt-1 text-textSecondary">{currentStep.subtitle}</p>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            {currentStep.options.map((option) => {
-              const active = selectedValue === option;
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {currentStep.options.map((option) => {
+                const active = selectedValue === option;
 
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  disabled={loading}
-                  onClick={() => chooseOption(option)}
-                  className={`relative rounded-2xl border p-4 text-left transition ${
-                    active
-                      ? "border-brandPrimary bg-brandPrimary/10"
-                      : "border-borderSubtle bg-bgPrimary hover:-translate-y-0.5 hover:border-brandPrimary/70"
-                  }`}
-                >
-                  <p className="text-base font-semibold">{option}</p>
-                  {active ? (
-                    <span className="absolute right-3 top-3 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brandPrimary text-xs font-bold text-black">
-                      ✓
-                    </span>
-                  ) : null}
-                </button>
-              );
-            })}
-          </div>
-        </section>
+                return (
+                  <motion.button
+                    key={option}
+                    type="button"
+                    disabled={loading}
+                    onClick={() => chooseOption(option)}
+                    whileHover={prefersReducedMotion ? undefined : { scale: 1.03, borderColor: "rgba(249,115,22,0.5)" }}
+                    whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
+                    className={`relative rounded-2xl border p-4 text-left ${
+                      active
+                        ? "border-orange-400 bg-orange-500/15"
+                        : "border-borderSubtle bg-bgPrimary hover:border-orange-400/70 focus-visible:border-orange-400/70"
+                    }`}
+                    style={{ transition: prefersReducedMotion ? "none" : "border-color 0.2s ease, background-color 0.2s ease" }}
+                  >
+                    <p className="text-base font-semibold">{option}</p>
+                    {active ? (
+                      <span className="absolute right-3 top-3 inline-flex h-6 w-6 items-center justify-center rounded-full bg-orange-400 text-xs font-bold text-black">
+                        ?
+                      </span>
+                    ) : null}
+                  </motion.button>
+                );
+              })}
+            </div>
+          </motion.section>
+        </AnimatePresence>
 
         {error ? (
           <p className="mt-5 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</p>
@@ -127,8 +144,21 @@ const OnboardingPage = () => {
 
         {loading ? (
           <div className="mt-5 inline-flex items-center gap-3 rounded-xl border border-brandPrimary/30 bg-brandPrimary/10 px-4 py-3 text-sm">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-brandPrimary border-r-transparent" />
-            Forging your plan…
+            <span>Forging your plan</span>
+            <span className="flex items-center gap-1">
+              {[0, 1, 2].map((dot) => (
+                <motion.span
+                  key={dot}
+                  animate={prefersReducedMotion ? false : { y: [0, -8, 0] }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: prefersReducedMotion ? 0 : 0.8,
+                    delay: prefersReducedMotion ? 0 : dot * 0.2
+                  }}
+                  className="h-1.5 w-1.5 rounded-full bg-brandPrimary"
+                />
+              ))}
+            </span>
           </div>
         ) : null}
 

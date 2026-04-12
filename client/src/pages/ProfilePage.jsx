@@ -4,11 +4,26 @@ import api from "../api/api";
 import AppNavbar from "../components/layout/AppNavbar";
 import useAuth from "../hooks/useAuth";
 
+const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024;
+
+const readFileAsDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Failed to read image file."));
+    reader.readAsDataURL(file);
+  });
+
 const ProfilePage = () => {
   const { setUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [workoutPlan, setWorkoutPlan] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [avatar, setAvatar] = useState("");
+  const [avatarDirty, setAvatarDirty] = useState(false);
+  const [avatarSaving, setAvatarSaving] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
+  const [avatarMessage, setAvatarMessage] = useState("");
 
   const [passwordForm, setPasswordForm] = useState({
     oldPassword: "",
@@ -41,6 +56,7 @@ const ProfilePage = () => {
         }
 
         setProfile(profileRes.data?.user || null);
+        setAvatar(profileRes.data?.user?.avatar || "");
         setWorkoutPlan(workoutRes.data || null);
       } finally {
         if (active) {
@@ -100,6 +116,59 @@ const ProfilePage = () => {
     }
   };
 
+  const onAvatarFileChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    setAvatarError("");
+    setAvatarMessage("");
+
+    if (!file.type.startsWith("image/")) {
+      setAvatarError("Please upload a valid image file.");
+      return;
+    }
+
+    if (file.size > MAX_AVATAR_SIZE_BYTES) {
+      setAvatarError("Image is too large. Use a file under 2MB.");
+      return;
+    }
+
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      setAvatar(dataUrl);
+      setAvatarDirty(true);
+    } catch {
+      setAvatarError("Failed to load selected image.");
+    }
+  };
+
+  const onSaveAvatar = async () => {
+    if (avatarSaving || !avatarDirty) {
+      return;
+    }
+
+    setAvatarSaving(true);
+    setAvatarError("");
+    setAvatarMessage("");
+
+    try {
+      const { data } = await api.patch("/profile/me", { avatar });
+      setAvatar(data?.avatar || "");
+      setAvatarDirty(false);
+      setAvatarMessage("Profile image updated.");
+      setProfile((prev) => (prev ? { ...prev, avatar: data?.avatar || "" } : prev));
+      setUser((prev) => (prev ? { ...prev, avatar: data?.avatar || "" } : prev));
+    } catch (error) {
+      setAvatarError(error.response?.data?.message || "Failed to update profile image.");
+    } finally {
+      setAvatarSaving(false);
+    }
+  };
+
+  const initials = String(profile?.name || "U").trim().slice(0, 1).toUpperCase();
+
   return (
     <div className="page-enter min-h-screen">
       <AppNavbar />
@@ -113,11 +182,56 @@ const ProfilePage = () => {
               <div className="h-5 w-56 animate-pulse rounded bg-white/10" />
             </div>
           ) : (
-            <div className="mt-5 space-y-2">
-              <p className="text-sm text-textSecondary">Name</p>
-              <p className="text-lg font-semibold">{profile?.name || "-"}</p>
-              <p className="mt-3 text-sm text-textSecondary">Email</p>
-              <p className="text-lg font-semibold">{profile?.email || "-"}</p>
+            <div className="mt-5 grid gap-6 md:grid-cols-[auto_1fr]">
+              <div>
+                <div className="grid h-28 w-28 place-items-center overflow-hidden rounded-full border border-borderSubtle bg-bgSecondary text-3xl font-semibold text-brandSecondary">
+                  {avatar ? (
+                    <img src={avatar} alt="Profile avatar" className="h-full w-full object-cover" />
+                  ) : (
+                    <span>{initials}</span>
+                  )}
+                </div>
+                <label
+                  htmlFor="avatar-upload"
+                  className="mt-3 inline-flex cursor-pointer rounded-lg border border-white/20 px-3 py-2 text-xs text-white hover:bg-white/10"
+                >
+                  Change Image
+                </label>
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={onAvatarFileChange}
+                />
+                <button
+                  type="button"
+                  onClick={onSaveAvatar}
+                  disabled={!avatarDirty || avatarSaving}
+                  className="mt-2 block rounded-lg border border-emerald-400/60 bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-100 disabled:opacity-50"
+                >
+                  {avatarSaving ? "Saving..." : "Save Image"}
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm text-textSecondary">Name</p>
+                <p className="text-lg font-semibold">{profile?.name || "-"}</p>
+                <p className="mt-3 text-sm text-textSecondary">Email</p>
+                <p className="text-lg font-semibold">{profile?.email || "-"}</p>
+
+                {avatarError ? (
+                  <p className="mt-3 rounded-lg border border-rose-500/50 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
+                    {avatarError}
+                  </p>
+                ) : null}
+
+                {avatarMessage ? (
+                  <p className="mt-3 rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">
+                    {avatarMessage}
+                  </p>
+                ) : null}
+              </div>
             </div>
           )}
 
@@ -180,7 +294,7 @@ const ProfilePage = () => {
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <p className="text-sm">Goal: <span className="text-textSecondary">{workoutPlan?.goal || "-"}</span></p>
               <p className="text-sm">Level: <span className="text-textSecondary">{workoutPlan?.level || "-"}</span></p>
-              <p className="text-sm">Days: <span className="text-textSecondary">{workoutPlan?.daysPerWeek || "-"}</span></p>
+              <p className="text-sm">Duration: <span className="text-textSecondary">{workoutPlan?.durationLabel || workoutPlan?.daysPerWeek || "-"}</span></p>
               <p className="text-sm">Equipment: <span className="text-textSecondary">{workoutPlan?.equipment || "-"}</span></p>
             </div>
           )}

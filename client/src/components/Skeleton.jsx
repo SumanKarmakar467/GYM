@@ -1,7 +1,7 @@
 const Skeleton = ({ width = "100%", height = "1rem", borderRadius = "0.5rem", className = "" }) => {
   return (
     <div
-      className={`animate-pulse bg-zinc-700/50 ${className}`}
+      className={`skeleton ${className}`}
       style={{ width, height, borderRadius }}
     />
   );

@@ -1,5 +1,6 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
+import PageTransition from "./components/PageTransition";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminPage from "./pages/AdminPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -12,82 +13,86 @@ import TodoListPage from "./pages/TodoListPage";
 import WallpaperPage from "./pages/WallpaperPage";
 import WorkoutDetailPage from "./pages/WorkoutDetailPage";
 
-const PageWrapper = ({ children }) => <div className="page-enter">{children}</div>;
+const App = () => {
+  const location = useLocation();
 
-const App = () => (
-  <ErrorBoundary>
-    <Routes>
-      <Route path="/" element={<PageWrapper><LandingPage /></PageWrapper>} />
-      <Route path="/login" element={<PageWrapper><LoginPage /></PageWrapper>} />
-      <Route path="/register" element={<PageWrapper><RegisterPage /></PageWrapper>} />
+  return (
+    <ErrorBoundary>
+      <PageTransition>
+        <Routes location={location}>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
-      <Route
-        path="/admin"
-        element={
-          <ProtectedRoute>
-            <PageWrapper><AdminPage /></PageWrapper>
-          </ProtectedRoute>
-        }
-      />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminPage />
+              </ProtectedRoute>
+            }
+          />
 
-      <Route
-        path="/onboarding"
-        element={
-          <ProtectedRoute>
-            <PageWrapper><OnboardingPage /></PageWrapper>
-          </ProtectedRoute>
-        }
-      />
+          <Route
+            path="/onboarding"
+            element={
+              <ProtectedRoute>
+                <OnboardingPage />
+              </ProtectedRoute>
+            }
+          />
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <PageWrapper><DashboardPage /></PageWrapper>
-          </ProtectedRoute>
-        }
-      />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
 
-      <Route
-        path="/workout"
-        element={
-          <ProtectedRoute>
-            <PageWrapper><WorkoutDetailPage /></PageWrapper>
-          </ProtectedRoute>
-        }
-      />
+          <Route
+            path="/workout"
+            element={
+              <ProtectedRoute>
+                <WorkoutDetailPage />
+              </ProtectedRoute>
+            }
+          />
 
-      <Route
-        path="/todos"
-        element={
-          <ProtectedRoute>
-            <PageWrapper><TodoListPage /></PageWrapper>
-          </ProtectedRoute>
-        }
-      />
+          <Route
+            path="/todos"
+            element={
+              <ProtectedRoute>
+                <TodoListPage />
+              </ProtectedRoute>
+            }
+          />
 
-      <Route
-        path="/wallpaper"
-        element={
-          <ProtectedRoute>
-            <PageWrapper><WallpaperPage /></PageWrapper>
-          </ProtectedRoute>
-        }
-      />
+          <Route
+            path="/wallpaper"
+            element={
+              <ProtectedRoute>
+                <WallpaperPage />
+              </ProtectedRoute>
+            }
+          />
 
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <PageWrapper><ProfilePage /></PageWrapper>
-          </ProtectedRoute>
-        }
-      />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
 
-      <Route path="/tracker" element={<Navigate to="/todos" replace />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  </ErrorBoundary>
-);
+          <Route path="/tracker" element={<Navigate to="/todos" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </PageTransition>
+    </ErrorBoundary>
+  );
+};
 
 export default App;

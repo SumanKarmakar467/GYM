@@ -5,7 +5,7 @@ import generateWorkoutPlan from "../services/generateWorkoutPlan.js";
 
 const validGoals = ["Burn Fat", "Build Muscle", "Improve Endurance"];
 const validLevels = ["Beginner", "Intermediate", "Advanced"];
-const validDaysPerWeek = ["3 days", "4 days", "5 days", "6 days"];
+const validDurationLabels = ["1 week", "1 month", "3 months", "6 months"];
 const validEquipment = ["Full Gym", "Home Gym", "Bodyweight Only"];
 
 const legacyGoalMap = {
@@ -33,17 +33,31 @@ const equipmentToLegacyEnvironment = {
   "Bodyweight Only": "home"
 };
 
+const weeksToDurationLabel = {
+  1: "1 week",
+  4: "1 month",
+  12: "3 months",
+  24: "6 months"
+};
+
+const durationLabelToWeeks = {
+  "1 week": 1,
+  "1 month": 4,
+  "3 months": 12,
+  "6 months": 24
+};
+
 const extractWorkoutPreferences = (body = {}, legacyProfile = null) => {
   const bodyGoal = String(body.goal || "").trim();
   const bodyLevel = String(body.level || "").trim();
-  const bodyDaysPerWeek = String(body.daysPerWeek || "").trim();
+  const bodyDuration = String(body.duration || body.daysPerWeek || "").trim();
   const bodyEquipment = String(body.equipment || "").trim();
 
-  if (bodyGoal || bodyLevel || bodyDaysPerWeek || bodyEquipment) {
+  if (bodyGoal || bodyLevel || bodyDuration || bodyEquipment) {
     return {
       goal: bodyGoal,
       level: bodyLevel,
-      daysPerWeek: bodyDaysPerWeek,
+      duration: bodyDuration,
       equipment: bodyEquipment
     };
   }
@@ -55,7 +69,7 @@ const extractWorkoutPreferences = (body = {}, legacyProfile = null) => {
   return {
     goal: legacyGoalMap[legacyProfile.goal] || "Build Muscle",
     level: "Intermediate",
-    daysPerWeek: "5 days",
+    duration: weeksToDurationLabel[Number(legacyProfile.durationWeeks)] || "1 month",
     equipment: legacyEquipmentMap[legacyProfile.environment] || "Home Gym"
   };
 };
@@ -76,8 +90,8 @@ const validateWorkoutPreferences = (preferences = null) => {
     errors.push("Experience level is invalid.");
   }
 
-  if (!validDaysPerWeek.includes(preferences.daysPerWeek)) {
-    errors.push("Days per week is invalid.");
+  if (!validDurationLabels.includes(preferences.duration)) {
+    errors.push("Duration is invalid.");
   }
 
   if (!validEquipment.includes(preferences.equipment)) {
@@ -88,7 +102,7 @@ const validateWorkoutPreferences = (preferences = null) => {
 };
 
 const buildGenerationProfile = (preferences, legacyProfile = null) => {
-  const durationWeeks = Number(legacyProfile?.durationWeeks) || 4;
+  const durationWeeks = durationLabelToWeeks[preferences.duration] || Number(legacyProfile?.durationWeeks) || 4;
   const legacyGoal = goalToLegacy[preferences.goal] || "bodybuilder";
   const legacyEnvironment = equipmentToLegacyEnvironment[preferences.equipment] || "home";
 
@@ -101,7 +115,7 @@ const buildGenerationProfile = (preferences, legacyProfile = null) => {
     environment: legacyEnvironment,
     durationWeeks,
     level: preferences.level,
-    daysPerWeek: preferences.daysPerWeek,
+    duration: preferences.duration,
     equipment: preferences.equipment,
     publicGoal: preferences.goal
   };
@@ -178,7 +192,8 @@ export const generatePlan = async (req, res) => {
       planName: generated.planName,
       goal: preferences.goal,
       level: preferences.level,
-      daysPerWeek: preferences.daysPerWeek,
+      daysPerWeek: "",
+      durationLabel: preferences.duration,
       equipment: preferences.equipment,
       environment: profile.environment,
       durationWeeks: profile.durationWeeks,
