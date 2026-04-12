@@ -16,33 +16,33 @@ const api = axios.create({
   withCredentials: true
 });
 
-let refreshPromise = null;
+let unauthorizedHandler = null;
+
+export const registerUnauthorizedHandler = (handler) => {
+  unauthorizedHandler = typeof handler === "function" ? handler : null;
+};
 
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+  (error) => {
     const status = error.response?.status;
+    const requestUrl = String(error.config?.url || "");
+    const isAuthAttempt = requestUrl.includes("/auth/login") || requestUrl.includes("/auth/register") || requestUrl.includes("/auth/admin-login") || requestUrl.includes("/auth/firebase");
 
-    if (!originalRequest || status !== 401 || originalRequest._retry) {
-      return Promise.reject(error);
+    if (status === 401 && !isAuthAttempt && !error.config?.skipAuthRedirect) {
+      localStorage.removeItem("token");
+      sessionStorage.setItem("session_expired", "1");
+
+      if (unauthorizedHandler) {
+        unauthorizedHandler();
+      }
+
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
     }
 
-    if (originalRequest.url?.includes("/auth/login") || originalRequest.url?.includes("/auth/register") || originalRequest.url?.includes("/auth/refresh")) {
-      return Promise.reject(error);
-    }
-
-    originalRequest._retry = true;
-
-    try {
-      refreshPromise = refreshPromise || api.post("/auth/refresh");
-      await refreshPromise;
-      refreshPromise = null;
-      return api(originalRequest);
-    } catch (refreshError) {
-      refreshPromise = null;
-      return Promise.reject(refreshError);
-    }
+    return Promise.reject(error);
   }
 );
 

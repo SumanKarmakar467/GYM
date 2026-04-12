@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "../api/api";
+import EmptyState from "../components/EmptyState";
 import AppNavbar from "../components/layout/AppNavbar";
 import { addDays, getStartOfWeek, toYmd } from "../utils/date";
 
@@ -188,7 +189,13 @@ const TodoListPage = () => {
           {loadingTodos ? (
             [1, 2, 3].map((item) => <div key={item} className="card h-14 animate-pulse bg-white/5" />)
           ) : todos.length === 0 ? (
-            <div className="card p-6 text-center text-textSecondary">No todos for this day. Add one below.</div>
+            <EmptyState
+              icon="📝"
+              title="No todos for this day. Add one below."
+              subtitle="Start small and keep your streak alive."
+              ctaLabel=""
+              ctaLink=""
+            />
           ) : (
             todos.map((todo) => (
               <article key={todo._id} className="card flex items-center justify-between gap-3 p-4">

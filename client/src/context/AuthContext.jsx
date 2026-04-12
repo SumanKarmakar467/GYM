@@ -1,12 +1,10 @@
 import { createContext, useEffect, useMemo, useState } from "react";
 import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
   updateProfile
 } from "firebase/auth";
-import api from "../api/api";
+import api, { registerUnauthorizedHandler } from "../api/api";
 import { auth, googleProvider } from "../lib/firebase";
 
 export const AuthContext = createContext(null);
@@ -16,7 +14,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const refreshUser = async () => {
-    const { data } = await api.get("/auth/me");
+    const { data } = await api.get("/auth/me", { skipAuthRedirect: true });
     setUser(data.user);
     return data.user;
   };
@@ -29,32 +27,26 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async ({ name, email, password }) => {
-    const credential = await createUserWithEmailAndPassword(auth, email, password);
-
-    try {
-      if (name) {
-        await updateProfile(credential.user, { displayName: name });
-      }
-
-      return exchangeFirebaseSession(credential.user);
-    } catch (error) {
-      try {
-        await credential.user.delete();
-      } catch {
-        // Keep original error because session exchange failure is more actionable.
-      }
-
-      throw error;
-    }
+    const { data } = await api.post("/auth/register", { name, email, password });
+    setUser(data.user);
+    return data.user;
   };
 
   const login = async ({ email, password }) => {
-    const credential = await signInWithEmailAndPassword(auth, email, password);
-    return exchangeFirebaseSession(credential.user);
+    const { data } = await api.post("/auth/login", { email, password });
+    setUser(data.user);
+    return data.user;
   };
 
   const loginWithGoogle = async () => {
     const credential = await signInWithPopup(auth, googleProvider);
+    if (credential.user?.displayName) {
+      try {
+        await updateProfile(credential.user, { displayName: credential.user.displayName });
+      } catch {
+        // Ignore profile sync failure because backend session exchange is the source of truth.
+      }
+    }
     return exchangeFirebaseSession(credential.user);
   };
 
@@ -69,9 +61,25 @@ export const AuthProvider = ({ children }) => {
       await api.post("/auth/logout");
     } finally {
       await signOut(auth);
+      localStorage.removeItem("token");
       setUser(null);
     }
   };
+
+  useEffect(() => {
+    registerUnauthorizedHandler(async () => {
+      try {
+        await signOut(auth);
+      } catch {
+        // Ignore because server-side session handling is primary.
+      }
+      setUser(null);
+    });
+
+    return () => {
+      registerUnauthorizedHandler(null);
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -81,7 +89,7 @@ export const AuthProvider = ({ children }) => {
         await refreshUser();
       } catch {
         try {
-          await api.post("/auth/refresh");
+          await api.post("/auth/refresh", null, { skipAuthRedirect: true });
           await refreshUser();
         } catch {
           const firebaseUser = auth.currentUser;

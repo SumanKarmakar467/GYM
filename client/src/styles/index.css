@@ -86,6 +86,21 @@ p {
   animation: heroOrbFloat 9s ease-in-out infinite;
 }
 
+input,
+textarea,
+select {
+  font-size: 16px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-enter {
+  animation: fadeIn 0.25s ease forwards;
+}
+
 .page-shell {
   min-height: 100vh;
   padding: 1rem;

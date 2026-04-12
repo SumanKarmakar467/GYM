@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import api from "../api/api";
+import EmptyState from "../components/EmptyState";
+import { SkeletonCard } from "../components/Skeleton";
 import AppNavbar from "../components/layout/AppNavbar";
 
 const parseRestSeconds = (restValue) => {
@@ -169,14 +170,9 @@ const WorkoutDetailPage = () => {
             <div className="mt-3 h-8 w-72 animate-pulse rounded bg-white/10" />
           </section>
           <section className="mt-4 space-y-3">
-            {[1, 2, 3].map((item) => (
-              <article key={item} className="card animate-pulse p-5">
-                <div className="h-7 w-52 rounded bg-white/10" />
-                <div className="mt-3 h-4 w-40 rounded bg-white/10" />
-                <div className="mt-4 h-24 rounded-xl bg-white/5" />
-                <div className="mt-4 h-10 w-36 rounded bg-white/10" />
-              </article>
-            ))}
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
           </section>
         </main>
       </div>
@@ -188,12 +184,13 @@ const WorkoutDetailPage = () => {
       <div className="page-enter min-h-screen">
         <AppNavbar />
         <main className="mx-auto mt-10 w-full max-w-3xl px-4 text-center md:px-6">
-          <div className="card p-7">
-            <p className="text-xl font-semibold">No plan yet. → Go to Onboarding</p>
-            <Link to="/onboarding" className="btn-primary mt-5 inline-flex">
-              Go to Onboarding
-            </Link>
-          </div>
+          <EmptyState
+            icon="🏋️"
+            title="No plan yet. → Go to Onboarding"
+            subtitle="Complete onboarding to generate your personalized plan."
+            ctaLabel="Go to Onboarding"
+            ctaLink="/onboarding"
+          />
         </main>
       </div>
     );

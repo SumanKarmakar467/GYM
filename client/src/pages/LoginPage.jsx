@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import useToast from "../hooks/useToast";
@@ -16,6 +16,27 @@ const LoginPage = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [banner, setBanner] = useState("");
+
+  useEffect(() => {
+    const redirected = sessionStorage.getItem("redirected") === "1";
+    const sessionExpired = sessionStorage.getItem("session_expired") === "1";
+
+    if (redirected || sessionExpired) {
+      setBanner(sessionExpired ? "Your session expired. Please log in again." : "Please log in to continue.");
+      sessionStorage.removeItem("redirected");
+      sessionStorage.removeItem("session_expired");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!banner) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => setBanner(""), 3000);
+    return () => window.clearTimeout(timer);
+  }, [banner]);
 
   if (user) {
     return <Navigate to={getPostAuthRoute(user)} replace />;
@@ -52,7 +73,17 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="page-shell grid items-center">
+    <div className="page-enter page-shell grid items-center">
+      {banner ? (
+        <div className="fixed left-0 right-0 top-0 z-50 bg-orange-500 px-4 py-3 text-center text-sm font-semibold text-white">
+          <div className="mx-auto flex w-full max-w-5xl items-center justify-center gap-3">
+            <span>{banner}</span>
+            <button type="button" onClick={() => setBanner("")} className="rounded border border-white/40 px-2 py-0.5 text-xs">
+              Dismiss
+            </button>
+          </div>
+        </div>
+      ) : null}
       <div className="mx-auto grid w-full max-w-5xl overflow-hidden rounded-3xl border border-borderSubtle bg-black/35 md:grid-cols-2">
         <section className="relative hidden p-10 md:block">
           <h1 className="font-display text-7xl leading-[0.9] text-brandPrimary">Forge In</h1>

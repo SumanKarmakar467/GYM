@@ -10,6 +10,7 @@ import {
   YAxis
 } from "recharts";
 import api from "../api/api";
+import { SkeletonText } from "../components/Skeleton";
 import AppNavbar from "../components/layout/AppNavbar";
 import useAuth from "../hooks/useAuth";
 import { addDays, getStartOfWeek, toYmd } from "../utils/date";
@@ -118,8 +119,8 @@ const DashboardPage = () => {
           <article className="card p-5">
             {loading ? (
               <div className="space-y-3">
-                <div className="h-4 w-24 animate-pulse rounded bg-white/10" />
-                <div className="h-10 w-44 animate-pulse rounded bg-white/10" />
+                <SkeletonText width="35%" />
+                <SkeletonText width="70%" />
               </div>
             ) : (
               <>

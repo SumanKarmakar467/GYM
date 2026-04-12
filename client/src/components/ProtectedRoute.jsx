@@ -14,6 +14,7 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!user) {
+    sessionStorage.setItem("redirected", "1");
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
