@@ -21,6 +21,36 @@ const startOfWeek = (date) => {
   return copy;
 };
 
+const computeStreakFromCompletedDates = (completedDates) => {
+  if (completedDates.length === 0) {
+    return 0;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const todayYmd = toYmd(today);
+  let cursor = new Date(today);
+
+  if (!completedDates.includes(todayYmd)) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  let streak = 0;
+
+  while (true) {
+    const key = toYmd(cursor);
+    if (!completedDates.includes(key)) {
+      break;
+    }
+
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  return streak;
+};
+
 export const getTodos = async (req, res) => {
   try {
     const filter = { userId: req.user._id };
@@ -125,12 +155,18 @@ export const getTodoStats = async (req, res) => {
 
     const total = todos.length;
     const completedTotal = todos.filter((todo) => todo.completed).length;
+    const completedTodos = await TodoItem.find({ userId: req.user._id, completed: true }).sort({ date: -1 });
+    const completedDates = Array.from(new Set(completedTodos.map((todo) => todo.date))).sort((a, b) =>
+      a > b ? -1 : 1
+    );
+    const streak = computeStreakFromCompletedDates(completedDates);
 
     return res.json({
       total,
       completed: completedTotal,
       percent: total > 0 ? Math.round((completedTotal / total) * 100) : 0,
-      daily
+      daily,
+      streak
     });
   } catch {
     return res.status(500).json({ message: "Failed to fetch todo stats." });
@@ -143,33 +179,7 @@ export const getTodoStreak = async (req, res) => {
     const completedDates = Array.from(new Set(completedTodos.map((todo) => todo.date))).sort((a, b) =>
       a > b ? -1 : 1
     );
-
-    if (completedDates.length === 0) {
-      return res.json({ streak: 0 });
-    }
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const todayYmd = toYmd(today);
-    let cursor = new Date(today);
-
-    if (!completedDates.includes(todayYmd)) {
-      cursor.setDate(cursor.getDate() - 1);
-    }
-
-    let streak = 0;
-
-    while (true) {
-      const key = toYmd(cursor);
-      if (!completedDates.includes(key)) {
-        break;
-      }
-
-      streak += 1;
-      cursor.setDate(cursor.getDate() - 1);
-    }
-
+    const streak = computeStreakFromCompletedDates(completedDates);
     return res.json({ streak });
   } catch {
     return res.status(500).json({ message: "Failed to fetch streak." });

@@ -3,13 +3,13 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminPage from "./pages/AdminPage";
 import DashboardPage from "./pages/DashboardPage";
 import GeneratingPage from "./pages/GeneratingPage";
-import GoalTrackerPage from "./pages/GoalTrackerPage";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import PlanPage from "./pages/PlanPage";
 import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
+import TodoListPage from "./pages/TodoListPage";
 import WallpaperPage from "./pages/WallpaperPage";
 import WorkoutDetailPage from "./pages/WorkoutDetailPage";
 
@@ -86,7 +86,16 @@ const App = () => (
       path="/tracker"
       element={
         <ProtectedRoute>
-          <GoalTrackerPage />
+          <TodoListPage />
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/todos"
+      element={
+        <ProtectedRoute>
+          <TodoListPage />
         </ProtectedRoute>
       }
     />

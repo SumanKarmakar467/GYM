@@ -1,11 +1,7 @@
-﻿import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../api/api";
 import AppNavbar from "../components/layout/AppNavbar";
-import { getExerciseDateMap } from "../utils/plan";
-import { toYmd } from "../utils/date";
-import { liveQueryOptions } from "../utils/realtime";
 
 const parseRestSeconds = (restValue) => {
   if (typeof restValue === "number" && Number.isFinite(restValue)) {
@@ -15,10 +11,12 @@ const parseRestSeconds = (restValue) => {
   if (typeof restValue === "string") {
     const match = restValue.toLowerCase().match(/(\d+)\s*(m|min|mins|minute|minutes|s|sec|secs|second|seconds)?/);
     if (match) {
-      const value = Number(match[1]);
+      const amount = Number(match[1]);
       const unit = match[2] || "s";
-      if (!Number.isFinite(value)) return 60;
-      return unit.startsWith("m") ? value * 60 : value;
+      if (!Number.isFinite(amount)) {
+        return 60;
+      }
+      return unit.startsWith("m") ? amount * 60 : amount;
     }
   }
 
@@ -31,54 +29,28 @@ const formatTimer = (seconds) => {
   return `${mins}:${String(secs).padStart(2, "0")}`;
 };
 
-const resolveWorkoutDay = (plan, weekParam, dayParam) => {
+const pickActiveWorkoutDay = (plan) => {
   if (!plan?.weeks?.length) {
     return null;
   }
 
-  const weekNumberParam = Number(weekParam);
-  const dayNumberParam = Number(dayParam);
-
-  if (Number.isFinite(weekNumberParam) && Number.isFinite(dayNumberParam)) {
-    const week = plan.weeks.find((item) => item.weekNumber === weekNumberParam);
-    const day = week?.days?.[dayNumberParam - 1];
-
-    if (week && day) {
-      return { weekNumber: weekNumberParam, dayNumber: dayNumberParam, week, day };
-    }
-  }
-
-  const dateMap = getExerciseDateMap(plan);
-  const today = toYmd(new Date());
-
-  for (const [key, value] of dateMap.entries()) {
-    if (value === today) {
-      const [weekKey, dayKey] = key.split("-").map(Number);
-      const week = plan.weeks.find((item) => item.weekNumber === weekKey);
-      const day = week?.days?.[dayKey - 1];
-      if (week && day) {
-        return { weekNumber: weekKey, dayNumber: dayKey, week, day };
-      }
-    }
-  }
-
   for (const week of plan.weeks) {
-    for (let dayIndex = 0; dayIndex < week.days.length; dayIndex += 1) {
-      const day = week.days[dayIndex];
+    for (const day of week.days || []) {
       if (Array.isArray(day.exercises) && day.exercises.length > 0) {
-        return { weekNumber: week.weekNumber, dayNumber: dayIndex + 1, week, day };
+        return {
+          weekNumber: week.weekNumber,
+          dayName: day.dayName,
+          focus: day.focus,
+          exercises: day.exercises
+        };
       }
     }
   }
 
-  const firstWeek = plan.weeks[0];
-  const firstDay = firstWeek?.days?.[0];
-  return firstWeek && firstDay
-    ? { weekNumber: firstWeek.weekNumber, dayNumber: 1, week: firstWeek, day: firstDay }
-    : null;
+  return null;
 };
 
-const RingProgress = ({ completed, total }) => {
+const ProgressRing = ({ completed, total }) => {
   const safeTotal = Math.max(total, 1);
   const percent = Math.round((completed / safeTotal) * 100);
   const radius = 52;
@@ -94,7 +66,7 @@ const RingProgress = ({ completed, total }) => {
             cx="66"
             cy="66"
             r={radius}
-            stroke="var(--success)"
+            stroke="#22c55e"
             strokeWidth="10"
             fill="none"
             strokeLinecap="round"
@@ -104,7 +76,6 @@ const RingProgress = ({ completed, total }) => {
           />
         </svg>
         <div className="absolute inset-0 grid place-items-center text-center">
-          <p className="text-sm text-textSecondary">Progress</p>
           <p className="font-heading text-xl font-bold">{completed}/{total} Done</p>
         </div>
       </div>
@@ -113,58 +84,44 @@ const RingProgress = ({ completed, total }) => {
   );
 };
 
-const LoadingSkeleton = () => {
-  return (
-    <div className="min-h-screen">
-      <AppNavbar />
-      <main className="mx-auto w-full max-w-5xl px-4 pb-24 md:px-6">
-        <section className="card mt-2 p-5 md:p-6">
-          <div className="h-5 w-44 animate-pulse rounded bg-white/10" />
-          <div className="mt-3 h-8 w-72 animate-pulse rounded bg-white/10" />
-        </section>
-
-        <section className="mt-4 space-y-3">
-          {[1, 2, 3].map((item) => (
-            <article key={item} className="card animate-pulse p-5">
-              <div className="h-7 w-52 rounded bg-white/10" />
-              <div className="mt-3 h-4 w-40 rounded bg-white/10" />
-              <div className="mt-4 h-24 rounded-xl bg-white/5" />
-              <div className="mt-4 h-10 w-36 rounded bg-white/10" />
-            </article>
-          ))}
-        </section>
-      </main>
-    </div>
-  );
-};
-
 const WorkoutDetailPage = () => {
-  const { weekNum, dayNum } = useParams();
+  const [plan, setPlan] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [completedMap, setCompletedMap] = useState({});
   const [notesMap, setNotesMap] = useState({});
   const [restTimer, setRestTimer] = useState(null);
 
-  const planQuery = useQuery({
-    queryKey: ["plan"],
-    queryFn: async () => {
-      const { data } = await api.get("/workout/me");
-      return data;
-    },
-    ...liveQueryOptions
-  });
-
-  const activeDay = useMemo(
-    () => resolveWorkoutDay(planQuery.data, weekNum, dayNum),
-    [planQuery.data, weekNum, dayNum]
-  );
-
-  const exercises = activeDay?.day?.exercises || [];
-
   useEffect(() => {
-    setCompletedMap({});
-    setNotesMap({});
-    setRestTimer(null);
-  }, [activeDay?.weekNumber, activeDay?.dayNumber]);
+    let active = true;
+
+    const loadPlan = async () => {
+      setLoading(true);
+      try {
+        const { data } = await api.get("/workout/me");
+        if (active) {
+          setPlan(data);
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadPlan();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const activeDay = useMemo(() => pickActiveWorkoutDay(plan), [plan]);
+  const exercises = activeDay?.exercises || [];
+  const totalExercises = exercises.length;
+  const completedExercises = exercises.reduce((count, _exercise, index) => {
+    const key = `${activeDay?.weekNumber || 0}-${index}`;
+    return completedMap[key] ? count + 1 : count;
+  }, 0);
 
   useEffect(() => {
     if (!restTimer) {
@@ -173,45 +130,62 @@ const WorkoutDetailPage = () => {
 
     const interval = window.setInterval(() => {
       setRestTimer((current) => {
-        if (!current) return null;
-        if (current.remaining <= 1) return null;
+        if (!current) {
+          return null;
+        }
+        if (current.remaining <= 1) {
+          return null;
+        }
         return { ...current, remaining: current.remaining - 1 };
       });
     }, 1000);
 
     return () => window.clearInterval(interval);
-  }, [restTimer?.exerciseId]);
-
-  const totalExercises = exercises.length;
-  const completedExercises = exercises.reduce((count, _exercise, index) => {
-    const exerciseId = `${activeDay?.weekNumber || 0}-${activeDay?.dayNumber || 0}-${index}`;
-    return completedMap[exerciseId] ? count + 1 : count;
-  }, 0);
+  }, [restTimer?.exerciseKey]);
 
   const toggleDone = (exercise, index) => {
-    const exerciseId = `${activeDay?.weekNumber || 0}-${activeDay?.dayNumber || 0}-${index}`;
-    const nextDone = !completedMap[exerciseId];
+    const key = `${activeDay?.weekNumber || 0}-${index}`;
+    const done = !completedMap[key];
+    setCompletedMap((prev) => ({ ...prev, [key]: done }));
 
-    setCompletedMap((prev) => ({ ...prev, [exerciseId]: nextDone }));
-
-    if (!nextDone) {
-      if (restTimer?.exerciseId === exerciseId) {
+    if (!done) {
+      if (restTimer?.exerciseKey === key) {
         setRestTimer(null);
       }
       return;
     }
 
     const seconds = parseRestSeconds(exercise.rest);
-    setRestTimer({ exerciseId, remaining: seconds });
+    setRestTimer({ exerciseKey: key, remaining: seconds });
   };
 
-  if (planQuery.isLoading) {
-    return <LoadingSkeleton />;
+  if (loading) {
+    return (
+      <div className="page-enter min-h-screen">
+        <AppNavbar />
+        <main className="mx-auto w-full max-w-5xl px-4 pb-24 md:px-6">
+          <section className="card mt-2 p-5 md:p-6">
+            <div className="h-5 w-44 animate-pulse rounded bg-white/10" />
+            <div className="mt-3 h-8 w-72 animate-pulse rounded bg-white/10" />
+          </section>
+          <section className="mt-4 space-y-3">
+            {[1, 2, 3].map((item) => (
+              <article key={item} className="card animate-pulse p-5">
+                <div className="h-7 w-52 rounded bg-white/10" />
+                <div className="mt-3 h-4 w-40 rounded bg-white/10" />
+                <div className="mt-4 h-24 rounded-xl bg-white/5" />
+                <div className="mt-4 h-10 w-36 rounded bg-white/10" />
+              </article>
+            ))}
+          </section>
+        </main>
+      </div>
+    );
   }
 
-  if (!planQuery.data) {
+  if (!plan || !activeDay) {
     return (
-      <div className="min-h-screen">
+      <div className="page-enter min-h-screen">
         <AppNavbar />
         <main className="mx-auto mt-10 w-full max-w-3xl px-4 text-center md:px-6">
           <div className="card p-7">
@@ -225,47 +199,30 @@ const WorkoutDetailPage = () => {
     );
   }
 
-  if (!activeDay) {
-    return (
-      <div className="min-h-screen">
-        <AppNavbar />
-        <main className="mx-auto mt-10 w-full max-w-3xl px-4 text-center md:px-6">
-          <div className="card p-7">
-            <p className="text-xl font-semibold">No workout days available in your plan yet.</p>
-            <Link to="/plan" className="btn-primary mt-5 inline-flex">
-              View Plan
-            </Link>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen pb-24">
+    <div className="page-enter min-h-screen pb-24">
       <AppNavbar />
       <main className="mx-auto w-full max-w-5xl px-4 pb-6 md:px-6">
         <section className="card mt-2 p-5 md:p-6">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-brandSecondary">
-            Week {activeDay.weekNumber} / Day {activeDay.dayNumber}
+            Week {activeDay.weekNumber}
           </p>
-          <h1 className="mt-2 text-3xl font-bold">{activeDay.day.dayName} - {activeDay.day.focus}</h1>
-          <p className="mt-2 text-textSecondary">Warm-up: {activeDay.day.warmup || "General warm-up"}</p>
+          <h1 className="mt-2 text-3xl font-bold">{activeDay.dayName} - {activeDay.focus}</h1>
           <div className="mt-5">
-            <RingProgress completed={completedExercises} total={totalExercises} />
+            <ProgressRing completed={completedExercises} total={totalExercises} />
           </div>
         </section>
 
         <section className="mt-4 space-y-3">
           {exercises.map((exercise, index) => {
-            const exerciseId = `${activeDay.weekNumber}-${activeDay.dayNumber}-${index}`;
-            const done = Boolean(completedMap[exerciseId]);
+            const key = `${activeDay.weekNumber}-${index}`;
+            const done = Boolean(completedMap[key]);
             const restLabel = exercise.rest ? `${exercise.rest} rest` : "60s rest";
 
             return (
               <article
-                key={exerciseId}
-                className={`card rounded-2xl border-l-4 p-5 ${done ? "border-l-success" : "border-l-transparent"}`}
+                key={key}
+                className={`card rounded-2xl border-l-4 p-5 ${done ? "border-l-emerald-500" : "border-l-transparent"}`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
@@ -285,19 +242,14 @@ const WorkoutDetailPage = () => {
                 </div>
 
                 <div className="mt-4">
-                  <label htmlFor={`note-${exerciseId}`} className="text-sm text-textSecondary">Notes</label>
+                  <label htmlFor={`note-${key}`} className="text-sm text-textSecondary">Notes</label>
                   <textarea
-                    id={`note-${exerciseId}`}
+                    id={`note-${key}`}
                     rows={3}
                     className="input-field mt-2 resize-y"
                     placeholder="Add your form notes or weight used..."
-                    value={notesMap[exerciseId] || ""}
-                    onChange={(event) =>
-                      setNotesMap((prev) => ({
-                        ...prev,
-                        [exerciseId]: event.target.value
-                      }))
-                    }
+                    value={notesMap[key] || ""}
+                    onChange={(event) => setNotesMap((prev) => ({ ...prev, [key]: event.target.value }))}
                   />
                 </div>
               </article>
@@ -310,7 +262,7 @@ const WorkoutDetailPage = () => {
         <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-borderSubtle bg-black/90 px-4 py-3 backdrop-blur-sm">
           <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 text-sm md:text-base">
             <p>
-              Rest: {formatTimer(restTimer.remaining)} remaining <span className="text-textSecondary">—</span>{" "}
+              Rest: {formatTimer(restTimer.remaining)} remaining —{" "}
               <button
                 type="button"
                 onClick={() => setRestTimer(null)}

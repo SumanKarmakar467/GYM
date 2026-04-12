@@ -1,5 +1,4 @@
-﻿import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Bar,
@@ -14,109 +13,120 @@ import api from "../api/api";
 import AppNavbar from "../components/layout/AppNavbar";
 import useAuth from "../hooks/useAuth";
 import { addDays, getStartOfWeek, toYmd } from "../utils/date";
-import { liveQueryOptions } from "../utils/realtime";
 
-const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const todayKey = toYmd(new Date());
+  const [stats, setStats] = useState(null);
+  const [todayTodos, setTodayTodos] = useState([]);
+  const [weeklyData, setWeeklyData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const weekDates = useMemo(() => {
     const start = getStartOfWeek(new Date());
-
-    return weekdays.map((label, index) => {
+    return dayLabels.map((label, index) => {
       const date = addDays(start, index);
-      return { label, date: toYmd(date) };
+      return { day: label, date: toYmd(date) };
     });
   }, []);
 
-  const statsQuery = useQuery({
-    queryKey: ["todo-stats"],
-    queryFn: async () => {
-      const { data } = await api.get("/todos/stats");
-      return data;
-    },
-    ...liveQueryOptions
-  });
+  useEffect(() => {
+    let active = true;
 
-  const todayTodosQuery = useQuery({
-    queryKey: ["todos", todayKey],
-    queryFn: async () => {
-      const { data } = await api.get("/todos", { params: { date: todayKey } });
-      return data;
-    },
-    ...liveQueryOptions
-  });
+    const loadDashboard = async () => {
+      setLoading(true);
 
-  const fallbackWeeklyQuery = useQuery({
-    queryKey: ["weekly-completion-fallback", weekDates[0]?.date],
-    enabled: statsQuery.isSuccess && (!Array.isArray(statsQuery.data?.daily) || statsQuery.data.daily.length === 0),
-    queryFn: async () => {
-      const byDay = await Promise.all(
-        weekDates.map(async (item) => {
-          const { data } = await api.get("/todos", { params: { date: item.date } });
-          const total = data.length;
-          const completed = data.filter((todo) => todo.completed).length;
+      try {
+        const todayKey = toYmd(new Date());
+        const [statsRes, todayRes] = await Promise.all([
+          api.get("/todos/stats"),
+          api.get("/todos", { params: { date: todayKey } })
+        ]);
 
-          return {
-            day: item.label,
-            percent: total > 0 ? Math.round((completed / total) * 100) : 0
-          };
-        })
-      );
+        if (!active) {
+          return;
+        }
 
-      return byDay;
-    }
-  });
+        const statsData = statsRes.data || {};
+        setStats(statsData);
+        setTodayTodos(Array.isArray(todayRes.data) ? todayRes.data : []);
 
-  const weeklyData = useMemo(() => {
-    if (Array.isArray(statsQuery.data?.daily) && statsQuery.data.daily.length > 0) {
-      const percentByDate = new Map(statsQuery.data.daily.map((entry) => [entry.date, Number(entry.percent) || 0]));
-      return weekDates.map((item) => ({ day: item.label, percent: percentByDate.get(item.date) ?? 0 }));
-    }
+        if (Array.isArray(statsData.daily) && statsData.daily.length > 0) {
+          const percentByDate = new Map(statsData.daily.map((entry) => [entry.date, Number(entry.percent) || 0]));
+          setWeeklyData(
+            weekDates.map((item) => ({
+              day: item.day,
+              percent: percentByDate.get(item.date) ?? 0
+            }))
+          );
+        } else {
+          const fallbackDaily = await Promise.all(
+            weekDates.map(async (item) => {
+              const { data } = await api.get("/todos", { params: { date: item.date } });
+              const total = data.length;
+              const done = data.filter((todo) => todo.completed).length;
 
-    if (fallbackWeeklyQuery.data?.length) {
-      return fallbackWeeklyQuery.data;
-    }
+              return {
+                day: item.day,
+                percent: total > 0 ? Math.round((done / total) * 100) : 0
+              };
+            })
+          );
 
-    return weekdays.map((label) => ({ day: label, percent: 0 }));
-  }, [statsQuery.data?.daily, fallbackWeeklyQuery.data, weekDates]);
+          if (active) {
+            setWeeklyData(fallbackDaily);
+          }
+        }
+      } catch {
+        if (active) {
+          setStats({ streak: 0 });
+          setTodayTodos([]);
+          setWeeklyData(dayLabels.map((day) => ({ day, percent: 0 })));
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
 
-  const streak = Number(statsQuery.data?.streak || 0);
-  const todayTotal = todayTodosQuery.data?.length || 0;
-  const todayDone = (todayTodosQuery.data || []).filter((todo) => todo.completed).length;
-  const todayPercent = todayTotal > 0 ? Math.round((todayDone / todayTotal) * 100) : 0;
+    loadDashboard();
 
-  const ringRadius = 52;
-  const ringCircumference = 2 * Math.PI * ringRadius;
-  const ringOffset = ringCircumference * (1 - todayPercent / 100);
+    return () => {
+      active = false;
+    };
+  }, [weekDates]);
 
-  const chartLoading = statsQuery.isLoading || fallbackWeeklyQuery.isLoading;
-  const allSectionsLoading = statsQuery.isLoading || todayTodosQuery.isLoading || chartLoading;
+  const streak = Number(stats?.streak || 0);
+  const todayDone = todayTodos.filter((todo) => todo.completed).length;
+  const todayPercent = todayTodos.length > 0 ? Math.round((todayDone / todayTodos.length) * 100) : 0;
+
+  const radius = 52;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - todayPercent / 100);
 
   return (
-    <div className="min-h-screen">
+    <div className="page-enter min-h-screen">
       <AppNavbar />
       <main className="mx-auto w-full max-w-6xl px-4 pb-10 md:px-6">
         <section className="card p-5 md:p-7">
           <h1 className="text-3xl font-bold md:text-4xl">Welcome back, {user?.name || "Athlete"} 👋</h1>
-          <p className="mt-2 text-textSecondary">Your latest consistency and completion insights.</p>
         </section>
 
         <section className="mt-5 grid gap-4 lg:grid-cols-[320px_1fr]">
           <article className="card p-5">
-            {statsQuery.isLoading ? (
-              <div className="animate-pulse">
-                <div className="h-5 w-32 rounded bg-white/10" />
-                <div className="mt-4 h-12 w-40 rounded bg-white/10" />
+            {loading ? (
+              <div className="space-y-3">
+                <div className="h-4 w-24 animate-pulse rounded bg-white/10" />
+                <div className="h-10 w-44 animate-pulse rounded bg-white/10" />
               </div>
             ) : (
               <>
                 <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Consistency</p>
                 <p className="mt-3 text-4xl font-bold">🔥 {streak} Day Streak</p>
                 <p className="mt-2 text-sm text-textSecondary">
-                  {streak === 0 ? "Start your streak today!" : "You are building unstoppable momentum."}
+                  {streak === 0 ? "Start your streak today!" : "Keep forging momentum."}
                 </p>
               </>
             )}
@@ -124,7 +134,7 @@ const DashboardPage = () => {
 
           <article className="card p-5">
             <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Weekly Completion</p>
-            {chartLoading ? (
+            {loading ? (
               <div className="mt-4 h-[270px] animate-pulse rounded-xl bg-white/10" />
             ) : (
               <div className="mt-4 h-[270px]">
@@ -155,29 +165,29 @@ const DashboardPage = () => {
         <section className="mt-5 grid gap-4 lg:grid-cols-[320px_1fr]">
           <article className="card p-5">
             <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Today Completion</p>
-            {todayTodosQuery.isLoading ? (
+            {loading ? (
               <div className="mt-4 h-48 animate-pulse rounded-xl bg-white/10" />
             ) : (
               <div className="mt-4 grid place-items-center">
                 <div className="relative">
                   <svg width="132" height="132" viewBox="0 0 132 132" className="-rotate-90">
-                    <circle cx="66" cy="66" r={ringRadius} stroke="var(--border-subtle)" strokeWidth="10" fill="none" />
+                    <circle cx="66" cy="66" r={radius} stroke="var(--border-subtle)" strokeWidth="10" fill="none" />
                     <circle
                       cx="66"
                       cy="66"
-                      r={ringRadius}
+                      r={radius}
                       stroke="#f97316"
                       strokeWidth="10"
                       fill="none"
                       strokeLinecap="round"
-                      strokeDasharray={ringCircumference}
-                      strokeDashoffset={ringOffset}
+                      strokeDasharray={circumference}
+                      strokeDashoffset={offset}
                       style={{ transition: "stroke-dashoffset 0.35s ease" }}
                     />
                   </svg>
                   <div className="absolute inset-0 grid place-items-center text-center">
                     <p className="text-2xl font-bold">{todayPercent}% today</p>
-                    <p className="text-xs text-textSecondary">{todayDone}/{todayTotal} done</p>
+                    <p className="text-xs text-textSecondary">{todayDone}/{todayTodos.length} done</p>
                   </div>
                 </div>
               </div>
@@ -186,7 +196,7 @@ const DashboardPage = () => {
 
           <article className="card p-5">
             <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Quick Actions</p>
-            {allSectionsLoading ? (
+            {loading ? (
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
                 {[1, 2, 3].map((item) => (
                   <div key={item} className="h-12 animate-pulse rounded-xl bg-white/10" />
@@ -194,7 +204,7 @@ const DashboardPage = () => {
               </div>
             ) : (
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                <Link to="/tracker" className="btn-ghost text-center">➕ Add Todo</Link>
+                <Link to="/todos" className="btn-ghost text-center">➕ Add Todo</Link>
                 <Link to="/workout" className="btn-ghost text-center">🏋️ View Workout</Link>
                 <Link to="/wallpaper" className="btn-ghost text-center">🖼️ Wallpaper</Link>
               </div>
