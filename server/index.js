@@ -12,6 +12,7 @@ import mediaRoutes from "./routes/mediaRoutes.js";
 import onboardingRoutes from "./routes/onboardingRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import todoRoutes from "./routes/todoRoutes.js";
+import wallpaperRoutes from "./routes/wallpaperRoutes.js";
 import workoutRoutes from "./routes/workoutRoutes.js";
 import errorHandler from "./middleware/errorHandler.js";
 import rateLimiter from "./middleware/rateLimiter.js";
@@ -58,6 +59,7 @@ app.use("/api/onboarding", onboardingRoutes);
 app.use("/api/workout", workoutRoutes);
 app.use("/api/todos", todoRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/wallpaper", wallpaperRoutes);
 
 app.use(errorHandler);
 
