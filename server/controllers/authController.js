@@ -1,5 +1,9 @@
 import bcrypt from "bcrypt";
+import OnboardingProfile from "../models/OnboardingProfile.js";
+import TodoItem from "../models/TodoItem.js";
 import User from "../models/User.js";
+import WallpaperConfig from "../models/WallpaperConfig.js";
+import WorkoutPlan from "../models/WorkoutPlan.js";
 import {
   REFRESH_COOKIE_NAME,
   clearAuthCookies,
@@ -258,6 +262,58 @@ export const refresh = async (req, res) => {
   } catch {
     clearAuthCookies(res);
     return res.status(401).json({ message: "Refresh token expired." });
+  }
+};
+
+export const changePassword = async (req, res) => {
+  try {
+    const oldPassword = String(req.body?.oldPassword || "");
+    const newPassword = String(req.body?.newPassword || "");
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ message: "Old password and new password are required." });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: "New password must be at least 8 characters." });
+    }
+
+    const user = await User.findById(req.user._id).select("+passwordHash");
+
+    if (!user || !user.passwordHash) {
+      return res.status(400).json({ message: "Password change is unavailable for this account." });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.passwordHash);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Old password is incorrect." });
+    }
+
+    user.passwordHash = await bcrypt.hash(newPassword, 12);
+    await user.save();
+
+    return res.json({ message: "Password updated successfully." });
+  } catch {
+    return res.status(500).json({ message: "Failed to update password." });
+  }
+};
+
+export const deleteMe = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    await Promise.all([
+      TodoItem.deleteMany({ userId }),
+      WorkoutPlan.deleteMany({ userId }),
+      WallpaperConfig.deleteMany({ userId }),
+      OnboardingProfile.deleteMany({ userId }),
+      User.deleteOne({ _id: userId })
+    ]);
+
+    clearAuthCookies(res);
+    return res.json({ message: "Account deleted." });
+  } catch {
+    return res.status(500).json({ message: "Failed to delete account." });
   }
 };
 

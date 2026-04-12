@@ -1,6 +1,8 @@
 import express from "express";
 import {
   adminLogin,
+  changePassword,
+  deleteMe,
   firebaseAuth,
   googleAuthUnavailable,
   googleCallback,
@@ -22,6 +24,8 @@ router.post("/firebase", firebaseAuth);
 router.post("/logout", logout);
 router.post("/refresh", refresh);
 router.get("/me", protect, me);
+router.patch("/password", protect, changePassword);
+router.delete("/me", protect, deleteMe);
 
 router.get("/google", (req, res, next) => {
   if (!ensureGoogleStrategy()) {

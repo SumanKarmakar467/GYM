@@ -1,160 +1,249 @@
 import { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import api from "../api/api";
 import AppNavbar from "../components/layout/AppNavbar";
 import useAuth from "../hooks/useAuth";
-import useToast from "../hooks/useToast";
-
-const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024;
-
-const readFileAsDataUrl = (file) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result || ""));
-    reader.onerror = () => reject(new Error("Failed to read image file."));
-    reader.readAsDataURL(file);
-  });
 
 const ProfilePage = () => {
-  const queryClient = useQueryClient();
-  const { addToast } = useToast();
-  const { refreshUser } = useAuth();
-  const [name, setName] = useState("");
-  const [avatar, setAvatar] = useState("");
+  const { setUser } = useAuth();
+  const [profile, setProfile] = useState(null);
+  const [workoutPlan, setWorkoutPlan] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const profileQuery = useQuery({
-    queryKey: ["profile"],
-    queryFn: async () => {
-      const { data } = await api.get("/profile/me");
-      return data;
-    }
+  const [passwordForm, setPasswordForm] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: ""
   });
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [deleteText, setDeleteText] = useState("");
+  const [deletePending, setDeletePending] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
-    if (profileQuery.data) {
-      setName(profileQuery.data.name || "");
-      setAvatar(profileQuery.data.avatar || "");
-    }
-  }, [profileQuery.data]);
+    let active = true;
 
-  const onboardingQuery = useQuery({
-    queryKey: ["onboarding"],
-    queryFn: async () => {
-      const { data } = await api.get("/onboarding/me");
-      return data;
-    },
-    retry: false
-  });
+    const loadData = async () => {
+      setLoading(true);
 
-  const hasNoOnboardingProfile = onboardingQuery.isSuccess && !onboardingQuery.data;
+      try {
+        const [profileRes, workoutRes] = await Promise.all([
+          api.get("/auth/me"),
+          api.get("/workout/me")
+        ]);
 
-  const updateMutation = useMutation({
-    mutationFn: async () => {
-      const { data } = await api.patch("/profile/me", { name, avatar });
-      return data;
-    },
-    onSuccess: async () => {
-      addToast("Profile updated.", "success");
-      await queryClient.invalidateQueries({ queryKey: ["profile"] });
-      await refreshUser();
-    },
-    onError: () => addToast("Failed to update profile.", "error")
-  });
+        if (!active) {
+          return;
+        }
 
-  const onAvatarFileChange = async (event) => {
-    const file = event.target.files?.[0];
-    if (!file) {
+        setProfile(profileRes.data?.user || null);
+        setWorkoutPlan(workoutRes.data || null);
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadData();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const onChangePassword = async (event) => {
+    event.preventDefault();
+    setPasswordMessage("");
+    setPasswordError("");
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError("New password and confirm password do not match.");
       return;
     }
 
-    if (!file.type.startsWith("image/")) {
-      addToast("Please upload an image file.", "error");
-      return;
-    }
-
-    if (file.size > MAX_AVATAR_SIZE_BYTES) {
-      addToast("Image is too large. Please use a file under 2MB.", "error");
-      return;
-    }
-
+    setPasswordSaving(true);
     try {
-      const dataUrl = await readFileAsDataUrl(file);
-      setAvatar(dataUrl);
-      addToast("Profile picture ready. Click Save Changes.", "info");
-    } catch {
-      addToast("Failed to load image.", "error");
+      const { data } = await api.patch("/auth/password", {
+        oldPassword: passwordForm.oldPassword,
+        newPassword: passwordForm.newPassword
+      });
+      setPasswordMessage(data?.message || "Password updated.");
+      setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (error) {
+      setPasswordError(error.response?.data?.message || "Failed to update password.");
+    } finally {
+      setPasswordSaving(false);
     }
   };
 
-  const initials = (name || profileQuery.data?.name || "U").trim().slice(0, 1).toUpperCase();
+  const onDeleteAccount = async () => {
+    if (deleteText !== "DELETE" || deletePending) {
+      return;
+    }
+
+    setDeletePending(true);
+    setDeleteError("");
+
+    try {
+      await api.delete("/auth/me");
+      localStorage.removeItem("token");
+      setUser(null);
+      window.location.href = "/";
+    } catch (error) {
+      setDeleteError(error.response?.data?.message || "Failed to delete account.");
+      setDeletePending(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen">
+    <div className="page-enter min-h-screen">
       <AppNavbar />
       <main className="mx-auto w-full max-w-4xl px-4 pb-10 md:px-6">
         <section className="card p-5 md:p-7">
-          <h1 className="text-3xl font-bold">Profile</h1>
-          <div className="mt-5 grid gap-5 md:grid-cols-[auto_1fr] md:items-start">
-            <div className="w-full max-w-[180px]">
-              <div className="grid h-40 w-40 place-items-center overflow-hidden rounded-2xl border border-borderSubtle bg-bgSecondary text-5xl font-semibold text-brandSecondary">
-                {avatar ? (
-                  <img src={avatar} alt="Profile avatar" className="h-full w-full object-cover" />
-                ) : (
-                  <span>{initials}</span>
-                )}
-              </div>
-              <label htmlFor="avatar-upload" className="btn-ghost mt-3 inline-flex cursor-pointer text-sm">
-                Upload Photo
-              </label>
+          <h1 className="text-3xl font-bold">Profile / Settings</h1>
+
+          {loading ? (
+            <div className="mt-5 space-y-3">
+              <div className="h-5 w-40 animate-pulse rounded bg-white/10" />
+              <div className="h-5 w-56 animate-pulse rounded bg-white/10" />
+            </div>
+          ) : (
+            <div className="mt-5 space-y-2">
+              <p className="text-sm text-textSecondary">Name</p>
+              <p className="text-lg font-semibold">{profile?.name || "-"}</p>
+              <p className="mt-3 text-sm text-textSecondary">Email</p>
+              <p className="text-lg font-semibold">{profile?.email || "-"}</p>
+            </div>
+          )}
+
+          <form onSubmit={onChangePassword} className="mt-8 rounded-2xl border border-borderSubtle bg-bgSecondary p-4">
+            <h2 className="text-xl font-semibold">Change Password</h2>
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
               <input
-                id="avatar-upload"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={onAvatarFileChange}
+                type="password"
+                placeholder="Old password"
+                className="input-field"
+                value={passwordForm.oldPassword}
+                onChange={(event) => setPasswordForm((prev) => ({ ...prev, oldPassword: event.target.value }))}
+                required
+              />
+              <input
+                type="password"
+                placeholder="New password"
+                className="input-field"
+                value={passwordForm.newPassword}
+                onChange={(event) => setPasswordForm((prev) => ({ ...prev, newPassword: event.target.value }))}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Confirm password"
+                className="input-field"
+                value={passwordForm.confirmPassword}
+                onChange={(event) => setPasswordForm((prev) => ({ ...prev, confirmPassword: event.target.value }))}
+                required
               />
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <p className="text-sm text-textSecondary">Display Name</p>
-                <input className="input-field mt-1" value={name} onChange={(event) => setName(event.target.value)} />
-              </div>
-              <div>
-                <p className="text-sm text-textSecondary">Email</p>
-                <div className="mt-1 rounded-xl border border-borderSubtle bg-bgSecondary px-3 py-2.5 text-sm">
-                  {profileQuery.data?.email || "-"}
-                </div>
-              </div>
-            </div>
-          </div>
+            {passwordError ? (
+              <p className="mt-3 rounded-lg border border-rose-500/50 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
+                {passwordError}
+              </p>
+            ) : null}
 
-          <button
-            type="button"
-            className="btn-primary mt-5"
-            onClick={() => updateMutation.mutate()}
-            disabled={updateMutation.isPending}
-          >
-            {updateMutation.isPending ? "Saving..." : "Save Changes"}
-          </button>
+            {passwordMessage ? (
+              <p className="mt-3 rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">
+                {passwordMessage}
+              </p>
+            ) : null}
+
+            <button type="submit" className="btn-primary mt-4" disabled={passwordSaving}>
+              {passwordSaving ? "Updating..." : "Update Password"}
+            </button>
+          </form>
         </section>
 
-        <section className="mt-5 card p-5 md:p-7">
-          <h2 className="text-2xl font-semibold">Onboarding Profile</h2>
-          {onboardingQuery.isError || hasNoOnboardingProfile ? (
-            <p className="mt-2 text-textSecondary">No onboarding profile yet.</p>
+        <section className="card mt-5 p-5 md:p-7">
+          <h2 className="text-2xl font-semibold">Fitness Settings</h2>
+          {loading ? (
+            <div className="mt-4 space-y-3">
+              <div className="h-4 w-40 animate-pulse rounded bg-white/10" />
+              <div className="h-4 w-48 animate-pulse rounded bg-white/10" />
+              <div className="h-4 w-44 animate-pulse rounded bg-white/10" />
+            </div>
           ) : (
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <p className="text-sm">Age: <span className="text-textSecondary">{onboardingQuery.data?.age ?? "-"}</span></p>
-              <p className="text-sm">Weight: <span className="text-textSecondary">{onboardingQuery.data?.weightKg ?? "-"} kg</span></p>
-              <p className="text-sm">Height: <span className="text-textSecondary">{onboardingQuery.data?.heightCm ?? "-"} cm</span></p>
-              <p className="text-sm">Goal: <span className="text-textSecondary">{onboardingQuery.data?.goal ?? "-"}</span></p>
-              <p className="text-sm">Environment: <span className="text-textSecondary">{onboardingQuery.data?.environment ?? "-"}</span></p>
-              <p className="text-sm">Duration: <span className="text-textSecondary">{onboardingQuery.data?.durationWeeks ?? "-"} weeks</span></p>
+              <p className="text-sm">Goal: <span className="text-textSecondary">{workoutPlan?.goal || "-"}</span></p>
+              <p className="text-sm">Level: <span className="text-textSecondary">{workoutPlan?.level || "-"}</span></p>
+              <p className="text-sm">Days: <span className="text-textSecondary">{workoutPlan?.daysPerWeek || "-"}</span></p>
+              <p className="text-sm">Equipment: <span className="text-textSecondary">{workoutPlan?.equipment || "-"}</span></p>
             </div>
           )}
+
+          <Link to="/onboarding" className="btn-ghost mt-5 inline-flex">Re-do Onboarding</Link>
+        </section>
+
+        <section className="card mt-5 border-rose-500/50 p-5 md:p-7">
+          <h2 className="text-2xl font-semibold text-rose-100">Danger Zone</h2>
+          <p className="mt-2 text-sm text-rose-200/90">Delete your account and all associated data permanently.</p>
+          <button
+            type="button"
+            onClick={() => {
+              setDeleteText("");
+              setDeleteError("");
+              setModalOpen(true);
+            }}
+            className="mt-4 rounded-xl border border-rose-500/70 bg-rose-500/15 px-4 py-2 text-sm font-semibold text-rose-100 hover:bg-rose-500/25"
+          >
+            Delete Account
+          </button>
         </section>
       </main>
+
+      {modalOpen ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 px-4">
+          <div className="w-full max-w-md rounded-2xl border border-rose-500/60 bg-[#111] p-6">
+            <h3 className="text-xl font-bold">Type DELETE to confirm</h3>
+            <p className="mt-2 text-sm text-zinc-300">This action cannot be undone.</p>
+            <input
+              type="text"
+              className="input-field mt-4"
+              value={deleteText}
+              onChange={(event) => setDeleteText(event.target.value)}
+              placeholder="DELETE"
+            />
+
+            {deleteError ? (
+              <p className="mt-3 rounded-lg border border-rose-500/50 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
+                {deleteError}
+              </p>
+            ) : null}
+
+            <div className="mt-5 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-200"
+                onClick={() => setModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={onDeleteAccount}
+                disabled={deleteText !== "DELETE" || deletePending}
+                className="rounded-xl border border-rose-500/70 bg-rose-500/20 px-4 py-2 text-sm font-semibold text-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {deletePending ? "Deleting..." : "Confirm Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };
