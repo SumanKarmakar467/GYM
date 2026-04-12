@@ -76,6 +76,16 @@ p {
   animation: hexDrift 20s linear infinite;
 }
 
+@keyframes heroOrbFloat {
+  0% { transform: translate3d(-20px, -10px, 0) scale(1); }
+  50% { transform: translate3d(20px, 18px, 0) scale(1.08); }
+  100% { transform: translate3d(-20px, -10px, 0) scale(1); }
+}
+
+.landing-orb {
+  animation: heroOrbFloat 9s ease-in-out infinite;
+}
+
 .page-shell {
   min-height: 100vh;
   padding: 1rem;

@@ -62,14 +62,6 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
-      <style>{`
-        @keyframes heroOrbFloat {
-          0% { transform: translate3d(-20px, -10px, 0) scale(1); }
-          50% { transform: translate3d(20px, 18px, 0) scale(1.08); }
-          100% { transform: translate3d(-20px, -10px, 0) scale(1); }
-        }
-      `}</style>
-
       <header className="sticky top-0 z-40 border-b border-white/10 bg-black/55 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 md:px-6">
           <Link to="/" className="font-heading text-2xl tracking-wide text-orange-400">GymForge</Link>
@@ -115,7 +107,7 @@ const LandingPage = () => {
 
       <main>
         <section className="relative flex min-h-screen items-center overflow-hidden">
-          <div className="pointer-events-none absolute -right-20 top-20 h-72 w-72 rounded-full bg-gradient-to-br from-purple-500/40 via-fuchsia-500/25 to-orange-500/45 blur-3xl" style={{ animation: "heroOrbFloat 9s ease-in-out infinite" }} />
+          <div className="landing-orb pointer-events-none absolute -right-20 top-20 h-72 w-72 rounded-full bg-gradient-to-br from-purple-500/40 via-fuchsia-500/25 to-orange-500/45 blur-3xl" />
 
           <div className="relative z-10 mx-auto w-full max-w-6xl px-4 py-24 md:px-6">
             <p className="text-xs uppercase tracking-[0.4em] text-orange-300">GymForge Platform</p>
