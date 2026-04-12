@@ -1,6 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import DownloadAppButton from "./DownloadAppButton";
 import useAuth from "../hooks/useAuth";
 
 const navItems = [
@@ -11,19 +12,23 @@ const navItems = [
   { to: "/profile", label: "Profile" }
 ];
 
-const navLinkClass = ({ isActive }) =>
-  `rounded-lg px-3 py-2 text-sm font-medium transition ${
-    isActive
-      ? "bg-orange-500/20 text-orange-300"
-      : "text-textSecondary hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
-  }`;
-
 const Navbar = () => {
   const { logout } = useAuth();
+  const location = useLocation();
   const prefersReducedMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showTop, setShowTop] = useState(false);
+
+  const getNavLinkClass = (to) => {
+    const isActive = location.pathname === to || location.pathname.startsWith(`${to}/`);
+
+    return `rounded-lg border-b-2 px-3 py-2 text-sm font-medium ${
+      isActive
+        ? "border-[#f97316] text-[#f97316]"
+        : "border-transparent text-textSecondary hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
+    }`;
+  };
 
   useEffect(() => {
     const onScroll = () => {
@@ -57,10 +62,11 @@ const Navbar = () => {
 
         <nav className="hidden items-center gap-2 md:flex">
           {navItems.map((item) => (
-            <NavLink key={item.to} to={item.to} className={navLinkClass}>
+            <NavLink key={item.to} to={item.to} className={getNavLinkClass(item.to)}>
               {item.label}
             </NavLink>
           ))}
+          <DownloadAppButton variant="small" />
         </nav>
 
         <button
@@ -75,7 +81,7 @@ const Navbar = () => {
           type="button"
           className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/20 text-white md:hidden"
           onClick={() => setIsOpen((prev) => !prev)}
-          aria-label="Toggle navigation"
+          aria-label="Toggle navigation menu"
           aria-expanded={isOpen}
         >
           ?
@@ -96,12 +102,15 @@ const Navbar = () => {
                 <NavLink
                   key={item.to}
                   to={item.to}
-                  className={navLinkClass}
+                  className={getNavLinkClass(item.to)}
                   onClick={() => setIsOpen(false)}
                 >
                   {item.label}
                 </NavLink>
               ))}
+              <div className="pt-1">
+                <DownloadAppButton variant="small" />
+              </div>
 
               <button
                 type="button"

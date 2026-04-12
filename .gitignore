@@ -16,6 +16,7 @@ server/.env.local
 dist/
 build/
 client/dist/
+client/dev-dist/
 server/dist/
 
 # Logs

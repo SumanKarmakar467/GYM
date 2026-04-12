@@ -1,5 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import api from "../api/api";
 import EmptyState from "../components/EmptyState";
 import AppNavbar from "../components/layout/AppNavbar";
@@ -105,6 +106,22 @@ const TodoListPage = () => {
     await refreshTodosForDate(date);
   };
 
+  const onDayStripKeyDown = (event) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+      return;
+    }
+
+    event.preventDefault();
+    const currentIndex = weekDates.findIndex((item) => item.key === selectedDate);
+    if (currentIndex < 0) {
+      return;
+    }
+
+    const step = event.key === "ArrowRight" ? 1 : -1;
+    const nextIndex = (currentIndex + step + weekDates.length) % weekDates.length;
+    onSelectDate(weekDates[nextIndex].key);
+  };
+
   const getPillClass = (date) => {
     if (date > todayKey) {
       return "border-zinc-700 bg-zinc-900/30 text-zinc-400";
@@ -142,19 +159,31 @@ const TodoListPage = () => {
       await api.post("/todos", { date: selectedDate, exerciseName });
       setNewTodo("");
       await Promise.all([refreshTodosForDate(selectedDate), refreshWeekStatus()]);
+      toast.success("Todo added.");
+    } catch {
+      toast.error("Could not add todo. Try again.");
     } finally {
       setSubmitting(false);
     }
   };
 
   const toggleTodo = async (todo) => {
-    await api.patch(`/todos/${todo._id}`, { completed: !todo.completed });
-    await Promise.all([refreshTodosForDate(selectedDate), refreshWeekStatus()]);
+    try {
+      await api.patch(`/todos/${todo._id}`, { completed: !todo.completed });
+      await Promise.all([refreshTodosForDate(selectedDate), refreshWeekStatus()]);
+    } catch {
+      toast.error("Could not update todo. Try again.");
+    }
   };
 
   const deleteTodo = async (todoId) => {
-    await api.delete(`/todos/${todoId}`);
-    await Promise.all([refreshTodosForDate(selectedDate), refreshWeekStatus()]);
+    try {
+      await api.delete(`/todos/${todoId}`);
+      await Promise.all([refreshTodosForDate(selectedDate), refreshWeekStatus()]);
+      toast.success("Removed.");
+    } catch {
+      toast.error("Could not remove todo. Try again.");
+    }
   };
 
   return (
@@ -165,13 +194,16 @@ const TodoListPage = () => {
           <h1 className="text-3xl font-bold">Todo Tracker</h1>
           <p className="mt-2 text-sm text-textSecondary">Pick a day and stay accountable.</p>
 
-          <div className="mt-5 grid grid-cols-7 gap-2">
+          <div className="mt-5 grid grid-cols-7 gap-2" role="tablist" aria-label="Week days" onKeyDown={onDayStripKeyDown}>
             {weekDates.map((item, index) => (
               <motion.button
                 key={item.key}
                 type="button"
                 disabled={loadingWeek}
                 onClick={() => onSelectDate(item.key)}
+                role="tab"
+                aria-selected={selectedDate === item.key}
+                tabIndex={selectedDate === item.key ? 0 : -1}
                 initial={prefersReducedMotion ? false : { opacity: 0, x: -10 }}
                 animate={prefersReducedMotion ? false : { opacity: 1, x: 0 }}
                 transition={{ duration: prefersReducedMotion ? 0 : 0.3, delay: prefersReducedMotion ? 0 : index * 0.06 }}
@@ -220,7 +252,9 @@ const TodoListPage = () => {
                       className={`grid h-6 w-6 place-items-center rounded-full border text-xs ${
                         todo.completed ? "border-emerald-400 bg-emerald-500 text-black" : "border-borderSubtle"
                       }`}
-                      aria-label={`Mark ${todo.exerciseName} as ${todo.completed ? "incomplete" : "complete"}`}
+                      aria-label={`Mark ${todo.exerciseName} complete`}
+                      aria-checked={todo.completed}
+                      role="checkbox"
                     >
                       {todo.completed ? "?" : ""}
                     </motion.button>

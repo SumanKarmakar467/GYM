@@ -25,10 +25,16 @@ dotenv.config();
 
 const app = express();
 
-const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const defaultOrigins = ["https://gym-tan-theta.vercel.app", "http://localhost:5173"];
+const allowedOrigins = Array.from(
+  new Set(
+    String(process.env.FRONTEND_URL || defaultOrigins.join(","))
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean)
+      .concat(defaultOrigins)
+  )
+);
 
 app.use(
   cors({
@@ -52,6 +58,10 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true, timestamp: new Date().toISOString() });
 });
 
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", time: new Date().toISOString() });
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/media", mediaRoutes);
@@ -62,6 +72,13 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/wallpaper", wallpaperRoutes);
 
 app.use(errorHandler);
+
+setInterval(() => {
+  const url = String(process.env.BACKEND_URL || "").trim().replace(/\/+$/, "");
+  if (url) {
+    fetch(`${url}/health`).catch(() => {});
+  }
+}, 9 * 60 * 1000);
 
 const start = async () => {
   await connectDB();

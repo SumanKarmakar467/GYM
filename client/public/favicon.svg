@@ -1,19 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <linearGradient id="bg" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#021320" />
-      <stop offset="1" stop-color="#001a2a" />
-    </linearGradient>
-    <linearGradient id="bar" x1="14" y1="32" x2="50" y2="32" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#00d9ff" />
-      <stop offset="1" stop-color="#00ffa8" />
-    </linearGradient>
-  </defs>
-
-  <rect width="64" height="64" rx="16" fill="url(#bg)" />
-  <rect x="22" y="29" width="20" height="6" rx="3" fill="url(#bar)" />
-  <rect x="16" y="24" width="5" height="16" rx="2" fill="url(#bar)" />
-  <rect x="11" y="26" width="4" height="12" rx="2" fill="url(#bar)" />
-  <rect x="43" y="24" width="5" height="16" rx="2" fill="url(#bar)" />
-  <rect x="49" y="26" width="4" height="12" rx="2" fill="url(#bar)" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#0a0a0a"/>
+  <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle"
+    font-family="Arial Black,sans-serif" font-weight="900" font-size="13"
+    fill="#f97316">GF</text>
 </svg>

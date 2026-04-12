@@ -1,5 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import confetti from "canvas-confetti";
 import api from "../api/api";
 import EmptyState from "../components/EmptyState";
 import { SkeletonCard } from "../components/Skeleton";
@@ -99,6 +100,7 @@ const WorkoutDetailPage = () => {
   const [demoExercise, setDemoExercise] = useState(null);
   const [pulseKey, setPulseKey] = useState("");
   const [timerBarWidth, setTimerBarWidth] = useState(100);
+  const didCelebrateRef = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -131,6 +133,24 @@ const WorkoutDetailPage = () => {
     const key = `${activeDay?.weekNumber || 0}-${index}`;
     return completedMap[key] ? count + 1 : count;
   }, 0);
+
+  useEffect(() => {
+    const isComplete = totalExercises > 0 && completedExercises === totalExercises;
+
+    if (isComplete && !didCelebrateRef.current) {
+      confetti({
+        particleCount: 120,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ["#f97316", "#ffffff", "#fbbf24"]
+      });
+      didCelebrateRef.current = true;
+    }
+
+    if (!isComplete) {
+      didCelebrateRef.current = false;
+    }
+  }, [completedExercises, totalExercises]);
 
   useEffect(() => {
     if (!restTimer) {
@@ -291,17 +311,15 @@ const WorkoutDetailPage = () => {
                       View Demo
                     </button>
 
-                    <motion.label
+                    <motion.button
                       whileTap={prefersReducedMotion ? undefined : { scale: 1.02 }}
-                      className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-100"
+                      type="button"
+                      onClick={() => toggleDone(exercise, index)}
+                      aria-label={`Mark ${exercise.name} as done`}
+                      aria-pressed={done}
+                      className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-100"
                     >
-                      <input
-                        type="checkbox"
-                        className="peer sr-only"
-                        checked={done}
-                        onChange={() => toggleDone(exercise, index)}
-                      />
-                      <span className="grid h-5 w-5 place-items-center rounded border border-emerald-300/70 bg-black/20 peer-focus-visible:ring-2 peer-focus-visible:ring-orange-400">
+                      <span className="grid h-5 w-5 place-items-center rounded border border-emerald-300/70 bg-black/20">
                         <motion.span
                           initial={false}
                           animate={done ? { scale: 1, rotate: 0, opacity: 1 } : { scale: 0, rotate: -45, opacity: 0 }}
@@ -312,7 +330,7 @@ const WorkoutDetailPage = () => {
                         </motion.span>
                       </span>
                       <span>{done ? "Done" : "Mark Done"}</span>
-                    </motion.label>
+                    </motion.button>
                   </div>
                 </div>
 

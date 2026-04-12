@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import api from "../api/api";
 import AppNavbar from "../components/layout/AppNavbar";
 import useAuth from "../hooks/useAuth";
@@ -15,6 +16,7 @@ const readFileAsDataUrl = (file) =>
   });
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
   const { setUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [workoutPlan, setWorkoutPlan] = useState(null);
@@ -22,8 +24,6 @@ const ProfilePage = () => {
   const [avatar, setAvatar] = useState("");
   const [avatarDirty, setAvatarDirty] = useState(false);
   const [avatarSaving, setAvatarSaving] = useState(false);
-  const [avatarError, setAvatarError] = useState("");
-  const [avatarMessage, setAvatarMessage] = useState("");
 
   const [passwordForm, setPasswordForm] = useState({
     oldPassword: "",
@@ -31,13 +31,10 @@ const ProfilePage = () => {
     confirmPassword: ""
   });
   const [passwordSaving, setPasswordSaving] = useState(false);
-  const [passwordMessage, setPasswordMessage] = useState("");
-  const [passwordError, setPasswordError] = useState("");
 
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteText, setDeleteText] = useState("");
   const [deletePending, setDeletePending] = useState(false);
-  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -74,24 +71,22 @@ const ProfilePage = () => {
 
   const onChangePassword = async (event) => {
     event.preventDefault();
-    setPasswordMessage("");
-    setPasswordError("");
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPasswordError("New password and confirm password do not match.");
+      toast.error("New password and confirm password do not match.");
       return;
     }
 
     setPasswordSaving(true);
     try {
-      const { data } = await api.patch("/auth/password", {
+      await api.patch("/auth/password", {
         oldPassword: passwordForm.oldPassword,
         newPassword: passwordForm.newPassword
       });
-      setPasswordMessage(data?.message || "Password updated.");
+      toast.success("Password updated.");
       setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
     } catch (error) {
-      setPasswordError(error.response?.data?.message || "Failed to update password.");
+      toast.error(error.response?.data?.message || "Failed to update password.");
     } finally {
       setPasswordSaving(false);
     }
@@ -103,15 +98,16 @@ const ProfilePage = () => {
     }
 
     setDeletePending(true);
-    setDeleteError("");
 
     try {
       await api.delete("/auth/me");
       localStorage.removeItem("token");
       setUser(null);
-      window.location.href = "/";
+      toast.success("Account deleted. Stay strong.");
+      navigate("/", { replace: true });
     } catch (error) {
-      setDeleteError(error.response?.data?.message || "Failed to delete account.");
+      toast.error(error.response?.data?.message || "Failed to delete account.");
+    } finally {
       setDeletePending(false);
     }
   };
@@ -122,16 +118,13 @@ const ProfilePage = () => {
       return;
     }
 
-    setAvatarError("");
-    setAvatarMessage("");
-
     if (!file.type.startsWith("image/")) {
-      setAvatarError("Please upload a valid image file.");
+      toast.error("Please upload a valid image file.");
       return;
     }
 
     if (file.size > MAX_AVATAR_SIZE_BYTES) {
-      setAvatarError("Image is too large. Use a file under 2MB.");
+      toast.error("Image is too large. Use a file under 2MB.");
       return;
     }
 
@@ -140,7 +133,7 @@ const ProfilePage = () => {
       setAvatar(dataUrl);
       setAvatarDirty(true);
     } catch {
-      setAvatarError("Failed to load selected image.");
+      toast.error("Failed to load selected image.");
     }
   };
 
@@ -150,18 +143,16 @@ const ProfilePage = () => {
     }
 
     setAvatarSaving(true);
-    setAvatarError("");
-    setAvatarMessage("");
 
     try {
       const { data } = await api.patch("/profile/me", { avatar });
       setAvatar(data?.avatar || "");
       setAvatarDirty(false);
-      setAvatarMessage("Profile image updated.");
+      toast.success("Profile image updated.");
       setProfile((prev) => (prev ? { ...prev, avatar: data?.avatar || "" } : prev));
       setUser((prev) => (prev ? { ...prev, avatar: data?.avatar || "" } : prev));
     } catch (error) {
-      setAvatarError(error.response?.data?.message || "Failed to update profile image.");
+      toast.error(error.response?.data?.message || "Failed to update profile image.");
     } finally {
       setAvatarSaving(false);
     }
@@ -220,17 +211,6 @@ const ProfilePage = () => {
                 <p className="mt-3 text-sm text-textSecondary">Email</p>
                 <p className="text-lg font-semibold">{profile?.email || "-"}</p>
 
-                {avatarError ? (
-                  <p className="mt-3 rounded-lg border border-rose-500/50 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
-                    {avatarError}
-                  </p>
-                ) : null}
-
-                {avatarMessage ? (
-                  <p className="mt-3 rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">
-                    {avatarMessage}
-                  </p>
-                ) : null}
               </div>
             </div>
           )}
@@ -263,18 +243,6 @@ const ProfilePage = () => {
                 required
               />
             </div>
-
-            {passwordError ? (
-              <p className="mt-3 rounded-lg border border-rose-500/50 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
-                {passwordError}
-              </p>
-            ) : null}
-
-            {passwordMessage ? (
-              <p className="mt-3 rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">
-                {passwordMessage}
-              </p>
-            ) : null}
 
             <button type="submit" className="btn-primary mt-4" disabled={passwordSaving}>
               {passwordSaving ? "Updating..." : "Update Password"}
@@ -309,7 +277,6 @@ const ProfilePage = () => {
             type="button"
             onClick={() => {
               setDeleteText("");
-              setDeleteError("");
               setModalOpen(true);
             }}
             className="mt-4 rounded-xl border border-rose-500/70 bg-rose-500/15 px-4 py-2 text-sm font-semibold text-rose-100 hover:bg-rose-500/25"
@@ -331,12 +298,6 @@ const ProfilePage = () => {
               onChange={(event) => setDeleteText(event.target.value)}
               placeholder="DELETE"
             />
-
-            {deleteError ? (
-              <p className="mt-3 rounded-lg border border-rose-500/50 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
-                {deleteError}
-              </p>
-            ) : null}
 
             <div className="mt-5 flex items-center justify-end gap-3">
               <button

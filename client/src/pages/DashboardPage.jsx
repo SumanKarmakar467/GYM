@@ -194,7 +194,7 @@ const DashboardPage = () => {
       <AppNavbar />
       <main className="mx-auto w-full max-w-6xl px-4 pb-10 md:px-6">
         <section className="card p-5 md:p-7">
-          <h1 className="text-3xl font-bold md:text-4xl">Welcome back, {user?.name || "Athlete"} ??</h1>
+          <h1 className="text-3xl font-bold md:text-4xl">Welcome back, {user?.name || "Athlete"}!</h1>
         </section>
 
         <motion.section
@@ -212,7 +212,12 @@ const DashboardPage = () => {
             ) : (
               <>
                 <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Streak</p>
-                <p className="mt-3 text-4xl font-bold">?? {animatedMetrics.streak} Day Streak</p>
+                <p className="mt-3 text-4xl font-bold">
+                  {animatedMetrics.streak} Day Streak{" "}
+                  {streak > 0 ? (
+                    <span style={{ display: "inline-block", animation: "pulse 1s ease-in-out infinite" }}>🔥</span>
+                  ) : null}
+                </p>
                 <p className="mt-2 text-sm text-textSecondary">
                   {streak === 0 ? "Start your streak today!" : "Momentum looks strong."}
                 </p>

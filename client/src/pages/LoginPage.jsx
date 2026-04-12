@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import useAuth from "../hooks/useAuth";
-import useToast from "../hooks/useToast";
-import { getReadableAuthError } from "../utils/authError";
 import { getPostAuthRoute } from "../utils/authRoute";
 
 const adminEmail = String(import.meta.env.VITE_ADMIN_EMAIL || "").trim().toLowerCase();
@@ -11,7 +10,6 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, login, loginAsAdmin, loginWithGoogle } = useAuth();
-  const { addToast } = useToast();
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -50,9 +48,10 @@ const LoginPage = () => {
       const isAdminAttempt = adminEmail && form.email.trim().toLowerCase() === adminEmail;
       const nextUser = isAdminAttempt ? await loginAsAdmin(form) : await login(form);
       const target = location.state?.from || getPostAuthRoute(nextUser);
+      toast.success("Welcome back! 💪");
       navigate(target, { replace: true });
-    } catch (error) {
-      addToast(getReadableAuthError(error, "Unable to login."), "error");
+    } catch {
+      toast.error("Invalid email or password.");
     } finally {
       setSubmitting(false);
     }
@@ -64,9 +63,10 @@ const LoginPage = () => {
     try {
       const nextUser = await loginWithGoogle();
       const target = location.state?.from || getPostAuthRoute(nextUser);
+      toast.success("Welcome back! 💪");
       navigate(target, { replace: true });
-    } catch (error) {
-      addToast(getReadableAuthError(error, "Unable to login with Google."), "error");
+    } catch {
+      toast.error("Invalid email or password.");
     } finally {
       setSubmitting(false);
     }

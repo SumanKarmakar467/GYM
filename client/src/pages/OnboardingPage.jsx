@@ -1,6 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import api from "../api/api";
 
 const wizardSteps = [
@@ -37,7 +38,6 @@ const OnboardingPage = () => {
   const [direction, setDirection] = useState(1);
   const [answers, setAnswers] = useState({ goal: "", level: "", duration: "", equipment: "" });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const currentStep = wizardSteps[step - 1];
 
@@ -46,20 +46,17 @@ const OnboardingPage = () => {
 
   const chooseOption = (option) => {
     if (loading) return;
-    setError("");
     setAnswers((prev) => ({ ...prev, [currentStep.key]: option }));
   };
 
   const goBack = () => {
     if (loading || step === 1) return;
-    setError("");
     setDirection(-1);
     setStep((prev) => Math.max(1, prev - 1));
   };
 
   const goNext = () => {
     if (!selectedValue || loading || step === wizardSteps.length) return;
-    setError("");
     setDirection(1);
     setStep((prev) => Math.min(wizardSteps.length, prev + 1));
   };
@@ -68,13 +65,16 @@ const OnboardingPage = () => {
     if (!selectedValue || loading) return;
 
     setLoading(true);
-    setError("");
+    const loadingToastId = toast.loading("Forging your plan...");
 
     try {
       await api.post("/workout/generate", answers);
+      toast.dismiss(loadingToastId);
+      toast.success("Your plan is ready!");
       navigate("/workout", { replace: true });
-    } catch (requestError) {
-      setError(requestError.response?.data?.message || "Could not generate your workout plan. Please try again.");
+    } catch {
+      toast.dismiss(loadingToastId);
+      toast.error("Could not generate plan. Try again.");
     } finally {
       setLoading(false);
     }
@@ -106,7 +106,7 @@ const OnboardingPage = () => {
             <h2 className="text-2xl font-semibold">{currentStep.title}</h2>
             <p className="mt-1 text-textSecondary">{currentStep.subtitle}</p>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="mt-5 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label={currentStep.title}>
               {currentStep.options.map((option) => {
                 const active = selectedValue === option;
 
@@ -116,8 +116,17 @@ const OnboardingPage = () => {
                     type="button"
                     disabled={loading}
                     onClick={() => chooseOption(option)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        chooseOption(option);
+                      }
+                    }}
                     whileHover={prefersReducedMotion ? undefined : { scale: 1.03, borderColor: "rgba(249,115,22,0.5)" }}
                     whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
+                    role="radio"
+                    aria-checked={active}
+                    tabIndex={0}
                     className={`relative rounded-2xl border p-4 text-left ${
                       active
                         ? "border-orange-400 bg-orange-500/15"
@@ -137,10 +146,6 @@ const OnboardingPage = () => {
             </div>
           </motion.section>
         </AnimatePresence>
-
-        {error ? (
-          <p className="mt-5 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</p>
-        ) : null}
 
         {loading ? (
           <div className="mt-5 inline-flex items-center gap-3 rounded-xl border border-brandPrimary/30 bg-brandPrimary/10 px-4 py-3 text-sm">

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import api from "../api/api";
 import DumbbellLoader from "../components/animations/DumbbellLoader";
-import useToast from "../hooks/useToast";
 
 const quotes = [
   "Forging your perfect physique...",
@@ -14,7 +14,6 @@ const quotes = [
 
 const GeneratingPage = () => {
   const navigate = useNavigate();
-  const { addToast } = useToast();
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [typed, setTyped] = useState("");
 
@@ -54,7 +53,7 @@ const GeneratingPage = () => {
           navigate("/plan", { replace: true });
         }
       } catch (error) {
-        addToast(error.response?.data?.message || "Failed to generate plan.", "error");
+        toast.error(error.response?.data?.message || "Failed to generate plan.");
         navigate("/onboarding", { replace: true });
       }
     };
@@ -64,7 +63,7 @@ const GeneratingPage = () => {
     return () => {
       active = false;
     };
-  }, [navigate, addToast]);
+  }, [navigate]);
 
   return (
     <div className="grid min-h-screen place-items-center px-4">

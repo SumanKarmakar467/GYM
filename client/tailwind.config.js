@@ -18,10 +18,11 @@ export default {
         danger: "var(--danger)"
       },
       fontFamily: {
-        display: ["Bebas Neue", "sans-serif"],
-        heading: ["Montserrat", "sans-serif"],
-        body: ["Inter", "sans-serif"],
-        mono: ["JetBrains Mono", "monospace"]
+        sans: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        display: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        heading: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        body: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"]
       }
     }
   },

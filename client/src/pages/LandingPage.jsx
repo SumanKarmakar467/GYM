@@ -1,6 +1,7 @@
 ﻿import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import DownloadAppButton from "../components/DownloadAppButton";
 import Reveal from "../components/Reveal";
 
 const words = ["Build Muscle.", "Burn Fat.", "Track Every Rep.", "Forge Your Legacy."];
@@ -84,6 +85,7 @@ const formatTicker = (item, value) => {
 };
 
 const LandingPage = () => {
+  const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -221,6 +223,7 @@ const LandingPage = () => {
             <Link to="/register" className="hero-primary-btn rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-2 text-sm font-semibold text-black">
               Get Started
             </Link>
+            <DownloadAppButton variant="small" />
           </nav>
 
           <button
@@ -263,6 +266,9 @@ const LandingPage = () => {
                 <Link to="/register" onClick={() => setMenuOpen(false)} className="block rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-2 text-sm font-semibold text-black">
                   Get Started
                 </Link>
+                <div className="pt-1">
+                  <DownloadAppButton variant="small" />
+                </div>
               </div>
             </motion.div>
           ) : null}
@@ -310,16 +316,14 @@ const LandingPage = () => {
               transition={{ delay: prefersReducedMotion ? 0 : 0.6, duration: prefersReducedMotion ? 0 : 0.7 }}
               className="mt-10 flex flex-wrap gap-3"
             >
-              <Link to="/register" className="hero-primary-btn rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-6 py-3 text-sm font-semibold text-black">
-                Start For Free →
-              </Link>
               <button
                 type="button"
-                onClick={openFeatures}
-                className="hero-outline-btn rounded-lg border border-white/15 px-6 py-3 text-sm"
+                onClick={() => navigate("/register")}
+                className="hero-primary-btn rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-6 py-3 text-sm font-semibold text-black"
               >
-                See How It Works
+                Start For Free →
               </button>
+              <DownloadAppButton variant="hero" />
             </motion.div>
           </div>
 
@@ -366,6 +370,7 @@ const LandingPage = () => {
                   whileHover={prefersReducedMotion ? undefined : { y: -6, borderColor: "rgba(249,115,22,0.4)" }}
                   transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
                   className="feature-card rounded-2xl border border-white/10 bg-[#141414] p-6"
+                  aria-hidden="true"
                 >
                   <motion.div
                     whileHover={prefersReducedMotion ? undefined : { scale: 1.1, rotate: 5 }}
@@ -460,12 +465,16 @@ const LandingPage = () => {
               <div className="cta-spin-overlay pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(249,115,22,0.25)_0%,transparent_65%)]" />
               <div className="relative z-10">
                 <p className="text-2xl font-bold md:text-3xl">100% Free. No credit card. No BS.</p>
-                <Link
-                  to="/register"
-                  className="hero-primary-btn mt-6 inline-flex rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-6 py-3 text-sm font-semibold text-black"
-                >
-                  Create Your Account →
-                </Link>
+                <div style={{ display: "flex", gap: "14px", flexWrap: "wrap", justifyContent: "center", marginTop: "24px" }}>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/register")}
+                    className="hero-primary-btn inline-flex rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-6 py-3 text-sm font-semibold text-black"
+                  >
+                    Create Your Account →
+                  </button>
+                  <DownloadAppButton variant="small" />
+                </div>
               </div>
             </div>
           </Reveal>

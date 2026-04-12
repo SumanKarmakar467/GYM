@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import api from "../api/api";
 import AppNavbar from "../components/layout/AppNavbar";
 
@@ -29,6 +31,12 @@ const AdminPage = () => {
     }
   });
 
+  useEffect(() => {
+    if (usersQuery.isError) {
+      toast.error("Failed to load users.");
+    }
+  }, [usersQuery.isError]);
+
   return (
     <div className="min-h-screen">
       <AppNavbar />
@@ -55,8 +63,6 @@ const AdminPage = () => {
 
           {usersQuery.isLoading ? (
             <p className="mt-3 text-textSecondary">Loading users...</p>
-          ) : usersQuery.isError ? (
-            <p className="mt-3 text-danger">Failed to load users.</p>
           ) : (
             <div className="mt-4 overflow-x-auto">
               <table className="w-full min-w-[720px] border-collapse text-left text-sm">
@@ -70,7 +76,7 @@ const AdminPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {usersQuery.data.map((item) => (
+                  {(usersQuery.data || []).map((item) => (
                     <tr key={item._id} className="border-b border-borderSubtle/70">
                       <td className="px-3 py-2">{item.name || "-"}</td>
                       <td className="px-3 py-2 text-textSecondary">{item.email}</td>
