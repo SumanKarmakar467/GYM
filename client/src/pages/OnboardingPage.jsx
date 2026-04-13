@@ -1,80 +1,126 @@
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../api/api";
+import useAuth from "../hooks/useAuth";
 
-const wizardSteps = [
-  {
-    key: "goal",
-    title: "Fitness Goal",
-    subtitle: "Choose what you want to prioritize first.",
-    options: ["Burn Fat", "Build Muscle", "Improve Endurance"]
-  },
-  {
-    key: "level",
-    title: "Experience Level",
-    subtitle: "Tell us your current training level.",
-    options: ["Beginner", "Intermediate", "Advanced"]
-  },
-  {
-    key: "duration",
-    title: "Plan Duration",
-    subtitle: "Choose how long you want the program to run.",
-    options: ["1 week", "1 month", "3 months", "6 months"]
-  },
-  {
-    key: "equipment",
-    title: "Equipment Access",
-    subtitle: "Select what equipment you have available.",
-    options: ["Full Gym", "Home Gym", "Bodyweight Only"]
-  }
+const bodyTypeOptions = [
+  { label: "Lean and Athletic", profileGoal: "athlete", workoutGoal: "Burn Fat" },
+  { label: "Muscular", profileGoal: "bodybuilder", workoutGoal: "Build Muscle" },
+  { label: "Power and Strength", profileGoal: "powerlifter", workoutGoal: "Build Muscle" },
+  { label: "Functional Endurance", profileGoal: "crossfit", workoutGoal: "Improve Endurance" }
 ];
+
+const levelOptions = ["Beginner", "Intermediate", "Advanced"];
+const durationOptions = ["1 month", "3 months", "6 months"];
+const equipmentOptions = ["Full Gym", "Home Gym", "Bodyweight Only"];
+const genderOptions = ["male", "female", "other"];
+
+const durationToWeeks = {
+  "1 month": 4,
+  "3 months": 12,
+  "6 months": 24
+};
+
+const equipmentToEnvironment = {
+  "Full Gym": "gym",
+  "Home Gym": "home",
+  "Bodyweight Only": "home"
+};
 
 const OnboardingPage = () => {
   const navigate = useNavigate();
-  const prefersReducedMotion = useReducedMotion();
-  const [step, setStep] = useState(1);
-  const [direction, setDirection] = useState(1);
-  const [answers, setAnswers] = useState({ goal: "", level: "", duration: "", equipment: "" });
+  const { refreshUser } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    age: "",
+    heightCm: "",
+    weightKg: "",
+    gender: "",
+    bodyType: "",
+    level: "Beginner",
+    duration: "1 month",
+    equipment: "Home Gym"
+  });
 
-  const currentStep = wizardSteps[step - 1];
+  const selectedBodyType = useMemo(
+    () => bodyTypeOptions.find((option) => option.label === form.bodyType) || null,
+    [form.bodyType]
+  );
 
-  const selectedValue = useMemo(() => answers[currentStep.key], [answers, currentStep.key]);
-  const progressPercent = `${(step / wizardSteps.length) * 100}%`;
-
-  const chooseOption = (option) => {
-    if (loading) return;
-    setAnswers((prev) => ({ ...prev, [currentStep.key]: option }));
+  const updateField = (key, value) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const goBack = () => {
-    if (loading || step === 1) return;
-    setDirection(-1);
-    setStep((prev) => Math.max(1, prev - 1));
+  const validate = () => {
+    const age = Number(form.age);
+    const heightCm = Number(form.heightCm);
+    const weightKg = Number(form.weightKg);
+
+    if (!Number.isFinite(age) || age < 13 || age > 100) {
+      return "Age must be between 13 and 100.";
+    }
+
+    if (!Number.isFinite(heightCm) || heightCm < 120 || heightCm > 260) {
+      return "Height must be between 120 and 260 cm.";
+    }
+
+    if (!Number.isFinite(weightKg) || weightKg < 20 || weightKg > 500) {
+      return "Weight must be between 20 and 500 kg.";
+    }
+
+    if (!genderOptions.includes(form.gender)) {
+      return "Please select your gender.";
+    }
+
+    if (!selectedBodyType) {
+      return "Please choose your target body type.";
+    }
+
+    return "";
   };
 
-  const goNext = () => {
-    if (!selectedValue || loading || step === wizardSteps.length) return;
-    setDirection(1);
-    setStep((prev) => Math.min(wizardSteps.length, prev + 1));
-  };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (loading) {
+      return;
+    }
 
-  const generatePlan = async () => {
-    if (!selectedValue || loading) return;
+    const errorMessage = validate();
+    if (errorMessage) {
+      toast.error(errorMessage);
+      return;
+    }
 
     setLoading(true);
-    const loadingToastId = toast.loading("Forging your plan...");
+    const loadingToastId = toast.loading("Saving your profile and generating plan...");
 
     try {
-      await api.post("/workout/generate", answers);
+      await api.post("/onboarding", {
+        age: Number(form.age),
+        heightCm: Number(form.heightCm),
+        weightKg: Number(form.weightKg),
+        gender: form.gender,
+        goal: selectedBodyType.profileGoal,
+        environment: equipmentToEnvironment[form.equipment],
+        durationWeeks: durationToWeeks[form.duration]
+      });
+
+      await api.post("/workout/generate", {
+        goal: selectedBodyType.workoutGoal,
+        level: form.level,
+        duration: form.duration,
+        equipment: form.equipment
+      });
+
+      await refreshUser();
+
       toast.dismiss(loadingToastId);
-      toast.success("Your plan is ready!");
-      navigate("/workout", { replace: true });
-    } catch {
+      toast.success("Profile completed. Welcome to your dashboard.");
+      navigate("/dashboard", { replace: true });
+    } catch (error) {
       toast.dismiss(loadingToastId);
-      toast.error("Could not generate plan. Try again.");
+      toast.error(error.response?.data?.message || "Could not complete onboarding. Try again.");
     } finally {
       setLoading(false);
     }
@@ -82,106 +128,155 @@ const OnboardingPage = () => {
 
   return (
     <div className="page-shell grid items-center">
-      <div className="mx-auto w-full max-w-3xl rounded-3xl border border-borderSubtle bg-bgSecondary p-6 md:p-8">
+      <div className="mx-auto w-full max-w-4xl rounded-3xl border border-borderSubtle bg-bgSecondary p-6 md:p-8">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-brandSecondary">Onboarding</p>
-        <h1 className="mt-2 text-3xl font-bold">Step {step} of 4</h1>
+        <h1 className="mt-2 text-3xl font-bold">Tell us about your body and target physique</h1>
+        <p className="mt-2 text-sm text-textSecondary">
+          We use these inputs to personalize your dashboard, workout plan, and daily tracking.
+        </p>
 
-        <div className="mt-5 h-2 overflow-hidden rounded-full bg-zinc-800">
-          <div
-            className="h-full bg-brandPrimary"
-            style={{ width: progressPercent, transition: prefersReducedMotion ? "none" : "width 0.4s ease" }}
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="mt-6 grid gap-4">
+          <div className="grid gap-4 md:grid-cols-3">
+            <label className="text-sm">
+              <span className="mb-2 block text-textSecondary">Age</span>
+              <input
+                type="number"
+                min="13"
+                max="100"
+                value={form.age}
+                onChange={(event) => updateField("age", event.target.value)}
+                className="input-field"
+                required
+              />
+            </label>
 
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.section
-            key={currentStep.key}
-            custom={direction}
-            initial={prefersReducedMotion ? false : (dir) => ({ x: dir > 0 ? 60 : -60, opacity: 0 })}
-            animate={prefersReducedMotion ? false : { x: 0, opacity: 1 }}
-            exit={prefersReducedMotion ? false : (dir) => ({ x: dir > 0 ? -60 : 60, opacity: 0 })}
-            transition={{ duration: prefersReducedMotion ? 0 : 0.35, ease: "easeInOut" }}
-            className="mt-6"
-          >
-            <h2 className="text-2xl font-semibold">{currentStep.title}</h2>
-            <p className="mt-1 text-textSecondary">{currentStep.subtitle}</p>
+            <label className="text-sm">
+              <span className="mb-2 block text-textSecondary">Height (cm)</span>
+              <input
+                type="number"
+                min="120"
+                max="260"
+                value={form.heightCm}
+                onChange={(event) => updateField("heightCm", event.target.value)}
+                className="input-field"
+                required
+              />
+            </label>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label={currentStep.title}>
-              {currentStep.options.map((option) => {
-                const active = selectedValue === option;
+            <label className="text-sm">
+              <span className="mb-2 block text-textSecondary">Weight (kg)</span>
+              <input
+                type="number"
+                min="20"
+                max="500"
+                value={form.weightKg}
+                onChange={(event) => updateField("weightKg", event.target.value)}
+                className="input-field"
+                required
+              />
+            </label>
+          </div>
 
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="text-sm">
+              <span className="mb-2 block text-textSecondary">Gender</span>
+              <select
+                value={form.gender}
+                onChange={(event) => updateField("gender", event.target.value)}
+                className="input-field"
+                required
+              >
+                <option value="">Select gender</option>
+                {genderOptions.map((value) => (
+                  <option key={value} value={value}>
+                    {value.charAt(0).toUpperCase() + value.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="text-sm">
+              <span className="mb-2 block text-textSecondary">Experience Level</span>
+              <select
+                value={form.level}
+                onChange={(event) => updateField("level", event.target.value)}
+                className="input-field"
+                required
+              >
+                {levelOptions.map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div>
+            <p className="mb-2 text-sm text-textSecondary">What type of body do you want?</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {bodyTypeOptions.map((option) => {
+                const active = form.bodyType === option.label;
                 return (
-                  <motion.button
-                    key={option}
+                  <button
+                    key={option.label}
                     type="button"
-                    disabled={loading}
-                    onClick={() => chooseOption(option)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        chooseOption(option);
-                      }
-                    }}
-                    whileHover={prefersReducedMotion ? undefined : { scale: 1.03, borderColor: "rgba(249,115,22,0.5)" }}
-                    whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
-                    role="radio"
-                    aria-checked={active}
-                    tabIndex={0}
-                    className={`relative rounded-2xl border p-4 text-left ${
+                    onClick={() => updateField("bodyType", option.label)}
+                    className={`rounded-2xl border p-4 text-left ${
                       active
                         ? "border-orange-400 bg-orange-500/15"
-                        : "border-borderSubtle bg-bgPrimary hover:border-orange-400/70 focus-visible:border-orange-400/70"
+                        : "border-borderSubtle bg-bgPrimary hover:border-orange-400/70"
                     }`}
-                    style={{ transition: prefersReducedMotion ? "none" : "border-color 0.2s ease, background-color 0.2s ease" }}
+                    disabled={loading}
                   >
-                    <p className="text-base font-semibold">{option}</p>
-                    {active ? (
-                      <span className="absolute right-3 top-3 inline-flex h-6 w-6 items-center justify-center rounded-full bg-orange-400 text-xs font-bold text-black">
-                        ?
-                      </span>
-                    ) : null}
-                  </motion.button>
+                    <p className="text-base font-semibold">{option.label}</p>
+                    <p className="mt-1 text-xs text-textSecondary">Plan focus: {option.workoutGoal}</p>
+                  </button>
                 );
               })}
             </div>
-          </motion.section>
-        </AnimatePresence>
-
-        {loading ? (
-          <div className="mt-5 inline-flex items-center gap-3 rounded-xl border border-brandPrimary/30 bg-brandPrimary/10 px-4 py-3 text-sm">
-            <span>Forging your plan</span>
-            <span className="flex items-center gap-1">
-              {[0, 1, 2].map((dot) => (
-                <motion.span
-                  key={dot}
-                  animate={prefersReducedMotion ? false : { y: [0, -8, 0] }}
-                  transition={{
-                    repeat: Infinity,
-                    duration: prefersReducedMotion ? 0 : 0.8,
-                    delay: prefersReducedMotion ? 0 : dot * 0.2
-                  }}
-                  className="h-1.5 w-1.5 rounded-full bg-brandPrimary"
-                />
-              ))}
-            </span>
           </div>
-        ) : null}
 
-        <div className="mt-8 flex items-center justify-between">
-          <button type="button" className="btn-ghost" onClick={goBack} disabled={step === 1 || loading}>
-            Back
-          </button>
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="text-sm">
+              <span className="mb-2 block text-textSecondary">Program Duration</span>
+              <select
+                value={form.duration}
+                onChange={(event) => updateField("duration", event.target.value)}
+                className="input-field"
+                required
+              >
+                {durationOptions.map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-          {step < 4 ? (
-            <button type="button" className="btn-primary" onClick={goNext} disabled={!selectedValue || loading}>
-              Next
+            <label className="text-sm">
+              <span className="mb-2 block text-textSecondary">Equipment Access</span>
+              <select
+                value={form.equipment}
+                onChange={(event) => updateField("equipment", event.target.value)}
+                className="input-field"
+                required
+              >
+                {equipmentOptions.map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="mt-2 flex justify-end">
+            <button type="submit" className="btn-primary" disabled={loading}>
+              {loading ? "Setting up..." : "Complete Setup"}
             </button>
-          ) : (
-            <button type="button" className="btn-primary" onClick={generatePlan} disabled={!selectedValue || loading}>
-              Generate Plan
-            </button>
-          )}
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );

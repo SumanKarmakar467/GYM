@@ -22,6 +22,12 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/dashboard" replace />;
   }
 
+  const isUserRoute = user.role !== "admin";
+  const isOnboardingPath = location.pathname === "/onboarding";
+  if (isUserRoute && !user.isOnboarded && !isOnboardingPath) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
   return children;
 };
 

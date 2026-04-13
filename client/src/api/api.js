@@ -1,7 +1,12 @@
 import axios from "axios";
 
 const normalizeApiBaseUrl = () => {
-  const raw = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").trim();
+  const defaultLocalApi = (import.meta.env.VITE_LOCAL_API_URL || "http://localhost:5000/api").trim();
+  const configuredApi = (import.meta.env.VITE_API_URL || defaultLocalApi).trim();
+  const raw =
+    import.meta.env.DEV && /your-render-backend\.onrender\.com/i.test(configuredApi)
+      ? defaultLocalApi
+      : configuredApi;
   const cleaned = raw.replace(/\/+$/, "");
 
   if (cleaned === "/api" || cleaned.endsWith("/api")) {

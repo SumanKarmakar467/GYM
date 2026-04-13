@@ -18,7 +18,6 @@ import useAuth from "../hooks/useAuth";
 import { addDays, getStartOfWeek, toYmd } from "../utils/date";
 
 const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const easeOutCubic = (t) => 1 - (1 - t) ** 3;
 
 const containerVariants = {
   hidden: {},
@@ -45,7 +44,6 @@ const DashboardPage = () => {
   const [todayTodos, setTodayTodos] = useState([]);
   const [weeklyData, setWeeklyData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [animatedMetrics, setAnimatedMetrics] = useState({ streak: 0, completion: 0, calories: 0 });
 
   const weekDates = useMemo(() => {
     const start = getStartOfWeek(new Date());
@@ -127,67 +125,9 @@ const DashboardPage = () => {
   const todayPercent = todayTodos.length > 0 ? Math.round((todayDone / todayTodos.length) * 100) : 0;
   const caloriesBurned = todayDone * 45;
 
-  useEffect(() => {
-    if (loading) {
-      return undefined;
-    }
-
-    if (prefersReducedMotion) {
-      setAnimatedMetrics({ streak, completion: todayPercent, calories: caloriesBurned });
-      return undefined;
-    }
-
-    const start = performance.now();
-    const duration = 1200;
-    let frameId = null;
-
-    const tick = (now) => {
-      const progress = Math.min((now - start) / duration, 1);
-      const eased = easeOutCubic(progress);
-
-      setAnimatedMetrics({
-        streak: Math.round(streak * eased),
-        completion: Math.round(todayPercent * eased),
-        calories: Math.round(caloriesBurned * eased)
-      });
-
-      if (progress < 1) {
-        frameId = requestAnimationFrame(tick);
-      }
-    };
-
-    frameId = requestAnimationFrame(tick);
-
-    return () => {
-      if (frameId) {
-        cancelAnimationFrame(frameId);
-      }
-    };
-  }, [loading, streak, todayPercent, caloriesBurned, prefersReducedMotion]);
-
   const radius = 52;
   const circumference = 2 * Math.PI * radius;
-  const targetOffset = circumference * (1 - todayPercent / 100);
-  const [ringOffset, setRingOffset] = useState(circumference);
-
-  useEffect(() => {
-    if (loading) {
-      return undefined;
-    }
-
-    setRingOffset(circumference);
-
-    if (prefersReducedMotion) {
-      setRingOffset(targetOffset);
-      return undefined;
-    }
-
-    const timer = window.setTimeout(() => {
-      setRingOffset(targetOffset);
-    }, 100);
-
-    return () => window.clearTimeout(timer);
-  }, [loading, targetOffset, circumference, prefersReducedMotion]);
+  const ringOffset = circumference * (1 - todayPercent / 100);
 
   return (
     <div className="min-h-screen">
@@ -212,14 +152,9 @@ const DashboardPage = () => {
             ) : (
               <>
                 <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Streak</p>
-                <p className="mt-3 text-4xl font-bold">
-                  {animatedMetrics.streak} Day Streak{" "}
-                  {streak > 0 ? (
-                    <span style={{ display: "inline-block", animation: "pulse 1s ease-in-out infinite" }}>🔥</span>
-                  ) : null}
-                </p>
+                <p className="mt-3 text-4xl font-bold">{streak} Day Streak</p>
                 <p className="mt-2 text-sm text-textSecondary">
-                  {streak === 0 ? "Start your streak today!" : "Momentum looks strong."}
+                  {streak === 0 ? "Start your streak today." : "Momentum looks strong."}
                 </p>
               </>
             )}
@@ -234,7 +169,7 @@ const DashboardPage = () => {
             ) : (
               <>
                 <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Completion</p>
-                <p className="mt-3 text-4xl font-bold">{animatedMetrics.completion}%</p>
+                <p className="mt-3 text-4xl font-bold">{todayPercent}%</p>
                 <p className="mt-2 text-sm text-textSecondary">Today task completion rate.</p>
               </>
             )}
@@ -249,7 +184,7 @@ const DashboardPage = () => {
             ) : (
               <>
                 <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Calories Burned</p>
-                <p className="mt-3 text-4xl font-bold">{animatedMetrics.calories}</p>
+                <p className="mt-3 text-4xl font-bold">{caloriesBurned}</p>
                 <p className="mt-2 text-sm text-textSecondary">Estimated from completed workouts.</p>
               </>
             )}
@@ -263,8 +198,8 @@ const DashboardPage = () => {
               <div className="mt-4 h-[300px] animate-pulse rounded-xl bg-white/10" />
             ) : (
               <Reveal>
-                <div className="mt-4 h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
+                <div className="mt-4 h-[300px] min-w-0">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={280} minHeight={280} debounce={200}>
                     <BarChart data={weeklyData} margin={{ top: 8, right: 20, left: -10, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
                       <XAxis dataKey="day" stroke="#9ca3af" tickLine={false} axisLine={false} />
@@ -284,7 +219,7 @@ const DashboardPage = () => {
                         dataKey="percent"
                         fill="#f97316"
                         radius={[6, 6, 0, 0]}
-                        animationDuration={prefersReducedMotion ? 0 : 1200}
+                        animationDuration={prefersReducedMotion ? 0 : 800}
                         animationEasing="ease-out"
                       />
                     </BarChart>
