@@ -15,6 +15,11 @@ import {
 import { verifyFirebaseIdToken } from "../services/firebaseAuth.js";
 
 const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
+const getFrontendUrl = () =>
+  String(process.env.FRONTEND_URL || "http://localhost:5173")
+    .split(",")
+    .map((value) => value.trim())
+    .find(Boolean) || "http://localhost:5173";
 
 const getAdminEmails = () => {
   const fromList = String(process.env.ADMIN_EMAILS || "")
@@ -327,12 +332,12 @@ export const googleCallback = async (req, res) => {
 
     await issueAuthTokens(res, user);
 
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const frontendUrl = getFrontendUrl();
     const destination = user.isOnboarded ? "/dashboard" : "/onboarding";
 
     return res.redirect(`${frontendUrl}${destination}`);
   } catch {
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const frontendUrl = getFrontendUrl();
     return res.redirect(`${frontendUrl}/login?error=google_callback_failed`);
   }
 };

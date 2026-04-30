@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import api from "../api/api";
 import Reveal from "../components/Reveal";
-import { SkeletonText } from "../components/Skeleton";
+import { SkeletonGrid } from "../components/SkeletonCard";
 import AppNavbar from "../components/layout/AppNavbar";
 import useAuth from "../hooks/useAuth";
 import { addDays, getStartOfWeek, toYmd } from "../utils/date";
@@ -137,59 +137,46 @@ const DashboardPage = () => {
           <h1 className="text-3xl font-bold md:text-4xl">Welcome back, {user?.name || "Athlete"}!</h1>
         </section>
 
-        <motion.section
-          variants={containerVariants}
-          initial={prefersReducedMotion ? false : "hidden"}
-          animate={prefersReducedMotion ? false : "show"}
-          className="mt-5 grid gap-4 md:grid-cols-3"
-        >
+        {loading ? (
+          <section className="mt-5">
+            <SkeletonGrid />
+          </section>
+        ) : null}
+
+        {!loading ? (
+          <motion.section
+            variants={containerVariants}
+            initial={prefersReducedMotion ? false : "hidden"}
+            animate={prefersReducedMotion ? false : "show"}
+            className="mt-5 grid gap-4 md:grid-cols-3"
+          >
           <motion.article variants={itemVariants} className="card p-5">
-            {loading ? (
-              <div className="space-y-3">
-                <SkeletonText width="35%" />
-                <SkeletonText width="70%" />
-              </div>
-            ) : (
-              <>
-                <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Streak</p>
-                <p className="mt-3 text-4xl font-bold">{streak} Day Streak</p>
-                <p className="mt-2 text-sm text-textSecondary">
-                  {streak === 0 ? "Start your streak today." : "Momentum looks strong."}
-                </p>
-              </>
-            )}
+            <>
+              <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Streak</p>
+              <p className="mt-3 text-4xl font-bold">{streak} Day Streak</p>
+              <p className="mt-2 text-sm text-textSecondary">
+                {streak === 0 ? "Start your streak today." : "Momentum looks strong."}
+              </p>
+            </>
           </motion.article>
 
           <motion.article variants={itemVariants} className="card p-5">
-            {loading ? (
-              <div className="space-y-3">
-                <SkeletonText width="35%" />
-                <SkeletonText width="70%" />
-              </div>
-            ) : (
-              <>
-                <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Completion</p>
-                <p className="mt-3 text-4xl font-bold">{todayPercent}%</p>
-                <p className="mt-2 text-sm text-textSecondary">Today task completion rate.</p>
-              </>
-            )}
+            <>
+              <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Completion</p>
+              <p className="mt-3 text-4xl font-bold">{todayPercent}%</p>
+              <p className="mt-2 text-sm text-textSecondary">Today task completion rate.</p>
+            </>
           </motion.article>
 
           <motion.article variants={itemVariants} className="card p-5">
-            {loading ? (
-              <div className="space-y-3">
-                <SkeletonText width="35%" />
-                <SkeletonText width="70%" />
-              </div>
-            ) : (
-              <>
-                <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Calories Burned</p>
-                <p className="mt-3 text-4xl font-bold">{caloriesBurned}</p>
-                <p className="mt-2 text-sm text-textSecondary">Estimated from completed workouts.</p>
-              </>
-            )}
+            <>
+              <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Calories Burned</p>
+              <p className="mt-3 text-4xl font-bold">{caloriesBurned}</p>
+              <p className="mt-2 text-sm text-textSecondary">Estimated from completed workouts.</p>
+            </>
           </motion.article>
-        </motion.section>
+          </motion.section>
+        ) : null}
 
         <section className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_320px]">
           <article className="card p-5">

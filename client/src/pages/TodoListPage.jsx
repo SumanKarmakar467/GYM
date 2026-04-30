@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import api from "../api/api";
 import EmptyState from "../components/EmptyState";
+import SkeletonCard from "../components/SkeletonCard";
 import AppNavbar from "../components/layout/AppNavbar";
 import { addDays, getStartOfWeek, toYmd } from "../utils/date";
 
@@ -224,7 +225,7 @@ const TodoListPage = () => {
 
         <section className="mt-5 space-y-3">
           {loadingTodos ? (
-            [1, 2, 3].map((item) => <div key={item} className="card h-14 animate-pulse bg-white/5" />)
+            [1, 2, 3].map((item) => <SkeletonCard key={item} lines={2} />)
           ) : todos.length === 0 ? (
             <EmptyState
               icon="??"

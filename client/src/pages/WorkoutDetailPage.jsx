@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import confetti from "canvas-confetti";
 import api from "../api/api";
 import EmptyState from "../components/EmptyState";
-import { SkeletonCard } from "../components/Skeleton";
+import SkeletonCard, { SkeletonGrid } from "../components/SkeletonCard";
 import AppNavbar from "../components/layout/AppNavbar";
 
 const parseRestSeconds = (restValue) => {
@@ -216,10 +216,11 @@ const WorkoutDetailPage = () => {
             <div className="h-5 w-44 animate-pulse rounded bg-white/10" />
             <div className="mt-3 h-8 w-72 animate-pulse rounded bg-white/10" />
           </section>
+          <section className="mt-4">
+            <SkeletonGrid />
+          </section>
           <section className="mt-4 space-y-3">
-            <SkeletonCard />
-            <SkeletonCard />
-            <SkeletonCard />
+            <SkeletonCard lines={4} />
           </section>
         </main>
       </div>
