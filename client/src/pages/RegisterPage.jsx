@@ -36,6 +36,8 @@ const RegisterPage = () => {
     password: "",
     confirmPassword: ""
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const strength = useMemo(() => getPasswordStrength(form.password), [form.password]);
 
@@ -126,15 +128,25 @@ const RegisterPage = () => {
               autoComplete="email"
               required
             />
-            <input
-              type="password"
-              placeholder="Password"
-              className="input-field"
-              value={form.password}
-              onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
-              autoComplete="new-password"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                className="input-field pr-20"
+                value={form.password}
+                onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
+                autoComplete="new-password"
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-zinc-400 hover:text-white"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
 
             <div>
               <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
@@ -146,15 +158,25 @@ const RegisterPage = () => {
               <p className="mt-2 text-xs text-zinc-400">{strength.label ? `Strength: ${strength.label}` : "Strength: -"}</p>
             </div>
 
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              className="input-field"
-              value={form.confirmPassword}
-              onChange={(event) => setForm((prev) => ({ ...prev, confirmPassword: event.target.value }))}
-              autoComplete="new-password"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Confirm Password"
+                className="input-field pr-20"
+                value={form.confirmPassword}
+                onChange={(event) => setForm((prev) => ({ ...prev, confirmPassword: event.target.value }))}
+                autoComplete="new-password"
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-zinc-400 hover:text-white"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+              >
+                {showConfirmPassword ? "Hide" : "Show"}
+              </button>
+            </div>
           </div>
 
           <button
