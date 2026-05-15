@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { createHybridModel } from "../utils/localModel.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -15,6 +16,12 @@ const userSchema = new mongoose.Schema(
   { versionKey: false }
 );
 
-const User = mongoose.model("User", userSchema);
+const User = createHybridModel(mongoose.model("User", userSchema), "users", {
+  role: "user",
+  googleId: null,
+  avatar: "",
+  isOnboarded: false,
+  refreshToken: null
+});
 
 export default User;

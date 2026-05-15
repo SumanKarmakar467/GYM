@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { createHybridModel } from "../utils/localModel.js";
 
 const exerciseSchema = new mongoose.Schema(
   {
@@ -49,6 +50,8 @@ const workoutPlanSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false }
 );
 
-const WorkoutPlan = mongoose.model("WorkoutPlan", workoutPlanSchema);
+const WorkoutPlan = createHybridModel(mongoose.model("WorkoutPlan", workoutPlanSchema), "workout-plans", {
+  weeks: []
+});
 
 export default WorkoutPlan;

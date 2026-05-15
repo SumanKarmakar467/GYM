@@ -1,0 +1,15 @@
+[
+  {
+    "role": "user",
+    "googleId": null,
+    "avatar": "",
+    "isOnboarded": true,
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMDZkYzVjMjdkMjBjZmY5MjRhODViZiIsInR5cGUiOiJyZWZyZXNoIiwiaWF0IjoxNzc4ODM0NjA3LCJleHAiOjE3Nzk0Mzk0MDd9.Qvf0DtLUyqTapCbBw3F0Vsnw3HQjipSJJ7EPVfnhdeo",
+    "_id": "6a06dc5c27d20cff924a85bf",
+    "createdAt": "2026-05-15T08:42:04.135Z",
+    "updatedAt": "2026-05-15T08:43:27.295Z",
+    "name": "Hakkan",
+    "email": "hakkan@123gmail.com",
+    "passwordHash": "$2b$12$nAnr4aWuCHt5Eqz/4t8a0uVyM/KFk0mc0pwA6GfGtrVuokQRr.mtG"
+  }
+]

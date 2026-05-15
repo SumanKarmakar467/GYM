@@ -79,7 +79,8 @@ const RegisterPage = () => {
       toast.success("Account created! Let's forge your plan.");
       navigate("/onboarding", { replace: true });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Unable to create account.");
+      const message = error.response?.data?.message || "Backend server is not running. Start the server with npm run dev.";
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }

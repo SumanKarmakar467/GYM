@@ -333,22 +333,15 @@ const LandingPage = () => {
               animate={prefersReducedMotion ? false : { opacity: 1, x: 0, scale: 1 }}
               transition={{ delay: prefersReducedMotion ? 0 : 0.35, duration: prefersReducedMotion ? 0 : 0.75, ease: "easeOut" }}
               className="hero-visual-shell"
-              aria-label="GymForge app preview"
+              aria-label="Athlete training in a gym"
             >
               <div className="hero-visual-glow" />
               <motion.img
-                src="/screenshots/dashboard.png"
-                alt="GymForge dashboard preview"
-                className="hero-visual-image hero-visual-image-primary"
-                animate={prefersReducedMotion ? false : { y: [0, -16, 0], rotate: [0, 1.2, 0] }}
-                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              />
-              <motion.img
-                src="/screenshots/workout.png"
-                alt="GymForge workout plan preview"
-                className="hero-visual-image hero-visual-image-secondary"
-                animate={prefersReducedMotion ? false : { y: [0, 14, 0], rotate: [0, -1.6, 0] }}
-                transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut" }}
+                src="/images/hero-gymforge.jpg"
+                alt="Barbell in a dramatic gym training space"
+                className="hero-visual-photo"
+                animate={prefersReducedMotion ? false : { y: [0, -16, 0], scale: [1, 1.025, 1] }}
+                transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
               />
               <motion.div
                 className="hero-visual-stat hero-visual-stat-top"

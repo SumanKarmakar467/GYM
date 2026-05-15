@@ -240,6 +240,7 @@ select:focus {
   position: relative;
   min-height: 480px;
   isolation: isolate;
+  perspective: 1200px;
 }
 
 .hero-visual-glow {
@@ -254,31 +255,33 @@ select:focus {
   animation: heroGlow 5s ease-in-out infinite alternate;
 }
 
-.hero-visual-image {
+.hero-visual-photo {
   position: absolute;
+  inset: 7% 1% 5% 5%;
   display: block;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 18px;
+  width: 94%;
+  height: 88%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 24px;
   object-fit: cover;
+  object-position: center;
   box-shadow:
     0 28px 80px rgba(0, 0, 0, 0.48),
     0 0 0 1px rgba(249, 115, 22, 0.12);
-}
-
-.hero-visual-image-primary {
-  right: 2%;
-  top: 12%;
-  z-index: 2;
-  width: min(92%, 520px);
-  aspect-ratio: 16 / 10;
-}
-
-.hero-visual-image-secondary {
-  left: 0;
-  bottom: 4%;
   z-index: 3;
-  width: min(64%, 330px);
-  aspect-ratio: 4 / 3;
+  transform: rotateY(-7deg) rotateX(3deg);
+}
+
+.hero-visual-shell::after {
+  content: "";
+  position: absolute;
+  inset: 7% 1% 5% 5%;
+  z-index: 4;
+  border-radius: 24px;
+  background:
+    linear-gradient(90deg, rgba(10, 10, 10, 0.6), transparent 38%),
+    radial-gradient(circle at 78% 18%, rgba(249, 115, 22, 0.28), transparent 28%);
+  pointer-events: none;
 }
 
 .hero-visual-stat {
@@ -551,15 +554,6 @@ select:focus {
 @media (max-width: 1023px) {
   .hero-visual-shell {
     min-height: 380px;
-  }
-
-  .hero-visual-image-primary {
-    right: 0;
-    width: min(100%, 560px);
-  }
-
-  .hero-visual-image-secondary {
-    width: min(58%, 300px);
   }
 }
 

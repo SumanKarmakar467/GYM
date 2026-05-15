@@ -81,28 +81,26 @@ setInterval(() => {
 }, 9 * 60 * 1000);
 
 const connectWithRetry = async () => {
-  while (true) {
-    try {
-      await connectDB();
-      return;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error("MongoDB connection failed. Retrying in 10 seconds.", error?.message || error);
-      await new Promise((resolve) => {
-        setTimeout(resolve, 10_000);
-      });
+  try {
+    await connectDB();
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.warn("MongoDB connection failed. Using local JSON database fallback.", error?.message || error);
+
+    if (process.env.RETRY_MONGO === "true") {
+      setTimeout(connectWithRetry, 60_000);
     }
   }
 };
 
 const start = async () => {
   const port = Number(process.env.PORT) || 5000;
-  await connectWithRetry();
-
   app.listen(port, () => {
     // eslint-disable-next-line no-console
     console.log(`GymForge server running on port ${port}`);
   });
+
+  await connectWithRetry();
 };
 
 start().catch((error) => {

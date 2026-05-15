@@ -1,0 +1,963 @@
+[
+  {
+    "weeks": [
+      {
+        "weekNumber": 1,
+        "theme": "Foundation",
+        "days": [
+          {
+            "dayName": "Monday",
+            "focus": "Push Strength",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Tuesday",
+            "focus": "Pull Hypertrophy",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Wednesday",
+            "focus": "Lower Body Power",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Thursday",
+            "focus": "Active Recovery",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Friday",
+            "focus": "Upper Volume",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Saturday",
+            "focus": "Conditioning",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Sunday",
+            "focus": "Rest & Mobility",
+            "isRestDay": true,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [],
+            "cooldown": "5 min static stretching and breathwork"
+          }
+        ]
+      },
+      {
+        "weekNumber": 2,
+        "theme": "Foundation",
+        "days": [
+          {
+            "dayName": "Monday",
+            "focus": "Push Strength",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Tuesday",
+            "focus": "Pull Hypertrophy",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Wednesday",
+            "focus": "Lower Body Power",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Thursday",
+            "focus": "Active Recovery",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Friday",
+            "focus": "Upper Volume",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Saturday",
+            "focus": "Conditioning",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Sunday",
+            "focus": "Rest & Mobility",
+            "isRestDay": true,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [],
+            "cooldown": "5 min static stretching and breathwork"
+          }
+        ]
+      },
+      {
+        "weekNumber": 3,
+        "theme": "Progressive Overload",
+        "days": [
+          {
+            "dayName": "Monday",
+            "focus": "Push Strength",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Tuesday",
+            "focus": "Pull Hypertrophy",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Wednesday",
+            "focus": "Lower Body Power",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Thursday",
+            "focus": "Active Recovery",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Friday",
+            "focus": "Upper Volume",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Saturday",
+            "focus": "Conditioning",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Sunday",
+            "focus": "Rest & Mobility",
+            "isRestDay": true,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [],
+            "cooldown": "5 min static stretching and breathwork"
+          }
+        ]
+      },
+      {
+        "weekNumber": 4,
+        "theme": "Progressive Overload",
+        "days": [
+          {
+            "dayName": "Monday",
+            "focus": "Push Strength",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Tuesday",
+            "focus": "Pull Hypertrophy",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Wednesday",
+            "focus": "Lower Body Power",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Thursday",
+            "focus": "Active Recovery",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Friday",
+            "focus": "Upper Volume",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Saturday",
+            "focus": "Conditioning",
+            "isRestDay": false,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [
+              {
+                "name": "Compound Main Lift",
+                "sets": 4,
+                "reps": "6-10",
+                "rest": "90s",
+                "notes": "RPE 7-8"
+              },
+              {
+                "name": "Accessory Lift A",
+                "sets": 3,
+                "reps": "8-12",
+                "rest": "75s",
+                "notes": "Controlled tempo"
+              },
+              {
+                "name": "Accessory Lift B",
+                "sets": 3,
+                "reps": "10-15",
+                "rest": "60s",
+                "notes": "Full range of motion"
+              },
+              {
+                "name": "Core / Finisher",
+                "sets": 3,
+                "reps": "30-45s",
+                "rest": "45s",
+                "notes": "Keep form strict"
+              }
+            ],
+            "cooldown": "5 min static stretching and breathwork"
+          },
+          {
+            "dayName": "Sunday",
+            "focus": "Rest & Mobility",
+            "isRestDay": true,
+            "warmup": "5 min light cardio + dynamic mobility",
+            "exercises": [],
+            "cooldown": "5 min static stretching and breathwork"
+          }
+        ]
+      }
+    ],
+    "_id": "6a06dc8927d20cff924a85c1",
+    "createdAt": "2026-05-15T08:42:49.186Z",
+    "updatedAt": "2026-05-15T08:42:49.189Z",
+    "userId": "6a06dc5c27d20cff924a85bf",
+    "planName": "BODYBUILDER Transformation Blueprint",
+    "goal": "Build Muscle",
+    "level": "Beginner",
+    "daysPerWeek": "",
+    "durationLabel": "1 month",
+    "equipment": "Home Gym",
+    "environment": "home",
+    "durationWeeks": 4,
+    "generatedAt": "2026-05-15T08:42:49.186Z"
+  }
+]

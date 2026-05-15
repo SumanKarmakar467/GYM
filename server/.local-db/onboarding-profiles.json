@@ -1,0 +1,15 @@
+[
+  {
+    "_id": "6a06dc8927d20cff924a85c0",
+    "userId": "6a06dc5c27d20cff924a85bf",
+    "createdAt": "2026-05-15T08:42:49.106Z",
+    "age": 23,
+    "weightKg": 75,
+    "heightCm": 178,
+    "gender": "male",
+    "goal": "powerlifter",
+    "environment": "home",
+    "durationWeeks": 4,
+    "updatedAt": "2026-05-15T08:42:49.107Z"
+  }
+]

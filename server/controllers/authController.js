@@ -14,6 +14,7 @@ import {
   verifyRefreshToken
 } from "../services/tokenService.js";
 import { verifyFirebaseIdToken } from "../services/firebaseAuth.js";
+import { isLocalDataFallbackActive } from "../utils/localModel.js";
 
 const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
 const getFrontendUrl = () =>
@@ -48,7 +49,7 @@ const sanitizeUser = (user) => ({
   createdAt: user.createdAt
 });
 
-const isDatabaseConnected = () => mongoose.connection.readyState === 1;
+const isDatabaseConnected = () => mongoose.connection.readyState === 1 || isLocalDataFallbackActive();
 
 const databaseUnavailableResponse = (res) =>
   res.status(503).json({

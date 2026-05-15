@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { createHybridModel } from "../utils/localModel.js";
 
 const onboardingProfileSchema = new mongoose.Schema(
   {
@@ -18,6 +19,6 @@ const onboardingProfileSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false }
 );
 
-const OnboardingProfile = mongoose.model("OnboardingProfile", onboardingProfileSchema);
+const OnboardingProfile = createHybridModel(mongoose.model("OnboardingProfile", onboardingProfileSchema), "onboarding-profiles");
 
 export default OnboardingProfile;

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { createHybridModel } from "../utils/localModel.js";
 
 const todoItemSchema = new mongoose.Schema(
   {
@@ -17,6 +18,9 @@ const todoItemSchema = new mongoose.Schema(
 
 todoItemSchema.index({ userId: 1, date: 1 });
 
-const TodoItem = mongoose.model("TodoItem", todoItemSchema);
+const TodoItem = createHybridModel(mongoose.model("TodoItem", todoItemSchema), "todo-items", {
+  completed: false,
+  completedAt: null
+});
 
 export default TodoItem;

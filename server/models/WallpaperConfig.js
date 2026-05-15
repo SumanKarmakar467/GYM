@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { createHybridModel } from "../utils/localModel.js";
 
 const wallpaperConfigSchema = new mongoose.Schema(
   {
@@ -11,6 +12,9 @@ const wallpaperConfigSchema = new mongoose.Schema(
 
 wallpaperConfigSchema.index({ userId: 1 }, { unique: true });
 
-const WallpaperConfig = mongoose.model("WallpaperConfig", wallpaperConfigSchema);
+const WallpaperConfig = createHybridModel(mongoose.model("WallpaperConfig", wallpaperConfigSchema), "wallpaper-configs", {
+  quote: "",
+  style: "Dark"
+});
 
 export default WallpaperConfig;
