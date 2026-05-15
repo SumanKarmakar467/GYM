@@ -280,50 +280,92 @@ const LandingPage = () => {
           <div className="hero-orb-primary pointer-events-none absolute left-[6%] top-1/4 h-[600px] w-[600px] rounded-full bg-[radial-gradient(circle,rgba(249,115,22,0.15)_0%,rgba(249,115,22,0.05)_40%,transparent_70%)]" />
           <div className="hero-orb-secondary pointer-events-none absolute right-[8%] top-[18%] h-[300px] w-[300px] rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.18)_0%,rgba(168,85,247,0.05)_45%,transparent_75%)]" />
 
-          <div className="relative z-10 mx-auto w-full max-w-6xl py-24">
-            <motion.div
-              initial={prefersReducedMotion ? false : { opacity: 0, y: -16 }}
-              animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
-              transition={{ delay: prefersReducedMotion ? 0 : 0.1, duration: prefersReducedMotion ? 0 : 0.6 }}
-              className="inline-flex items-center gap-2 rounded-full border border-orange-400/30 bg-orange-500/10 px-4 py-2 text-xs uppercase tracking-[0.16em] text-orange-200"
-            >
-              <span className="h-2 w-2 rounded-full bg-orange-400" style={{ animation: "blink 1s infinite" }} />
-              <span>AI-Powered Fitness Platform</span>
-            </motion.div>
+          <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-12 py-24 lg:grid-cols-[minmax(0,0.95fr)_minmax(360px,0.8fr)]">
+            <div>
+              <motion.div
+                initial={prefersReducedMotion ? false : { opacity: 0, y: -16 }}
+                animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
+                transition={{ delay: prefersReducedMotion ? 0 : 0.1, duration: prefersReducedMotion ? 0 : 0.6 }}
+                className="inline-flex items-center gap-2 rounded-full border border-orange-400/30 bg-orange-500/10 px-4 py-2 text-xs uppercase tracking-[0.16em] text-orange-200"
+              >
+                <span className="h-2 w-2 rounded-full bg-orange-400" style={{ animation: "blink 1s infinite" }} />
+                <span>AI-Powered Fitness Platform</span>
+              </motion.div>
 
-            <div className="mt-6 max-w-4xl">
-              <h1 className="min-h-[4rem] text-4xl font-bold leading-tight md:min-h-[5rem] md:text-6xl">
-                {typed}
-                <span className="ml-1 text-orange-400" style={{ animation: "blink 1s infinite" }}>|</span>
-              </h1>
-              <h2 className="mt-2 text-3xl font-bold text-zinc-100 md:text-5xl" style={{ animation: "fadeUp 0.9s 0.2s both" }}>
-                Your Best Body.
-              </h2>
+              <div className="mt-6 max-w-4xl">
+                <h1 className="min-h-[4rem] text-4xl font-bold leading-tight md:min-h-[5rem] md:text-6xl">
+                  {typed}
+                  <span className="ml-1 text-orange-400" style={{ animation: "blink 1s infinite" }}>|</span>
+                </h1>
+                <h2 className="mt-2 text-3xl font-bold text-zinc-100 md:text-5xl" style={{ animation: "fadeUp 0.9s 0.2s both" }}>
+                  Your Best Body.
+                </h2>
+              </div>
+
+              <motion.p
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+                animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
+                transition={{ delay: prefersReducedMotion ? 0 : 0.4, duration: prefersReducedMotion ? 0 : 0.7 }}
+                className="mt-6 max-w-2xl text-base text-zinc-300 md:text-lg"
+              >
+                AI-powered workout plans, habit tracking, and motivation - built for athletes who mean it.
+              </motion.p>
+
+              <motion.div
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+                animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
+                transition={{ delay: prefersReducedMotion ? 0 : 0.6, duration: prefersReducedMotion ? 0 : 0.7 }}
+                className="mt-10 flex flex-wrap gap-3"
+              >
+                <button
+                  type="button"
+                  onClick={() => navigate("/register")}
+                  className="hero-primary-btn rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-6 py-3 text-sm font-semibold text-black"
+                >
+                  Start For Free →
+                </button>
+                <DownloadAppButton variant="hero" />
+              </motion.div>
             </div>
 
-            <motion.p
-              initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
-              animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
-              transition={{ delay: prefersReducedMotion ? 0 : 0.4, duration: prefersReducedMotion ? 0 : 0.7 }}
-              className="mt-6 max-w-2xl text-base text-zinc-300 md:text-lg"
-            >
-              AI-powered workout plans, habit tracking, and motivation - built for athletes who mean it.
-            </motion.p>
-
             <motion.div
-              initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
-              animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
-              transition={{ delay: prefersReducedMotion ? 0 : 0.6, duration: prefersReducedMotion ? 0 : 0.7 }}
-              className="mt-10 flex flex-wrap gap-3"
+              initial={prefersReducedMotion ? false : { opacity: 0, x: 60, scale: 0.96 }}
+              animate={prefersReducedMotion ? false : { opacity: 1, x: 0, scale: 1 }}
+              transition={{ delay: prefersReducedMotion ? 0 : 0.35, duration: prefersReducedMotion ? 0 : 0.75, ease: "easeOut" }}
+              className="hero-visual-shell"
+              aria-label="GymForge app preview"
             >
-              <button
-                type="button"
-                onClick={() => navigate("/register")}
-                className="hero-primary-btn rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-6 py-3 text-sm font-semibold text-black"
+              <div className="hero-visual-glow" />
+              <motion.img
+                src="/screenshots/dashboard.png"
+                alt="GymForge dashboard preview"
+                className="hero-visual-image hero-visual-image-primary"
+                animate={prefersReducedMotion ? false : { y: [0, -16, 0], rotate: [0, 1.2, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <motion.img
+                src="/screenshots/workout.png"
+                alt="GymForge workout plan preview"
+                className="hero-visual-image hero-visual-image-secondary"
+                animate={prefersReducedMotion ? false : { y: [0, 14, 0], rotate: [0, -1.6, 0] }}
+                transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <motion.div
+                className="hero-visual-stat hero-visual-stat-top"
+                animate={prefersReducedMotion ? false : { y: [0, -8, 0] }}
+                transition={{ duration: 4.4, repeat: Infinity, ease: "easeInOut" }}
               >
-                Start For Free →
-              </button>
-              <DownloadAppButton variant="hero" />
+                <span>Today</span>
+                <strong>72%</strong>
+              </motion.div>
+              <motion.div
+                className="hero-visual-stat hero-visual-stat-bottom"
+                animate={prefersReducedMotion ? false : { y: [0, 10, 0] }}
+                transition={{ duration: 4.8, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <span>Streak</span>
+                <strong>14 Days</strong>
+              </motion.div>
             </motion.div>
           </div>
 

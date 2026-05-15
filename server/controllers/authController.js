@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import mongoose from "mongoose";
 import OnboardingProfile from "../models/OnboardingProfile.js";
 import TodoItem from "../models/TodoItem.js";
 import User from "../models/User.js";
@@ -47,6 +48,13 @@ const sanitizeUser = (user) => ({
   createdAt: user.createdAt
 });
 
+const isDatabaseConnected = () => mongoose.connection.readyState === 1;
+
+const databaseUnavailableResponse = (res) =>
+  res.status(503).json({
+    message: "Database is not connected. Check MONGO_URI and MongoDB Atlas Network Access IP whitelist."
+  });
+
 const issueAuthTokens = async (res, user) => {
   const accessToken = signAccessToken(user._id);
   const refreshToken = signRefreshToken(user._id);
@@ -61,6 +69,10 @@ const issueAuthTokens = async (res, user) => {
 
 export const register = async (req, res) => {
   try {
+    if (!isDatabaseConnected()) {
+      return databaseUnavailableResponse(res);
+    }
+
     const name = String(req.body?.name || "").trim();
     const email = normalizeEmail(req.body?.email);
     const password = String(req.body?.password || "");
@@ -93,13 +105,19 @@ export const register = async (req, res) => {
     await issueAuthTokens(res, user);
 
     return res.status(201).json({ user: sanitizeUser(user) });
-  } catch {
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("Registration failed:", error?.message || error);
     return res.status(500).json({ message: "Registration failed." });
   }
 };
 
 export const login = async (req, res) => {
   try {
+    if (!isDatabaseConnected()) {
+      return databaseUnavailableResponse(res);
+    }
+
     const email = normalizeEmail(req.body?.email);
     const password = String(req.body?.password || "");
 
@@ -121,7 +139,9 @@ export const login = async (req, res) => {
     await issueAuthTokens(res, user);
 
     return res.json({ user: sanitizeUser(user) });
-  } catch {
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("Login failed:", error?.message || error);
     return res.status(500).json({ message: "Login failed." });
   }
 };

@@ -236,6 +236,87 @@ select:focus {
   color: #f97316;
 }
 
+.hero-visual-shell {
+  position: relative;
+  min-height: 480px;
+  isolation: isolate;
+}
+
+.hero-visual-glow {
+  position: absolute;
+  inset: 8% 0 4% 8%;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 42% 34%, rgba(249, 115, 22, 0.3), transparent 36%),
+    radial-gradient(circle at 74% 68%, rgba(14, 165, 233, 0.18), transparent 34%);
+  filter: blur(22px);
+  opacity: 0.9;
+  animation: heroGlow 5s ease-in-out infinite alternate;
+}
+
+.hero-visual-image {
+  position: absolute;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  object-fit: cover;
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.48),
+    0 0 0 1px rgba(249, 115, 22, 0.12);
+}
+
+.hero-visual-image-primary {
+  right: 2%;
+  top: 12%;
+  z-index: 2;
+  width: min(92%, 520px);
+  aspect-ratio: 16 / 10;
+}
+
+.hero-visual-image-secondary {
+  left: 0;
+  bottom: 4%;
+  z-index: 3;
+  width: min(64%, 330px);
+  aspect-ratio: 4 / 3;
+}
+
+.hero-visual-stat {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  gap: 3px;
+  min-width: 116px;
+  border: 1px solid rgba(249, 115, 22, 0.28);
+  border-radius: 14px;
+  background: rgba(10, 10, 10, 0.78);
+  padding: 12px 14px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.34);
+}
+
+.hero-visual-stat span {
+  font-size: 0.68rem;
+  color: rgba(244, 244, 245, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.hero-visual-stat strong {
+  font-size: 1.1rem;
+  color: #fb923c;
+}
+
+.hero-visual-stat-top {
+  right: 0;
+  top: 5%;
+}
+
+.hero-visual-stat-bottom {
+  left: 10%;
+  bottom: 0;
+}
+
 .scroll-mouse {
   width: 24px;
   height: 38px;
@@ -420,6 +501,11 @@ select:focus {
   to { transform: translate3d(20px, -30px, 0); }
 }
 
+@keyframes heroGlow {
+  from { transform: scale(0.98); opacity: 0.65; }
+  to { transform: scale(1.04); opacity: 1; }
+}
+
 @keyframes scrollDown {
   0% { transform: translateY(0); opacity: 0.9; }
   70% { transform: translateY(13px); opacity: 0.25; }
@@ -459,6 +545,36 @@ select:focus {
 @media (min-width: 768px) {
   .page-shell {
     padding: 1.5rem;
+  }
+}
+
+@media (max-width: 1023px) {
+  .hero-visual-shell {
+    min-height: 380px;
+  }
+
+  .hero-visual-image-primary {
+    right: 0;
+    width: min(100%, 560px);
+  }
+
+  .hero-visual-image-secondary {
+    width: min(58%, 300px);
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-visual-shell {
+    min-height: 310px;
+  }
+
+  .hero-visual-stat {
+    min-width: 96px;
+    padding: 10px 12px;
+  }
+
+  .hero-visual-stat strong {
+    font-size: 0.95rem;
   }
 }
 
