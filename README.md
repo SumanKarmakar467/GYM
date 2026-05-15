@@ -1,4 +1,4 @@
-# GymForge
+* GymForge
 
 GymForge is a full-stack MERN app for AI-generated physique plans and daily training tracking.
 
