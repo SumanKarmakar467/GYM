@@ -137,7 +137,7 @@ const AdminPage = () => {
                       <div>
                         <p className="text-sm font-semibold">{activity.message}</p>
                         <p className="mt-1 text-xs text-mist">
-                          {activity.user?.name || "Unknown user"} · {activity.user?.email || "No email"}
+                          {activity.user?.name || "Unknown user"} - {activity.user?.email || "No email"}
                         </p>
                       </div>
                       <span className="badge flex-shrink-0">{activity.type}</span>
