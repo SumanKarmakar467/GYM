@@ -1,4 +1,5 @@
 import OnboardingProfile from "../models/OnboardingProfile.js";
+import { recordActivity } from "../services/activityService.js";
 
 const validGoals = ["bodybuilder", "calisthenics", "powerlifter", "crossfit", "athlete"];
 const validGenders = ["male", "female", "other"];
@@ -74,6 +75,12 @@ export const saveOnboardingProfile = async (req, res) => {
       req.user.isOnboarded = true;
       await req.user.save();
     }
+
+    await recordActivity(req.user._id, "onboarding_saved", "Saved onboarding profile.", {
+      goal: payload.goal,
+      environment: payload.environment,
+      durationWeeks: payload.durationWeeks
+    });
 
     return res.json(profile);
   } catch {

@@ -13,6 +13,7 @@ import {
   signRefreshToken,
   verifyRefreshToken
 } from "../services/tokenService.js";
+import { recordActivity } from "../services/activityService.js";
 import { verifyFirebaseIdToken } from "../services/firebaseAuth.js";
 import { isLocalDataFallbackActive } from "../utils/localModel.js";
 
@@ -104,6 +105,7 @@ export const register = async (req, res) => {
     });
 
     await issueAuthTokens(res, user);
+    await recordActivity(user._id, "register", "Registered with email and password.");
 
     return res.status(201).json({ user: sanitizeUser(user) });
   } catch (error) {
@@ -138,6 +140,7 @@ export const login = async (req, res) => {
     }
 
     await issueAuthTokens(res, user);
+    await recordActivity(user._id, "login", "Logged in with email and password.");
 
     return res.json({ user: sanitizeUser(user) });
   } catch (error) {
@@ -177,6 +180,7 @@ export const firebaseAuth = async (req, res) => {
         avatar
       });
       user = await User.findById(user._id).select("+refreshToken");
+      await recordActivity(user._id, "register", "Registered with Google.");
     } else {
       let changed = false;
       if (!user.googleId) {
@@ -201,6 +205,7 @@ export const firebaseAuth = async (req, res) => {
     }
 
     await issueAuthTokens(res, user);
+    await recordActivity(user._id, "login", "Logged in with Google.");
     return res.json({ user: sanitizeUser(user) });
   } catch {
     return res.status(401).json({ message: "Firebase authentication failed." });
@@ -235,6 +240,7 @@ export const adminLogin = async (req, res) => {
       });
 
       user = await User.findById(user._id).select("+refreshToken");
+      await recordActivity(user._id, "register", "Admin account created from configured credentials.");
     } else if (user.role !== "admin") {
       user.role = "admin";
       if (!user.isOnboarded) {
@@ -244,6 +250,7 @@ export const adminLogin = async (req, res) => {
     }
 
     await issueAuthTokens(res, user);
+    await recordActivity(user._id, "admin_login", "Logged in to the admin panel.");
     return res.json({ user: sanitizeUser(user) });
   } catch {
     return res.status(500).json({ message: "Admin login failed." });

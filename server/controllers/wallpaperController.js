@@ -1,4 +1,5 @@
 import WallpaperConfig from "../models/WallpaperConfig.js";
+import { recordActivity } from "../services/activityService.js";
 
 const quotePool = [
   "No shortcuts. Just work.",
@@ -38,6 +39,8 @@ export const saveWallpaperConfig = async (req, res) => {
       { userId: req.user._id, quote, style },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
+
+    await recordActivity(req.user._id, "wallpaper_saved", `Saved ${style} wallpaper.`, { style });
 
     return res.json(config);
   } catch {

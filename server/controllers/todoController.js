@@ -1,4 +1,5 @@
 import TodoItem from "../models/TodoItem.js";
+import { recordActivity } from "../services/activityService.js";
 
 const toYmd = (date) => {
   const year = date.getFullYear();
@@ -87,6 +88,8 @@ export const createTodo = async (req, res) => {
       completedAt: null
     });
 
+    await recordActivity(req.user._id, "todo_created", `Created todo: ${exerciseName}.`, { date });
+
     return res.status(201).json(todo);
   } catch {
     return res.status(500).json({ message: "Failed to create todo." });
@@ -108,6 +111,13 @@ export const toggleTodo = async (req, res) => {
     todo.completedAt = targetCompleted ? new Date() : null;
     await todo.save();
 
+    await recordActivity(
+      req.user._id,
+      targetCompleted ? "todo_completed" : "todo_reopened",
+      `${targetCompleted ? "Completed" : "Reopened"} todo: ${todo.exerciseName}.`,
+      { todoId: todo._id, date: todo.date }
+    );
+
     return res.json(todo);
   } catch {
     return res.status(500).json({ message: "Failed to update todo." });
@@ -121,6 +131,11 @@ export const deleteTodo = async (req, res) => {
     if (!deleted) {
       return res.status(404).json({ message: "Todo not found." });
     }
+
+    await recordActivity(req.user._id, "todo_deleted", `Deleted todo: ${deleted.exerciseName}.`, {
+      todoId: deleted._id,
+      date: deleted.date
+    });
 
     return res.json({ message: "Todo deleted." });
   } catch {

@@ -1,3 +1,5 @@
+import { recordActivity } from "../services/activityService.js";
+
 export const getMeProfile = async (req, res) => {
   return res.json({
     id: req.user._id,
@@ -25,6 +27,7 @@ export const updateMeProfile = async (req, res) => {
     }
 
     await req.user.save();
+    await recordActivity(req.user._id, "profile_updated", "Updated profile details.");
 
     return res.json({
       id: req.user._id,

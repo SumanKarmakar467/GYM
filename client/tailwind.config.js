@@ -4,6 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
+        iron: "#0A0A0A",
+        charcoal: "#111418",
+        plate: "#1A1F26",
+        steel: "#252C35",
+        fire: "#FF4500",
+        ember: "#FF6B35",
+        gold: "#FFB800",
+        chalk: "#E8E8E0",
+        mist: "#8B9099",
         bgPrimary: "var(--bg-primary)",
         bgSecondary: "var(--bg-secondary)",
         bgAccent: "var(--bg-accent)",
@@ -18,10 +27,11 @@ export default {
         danger: "var(--danger)"
       },
       fontFamily: {
-        sans: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
-        display: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
-        heading: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
-        body: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        sans: ['"Barlow"', "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        display: ['"Bebas Neue"', "sans-serif"],
+        heading: ['"Barlow Condensed"', '"Barlow"', "sans-serif"],
+        body: ['"Barlow"', "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        cond: ['"Barlow Condensed"', "sans-serif"],
         mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"]
       }
     }

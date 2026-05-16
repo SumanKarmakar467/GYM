@@ -1,6 +1,7 @@
 import OnboardingProfile from "../models/OnboardingProfile.js";
 import TodoItem from "../models/TodoItem.js";
 import WorkoutPlan from "../models/WorkoutPlan.js";
+import { recordActivity } from "../services/activityService.js";
 import generateWorkoutPlan from "../services/generateWorkoutPlan.js";
 
 const validGoals = ["Burn Fat", "Build Muscle", "Improve Endurance"];
@@ -208,6 +209,13 @@ export const generatePlan = async (req, res) => {
       await req.user.save();
     }
 
+    await recordActivity(req.user._id, "plan_generated", `Generated ${preferences.duration} ${preferences.goal} plan.`, {
+      goal: preferences.goal,
+      level: preferences.level,
+      duration: preferences.duration,
+      equipment: preferences.equipment
+    });
+
     return res.status(201).json(savedPlan);
   } catch {
     return res.status(500).json({ message: "Failed to generate workout plan." });
@@ -232,6 +240,7 @@ export const deleteMyPlan = async (req, res) => {
   try {
     await WorkoutPlan.deleteMany({ userId: req.user._id });
     await TodoItem.deleteMany({ userId: req.user._id });
+    await recordActivity(req.user._id, "plan_deleted", "Deleted workout plan and linked todos.");
 
     return res.json({ message: "Workout plan deleted." });
   } catch {

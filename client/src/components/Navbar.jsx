@@ -13,7 +13,7 @@ const navItems = [
 ];
 
 const Navbar = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const location = useLocation();
   const prefersReducedMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
@@ -23,10 +23,10 @@ const Navbar = () => {
   const getNavLinkClass = (to) => {
     const isActive = location.pathname === to || location.pathname.startsWith(`${to}/`);
 
-    return `rounded-lg border-b-2 px-3 py-2 text-sm font-medium ${
+    return `border-l-2 px-3 py-2 font-body text-xs font-semibold uppercase tracking-widest ${
       isActive
-        ? "border-[#f97316] text-[#f97316]"
-        : "border-transparent text-textSecondary hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
+        ? "border-fire bg-fire/10 text-fire"
+        : "border-transparent text-mist hover:bg-white/[0.03] hover:text-chalk focus-visible:bg-white/[0.03] focus-visible:text-chalk"
     }`;
   };
 
@@ -54,10 +54,10 @@ const Navbar = () => {
   }, []);
 
   return (
-    <header className={`navbar-shell sticky top-0 z-40 border-b border-borderSubtle ${isScrolled ? "is-scrolled" : ""}`}>
+    <header className={`navbar-shell sticky top-0 z-40 border-b border-fire/20 bg-iron ${isScrolled ? "is-scrolled" : ""}`}>
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 md:px-6">
-        <Link to="/dashboard" className="font-display text-3xl tracking-wide text-brandPrimary">
-          GymForge
+        <Link to="/dashboard" className="font-display text-3xl tracking-widest text-chalk">
+          Gym<span className="text-fire">Forge</span>
         </Link>
 
         <nav className="hidden items-center gap-2 md:flex">
@@ -66,25 +66,35 @@ const Navbar = () => {
               {item.label}
             </NavLink>
           ))}
+          {user?.role === "admin" ? (
+            <NavLink to="/admin" className={getNavLinkClass("/admin")}>
+              Admin
+            </NavLink>
+          ) : null}
           <DownloadAppButton variant="small" />
         </nav>
 
         <button
           type="button"
           onClick={logout}
-          className="hidden rounded-lg border border-white/20 px-3 py-2 text-sm text-white transition hover:bg-white/10 focus-visible:bg-white/10 md:inline-flex"
+          className="hidden border border-fire/30 px-4 py-2 font-body text-xs font-semibold uppercase tracking-widest text-chalk transition hover:bg-fire/10 focus-visible:bg-fire/10 md:inline-flex"
+          style={{ clipPath: "polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%)" }}
         >
           Logout
         </button>
 
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/20 text-white md:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center border border-fire/30 text-chalk md:hidden"
           onClick={() => setIsOpen((prev) => !prev)}
           aria-label="Toggle navigation menu"
           aria-expanded={isOpen}
         >
-          ?
+          <span className="grid gap-1" aria-hidden="true">
+            <span className="block h-0.5 w-5 bg-current" />
+            <span className="block h-0.5 w-5 bg-current" />
+            <span className="block h-0.5 w-5 bg-current" />
+          </span>
         </button>
       </div>
 
@@ -95,7 +105,7 @@ const Navbar = () => {
             animate={prefersReducedMotion ? false : { y: 0, opacity: 1 }}
             exit={prefersReducedMotion ? false : { y: -12, opacity: 0 }}
             transition={{ duration: prefersReducedMotion ? 0 : 0.22 }}
-            className="border-t border-white/10 bg-[#0f0f0f] px-4 py-3 md:hidden"
+            className="border-t border-white/10 bg-iron px-4 py-3 md:hidden"
           >
             <div className="space-y-2">
               {navItems.map((item) => (
@@ -108,6 +118,11 @@ const Navbar = () => {
                   {item.label}
                 </NavLink>
               ))}
+              {user?.role === "admin" ? (
+                <NavLink to="/admin" className={getNavLinkClass("/admin")} onClick={() => setIsOpen(false)}>
+                  Admin
+                </NavLink>
+              ) : null}
               <div className="pt-1">
                 <DownloadAppButton variant="small" />
               </div>
@@ -118,7 +133,7 @@ const Navbar = () => {
                   setIsOpen(false);
                   await logout();
                 }}
-                className="w-full rounded-lg border border-white/20 px-3 py-2 text-left text-sm text-white hover:bg-white/10 focus-visible:bg-white/10"
+                className="w-full border border-fire/30 px-3 py-2 text-left text-sm text-chalk hover:bg-fire/10 focus-visible:bg-fire/10"
               >
                 Logout
               </button>
@@ -145,10 +160,10 @@ const Navbar = () => {
             transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-6 right-6 z-50 inline-flex h-11 w-11 items-center justify-center rounded-full bg-orange-500 text-lg font-bold text-white shadow-[0_8px_24px_rgba(249,115,22,0.45)] hover:bg-orange-400 focus-visible:bg-orange-400"
+            className="fixed bottom-6 right-6 z-50 inline-flex h-11 w-11 items-center justify-center bg-fire text-lg font-bold text-white shadow-[0_8px_24px_rgba(255,69,0,0.45)] hover:bg-ember focus-visible:bg-ember"
             aria-label="Scroll to top"
           >
-            ?
+            ^
           </motion.button>
         ) : null}
       </AnimatePresence>
