@@ -177,9 +177,17 @@ const ProfilePage = () => {
               <div>
                 <div className="grid h-28 w-28 place-items-center overflow-hidden rounded-full border border-borderSubtle bg-bgSecondary text-3xl font-semibold text-brandSecondary">
                   {avatar ? (
-                    <img src={avatar} alt="Profile avatar" className="h-full w-full object-cover" />
+                    <img
+                      src={avatar}
+                      alt=""
+                      className="block h-full w-full object-cover"
+                      onError={() => {
+                        setAvatar("");
+                        setAvatarDirty(false);
+                      }}
+                    />
                   ) : (
-                    <span>{initials}</span>
+                    <span className="grid h-full w-full place-items-center leading-none">{initials}</span>
                   )}
                 </div>
                 <label

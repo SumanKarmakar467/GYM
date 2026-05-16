@@ -238,9 +238,11 @@ const DashboardPage = () => {
                       strokeDashoffset={ringOffset}
                     />
                   </svg>
-                  <div className="absolute inset-0 grid place-items-center text-center">
-                    <p className="text-2xl font-bold">{todayPercent}% today</p>
-                    <p className="text-xs text-textSecondary">{todayDone}/{todayTodos.length} done</p>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                    <p className="whitespace-nowrap font-cond text-2xl font-bold leading-none text-chalk">
+                      {todayPercent}% today
+                    </p>
+                    <p className="mt-2 text-xs leading-none text-mist">{todayDone}/{todayTodos.length} done</p>
                   </div>
                 </div>
               </div>
