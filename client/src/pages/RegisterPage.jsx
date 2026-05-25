@@ -35,7 +35,8 @@ const RegisterPage = () => {
     name: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    dietPreference: "veg"
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -76,7 +77,7 @@ const RegisterPage = () => {
 
     setSubmitting(true);
     try {
-      await register({ name, email, password });
+      await register({ name, email, password, dietPreference: form.dietPreference });
       toast.success("Account created. Let's forge your plan.");
       navigate("/onboarding", { replace: true });
     } catch (error) {
@@ -162,6 +163,29 @@ const RegisterPage = () => {
                 />
               </div>
               <p className="mt-2 text-xs text-mist">{strength.label ? `Strength: ${strength.label}` : "Strength: -"}</p>
+            </div>
+
+            <div>
+              <p className="mb-2 text-xs font-bold uppercase tracking-[2px] text-mist">Diet Preference</p>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { value: "veg", label: "Veg" },
+                  { value: "non-veg", label: "Non-Veg" }
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, dietPreference: option.value }))}
+                    className={`border px-3 py-3 text-sm font-bold uppercase tracking-widest transition ${
+                      form.dietPreference === option.value
+                        ? "border-fire bg-fire/15 text-fire"
+                        : "border-white/10 bg-white/[0.04] text-mist hover:border-fire/40"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="relative">

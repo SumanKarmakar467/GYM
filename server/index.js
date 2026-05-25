@@ -8,6 +8,7 @@ import connectDB from "./config/db.js";
 import passport from "./config/passport.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import dietRoutes from "./routes/dietRoutes.js";
 import mediaRoutes from "./routes/mediaRoutes.js";
 import onboardingRoutes from "./routes/onboardingRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
@@ -64,6 +65,7 @@ app.get("/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/diet", dietRoutes);
 app.use("/api/media", mediaRoutes);
 app.use("/api/onboarding", onboardingRoutes);
 app.use("/api/workout", workoutRoutes);

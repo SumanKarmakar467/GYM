@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import api from "../api/api";
 import EmptyState from "../components/EmptyState";
@@ -66,6 +66,20 @@ const WallpaperPage = () => {
   const [hasSavedConfig, setHasSavedConfig] = useState(false);
   const [progressDays, setProgressDays] = useState([]);
 
+  const loadProgress = useCallback(async () => {
+    try {
+      if (demoMode) {
+        setProgressDays(buildProgressDays(buildDemoProgressTodos()));
+        return;
+      }
+
+      const { data } = await api.get("/todos");
+      setProgressDays(buildProgressDays(Array.isArray(data) ? data : []));
+    } catch {
+      setProgressDays(buildProgressDays([]));
+    }
+  }, [demoMode]);
+
   useEffect(() => {
     let active = true;
 
@@ -108,32 +122,15 @@ const WallpaperPage = () => {
   }, [demoMode]);
 
   useEffect(() => {
-    let active = true;
-
-    const loadProgress = async () => {
-      try {
-        if (demoMode) {
-          if (active) setProgressDays(buildProgressDays(buildDemoProgressTodos()));
-          return;
-        }
-
-        const { data } = await api.get("/todos");
-        if (active) setProgressDays(buildProgressDays(Array.isArray(data) ? data : []));
-      } catch {
-        if (active) setProgressDays(buildProgressDays([]));
-      }
-    };
-
     loadProgress();
     const interval = window.setInterval(loadProgress, 30000);
     window.addEventListener("focus", loadProgress);
 
     return () => {
-      active = false;
       window.clearInterval(interval);
       window.removeEventListener("focus", loadProgress);
     };
-  }, [demoMode]);
+  }, [loadProgress]);
 
   const generateRandomQuote = async () => {
     setLoadingRandom(true);
@@ -173,6 +170,7 @@ const WallpaperPage = () => {
         style: selectedStyle
       });
       setHasSavedConfig(true);
+      await loadProgress();
     } finally {
       setSaving(false);
     }

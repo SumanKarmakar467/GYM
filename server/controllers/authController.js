@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import OnboardingProfile from "../models/OnboardingProfile.js";
+import DietLog from "../models/DietLog.js";
 import TodoItem from "../models/TodoItem.js";
 import User from "../models/User.js";
 import WallpaperConfig from "../models/WallpaperConfig.js";
@@ -46,6 +47,7 @@ const sanitizeUser = (user) => ({
   email: user.email,
   role: user.role || "user",
   avatar: user.avatar,
+  dietPreference: user.dietPreference || "veg",
   isOnboarded: Boolean(user.isOnboarded),
   createdAt: user.createdAt
 });
@@ -78,6 +80,7 @@ export const register = async (req, res) => {
     const name = String(req.body?.name || "").trim();
     const email = normalizeEmail(req.body?.email);
     const password = String(req.body?.password || "");
+    const dietPreference = String(req.body?.dietPreference || "veg") === "non-veg" ? "non-veg" : "veg";
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Name, email, and password are required." });
@@ -101,6 +104,7 @@ export const register = async (req, res) => {
       name,
       email,
       role: isAdminEmail(email) ? "admin" : "user",
+      dietPreference,
       passwordHash
     });
 
@@ -177,7 +181,8 @@ export const firebaseAuth = async (req, res) => {
         email,
         role: shouldBeAdmin ? "admin" : "user",
         googleId: firebaseUid,
-        avatar
+        avatar,
+        dietPreference: "veg"
       });
       user = await User.findById(user._id).select("+refreshToken");
       await recordActivity(user._id, "register", "Registered with Google.");
@@ -339,6 +344,7 @@ export const deleteMe = async (req, res) => {
       TodoItem.deleteMany({ userId }),
       WorkoutPlan.deleteMany({ userId }),
       WallpaperConfig.deleteMany({ userId }),
+      DietLog.deleteMany({ userId }),
       OnboardingProfile.deleteMany({ userId }),
       User.deleteOne({ _id: userId })
     ]);

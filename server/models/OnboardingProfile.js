@@ -14,7 +14,8 @@ const onboardingProfileSchema = new mongoose.Schema(
       required: true
     },
     environment: { type: String, enum: ["gym", "home"], required: true },
-    durationWeeks: { type: Number, enum: [4, 8, 12, 24], required: true }
+    durationWeeks: { type: Number, enum: [4, 8, 12, 24], required: true },
+    dietPreference: { type: String, enum: ["veg", "non-veg"], default: "veg" }
   },
   { timestamps: true, versionKey: false }
 );

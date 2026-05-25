@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
     passwordHash: { type: String, select: false },
     googleId: { type: String, default: null, index: true },
     avatar: { type: String, default: "" },
+    dietPreference: { type: String, enum: ["veg", "non-veg"], default: "veg" },
     isOnboarded: { type: Boolean, default: false },
     refreshToken: { type: String, default: null, select: false },
     createdAt: { type: Date, default: Date.now }
@@ -20,6 +21,7 @@ const User = createHybridModel(mongoose.model("User", userSchema), "users", {
   role: "user",
   googleId: null,
   avatar: "",
+  dietPreference: "veg",
   isOnboarded: false,
   refreshToken: null
 });

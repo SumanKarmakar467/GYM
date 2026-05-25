@@ -5,6 +5,7 @@ const validGoals = ["bodybuilder", "calisthenics", "powerlifter", "crossfit", "a
 const validGenders = ["male", "female", "other"];
 const validEnvironments = ["gym", "home"];
 const validDurations = [4, 8, 12, 24];
+const validDietPreferences = ["veg", "non-veg"];
 
 const normalizePayload = (body = {}) => ({
   age: Number(body.age),
@@ -13,7 +14,8 @@ const normalizePayload = (body = {}) => ({
   gender: String(body.gender || "").toLowerCase(),
   goal: String(body.goal || "").toLowerCase(),
   environment: String(body.environment || "").toLowerCase(),
-  durationWeeks: Number(body.durationWeeks)
+  durationWeeks: Number(body.durationWeeks),
+  dietPreference: String(body.dietPreference || "veg").toLowerCase()
 });
 
 const getProfileValidationErrors = (payload) => {
@@ -47,6 +49,10 @@ const getProfileValidationErrors = (payload) => {
     errors.push("Duration must be 4, 8, 12, or 24 weeks.");
   }
 
+  if (!validDietPreferences.includes(payload.dietPreference)) {
+    errors.push("Diet preference must be veg or non-veg.");
+  }
+
   return errors;
 };
 
@@ -73,13 +79,15 @@ export const saveOnboardingProfile = async (req, res) => {
 
     if (!req.user.isOnboarded) {
       req.user.isOnboarded = true;
-      await req.user.save();
     }
+    req.user.dietPreference = payload.dietPreference;
+    await req.user.save();
 
     await recordActivity(req.user._id, "onboarding_saved", "Saved onboarding profile.", {
       goal: payload.goal,
       environment: payload.environment,
-      durationWeeks: payload.durationWeeks
+      durationWeeks: payload.durationWeeks,
+      dietPreference: payload.dietPreference
     });
 
     return res.json(profile);

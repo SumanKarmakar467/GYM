@@ -8,6 +8,7 @@ const navItems = [
   { to: "/dashboard", label: "Dashboard" },
   { to: "/workout", label: "Workout" },
   { to: "/todos", label: "Todos" },
+  { to: "/diet", label: "Diet" },
   { to: "/wallpaper", label: "Wallpaper" },
   { to: "/profile", label: "Profile" }
 ];

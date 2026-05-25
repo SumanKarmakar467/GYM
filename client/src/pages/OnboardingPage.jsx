@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+﻿import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -84,7 +84,12 @@ const genderOptions = [
   { label: "Other", value: "other" }
 ];
 
-const steps = ["Body Stats", "Profile", "Physique", "Duration", "Workout Place"];
+const dietOptions = [
+  { label: "Veg", value: "veg", copy: "Paneer, dal, tofu, curd, oats, legumes." },
+  { label: "Non-Veg", value: "non-veg", copy: "Eggs, chicken, fish, curd, dal, greens." }
+];
+
+const steps = ["Body Stats", "Profile", "Physique", "Diet", "Duration", "Workout Place"];
 
 const feetToCm = (feet, inches) => Math.round((Number(feet) * 12 + Number(inches || 0)) * 2.54);
 
@@ -103,6 +108,7 @@ const OnboardingPage = () => {
     weightKg: "",
     gender: "",
     bodyType: "",
+    dietPreference: "veg",
     level: "Beginner",
     duration: "1 month",
     equipment: "Home Gym"
@@ -167,11 +173,15 @@ const OnboardingPage = () => {
       return "Please choose your target body type.";
     }
 
-    if (targetStep === 3 && !selectedDuration) {
+    if (targetStep === 3 && !dietOptions.some((option) => option.value === form.dietPreference)) {
+      return "Please choose a diet preference.";
+    }
+
+    if (targetStep === 4 && !selectedDuration) {
       return "Please choose a program duration.";
     }
 
-    if (targetStep === 4 && !selectedEquipment) {
+    if (targetStep === 5 && !selectedEquipment) {
       return "Please choose where you want to workout.";
     }
 
@@ -226,7 +236,8 @@ const OnboardingPage = () => {
         gender: form.gender,
         goal: selectedBodyType.profileGoal,
         environment: selectedEquipment.environment,
-        durationWeeks: selectedDuration.weeks
+        durationWeeks: selectedDuration.weeks,
+        dietPreference: form.dietPreference
       });
 
       await api.post("/workout/generate", {
@@ -474,6 +485,34 @@ const OnboardingPage = () => {
 
                   {step === 3 ? (
                     <div>
+                      <h2 className="font-cond text-4xl font-bold uppercase tracking-wide">Choose your diet lane</h2>
+                      <p className="mt-2 text-sm text-mist">Your meal plan will adapt to your food preference, weight, and physique goal.</p>
+
+                      <div className="mt-6 grid gap-4 md:grid-cols-2">
+                        {dietOptions.map((option) => {
+                          const active = form.dietPreference === option.value;
+                          return (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => updateField("dietPreference", option.value)}
+                              className={`border p-5 text-left transition hover:-translate-y-1 ${
+                                active ? "border-fire bg-fire/15" : "border-white/[0.08] bg-iron hover:border-fire/50"
+                              }`}
+                              style={{ clipPath: "polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px))" }}
+                              disabled={loading}
+                            >
+                              <p className="font-display text-4xl text-fire">{option.label}</p>
+                              <p className="mt-3 text-sm leading-relaxed text-mist">{option.copy}</p>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {step === 4 ? (
+                    <div>
                       <h2 className="font-cond text-4xl font-bold uppercase tracking-wide">Choose program duration</h2>
                       <p className="mt-2 text-sm text-mist">Short sprint or full transformation. Pick the runway.</p>
 
@@ -502,7 +541,7 @@ const OnboardingPage = () => {
                     </div>
                   ) : null}
 
-                  {step === 4 ? (
+                  {step === 5 ? (
                     <div>
                       <h2 className="font-cond text-4xl font-bold uppercase tracking-wide">Where do you want to workout?</h2>
                       <p className="mt-2 text-sm text-mist">Your plan adapts to the equipment you actually have.</p>
@@ -522,7 +561,7 @@ const OnboardingPage = () => {
                       <div className="mt-6 border border-fire/20 bg-fire/10 p-4">
                         <p className="font-body text-xs font-bold uppercase tracking-[2px] text-fire">Ready to forge</p>
                         <p className="mt-1 text-sm text-mist">
-                          {selectedBodyType?.label || "Your target physique"} · {form.level} · {selectedDuration.label} · {selectedEquipment.label}
+                          {selectedBodyType?.label || "Your target physique"} · {form.level} · {form.dietPreference === "non-veg" ? "Non-Veg" : "Veg"} · {selectedDuration.label} · {selectedEquipment.label}
                         </p>
                       </div>
                     </div>
@@ -620,3 +659,4 @@ const ImageChoice = ({ option, active, onClick, compact = false }) => (
 );
 
 export default OnboardingPage;
+

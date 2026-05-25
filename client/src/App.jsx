@@ -15,6 +15,7 @@ const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const WorkoutDetailPage = lazy(() => import("./pages/WorkoutDetailPage"));
 const TodoListPage = lazy(() => import("./pages/TodoListPage"));
+const DietPage = lazy(() => import("./pages/DietPage"));
 const WallpaperPage = lazy(() => import("./pages/WallpaperPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
@@ -74,6 +75,15 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <TodoListPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/diet"
+              element={
+                <ProtectedRoute>
+                  <DietPage />
                 </ProtectedRoute>
               }
             />
