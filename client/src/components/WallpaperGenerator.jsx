@@ -114,18 +114,21 @@ const WallpaperGenerator = ({
   onSelectStyle,
   onRandomQuote,
   onGeneratePreview,
-  onDownload,
   previewRef,
   loadingRandom,
   saving,
-  downloading,
-  progressDays = []
+  progressDays = [],
+  openedFromCompletedTodos = false
 }) => {
   return (
     <section className="grid gap-5 lg:grid-cols-[1fr_1.1fr]">
       <article className="card p-5 md:p-6">
-        <h2 className="text-xl font-semibold">Controls</h2>
-        <p className="mt-1 text-sm text-textSecondary">Customize your wallpaper quote and live progress tracker.</p>
+        <h2 className="text-xl font-semibold">Streak setup</h2>
+        <p className="mt-1 text-sm text-textSecondary">
+          {openedFromCompletedTodos
+            ? "Your completed workout todos are already connected to this wallpaper."
+            : "Customize your wallpaper quote and live progress tracker."}
+        </p>
 
         <label className="mt-5 block text-sm text-textSecondary">Quote</label>
         <textarea
@@ -170,10 +173,7 @@ const WallpaperGenerator = ({
 
         <div className="mt-5 flex flex-wrap gap-3">
           <button type="button" className="btn-primary" onClick={onGeneratePreview} disabled={saving}>
-            {saving ? "Saving..." : "Generate Preview"}
-          </button>
-          <button type="button" className="btn-ghost" onClick={onDownload} disabled={downloading}>
-            {downloading ? "Downloading..." : "Download PNG"}
+            {saving ? "Saving..." : openedFromCompletedTodos ? "Set Streak Wallpaper" : "Save Streak Wallpaper"}
           </button>
         </div>
       </article>

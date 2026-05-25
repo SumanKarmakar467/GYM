@@ -1,5 +1,5 @@
 ﻿import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import DownloadAppButton from "../components/DownloadAppButton";
 import Reveal from "../components/Reveal";
@@ -93,6 +93,8 @@ const LandingPage = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [typed, setTyped] = useState("");
+  const dragStartRef = useRef(null);
+  const [videoTransform, setVideoTransform] = useState({ rotateX: 7, rotateY: -14, zoom: 1 });
   const [counters, setCounters] = useState(
     Object.fromEntries(tickerItems.map((item) => [item.id, 0]))
   );
@@ -197,6 +199,56 @@ const LandingPage = () => {
 
   const duplicatedTicker = useMemo(() => [...tickerItems, ...tickerItems], []);
   const duplicatedTestimonials = useMemo(() => [...testimonials, ...testimonials], []);
+
+  const clampVideoTransform = (nextTransform) => ({
+    rotateX: Math.max(-28, Math.min(28, nextTransform.rotateX)),
+    rotateY: Math.max(-180, Math.min(180, nextTransform.rotateY)),
+    zoom: Math.max(0.78, Math.min(1.32, nextTransform.zoom))
+  });
+
+  const updateVideoTransform = (nextTransform) => {
+    setVideoTransform((current) => clampVideoTransform({ ...current, ...nextTransform }));
+  };
+
+  const handleVideoDragStart = (event) => {
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragStartRef.current = {
+      x: event.clientX,
+      y: event.clientY,
+      rotateX: videoTransform.rotateX,
+      rotateY: videoTransform.rotateY
+    };
+  };
+
+  const handleVideoDrag = (event) => {
+    const dragStart = dragStartRef.current;
+
+    if (!dragStart) {
+      return;
+    }
+
+    const nextRotateY = dragStart.rotateY + (event.clientX - dragStart.x) * 0.18;
+    const nextRotateX = dragStart.rotateX - (event.clientY - dragStart.y) * 0.16;
+    setVideoTransform((current) => clampVideoTransform({ ...current, rotateX: nextRotateX, rotateY: nextRotateY }));
+  };
+
+  const handleVideoDragEnd = () => {
+    dragStartRef.current = null;
+  };
+
+  const handleVideoWheel = (event) => {
+    event.preventDefault();
+    const direction = event.deltaY > 0 ? -0.05 : 0.05;
+    setVideoTransform((current) => clampVideoTransform({ ...current, zoom: current.zoom + direction }));
+  };
+
+  const resetVideoTransform = () => {
+    setVideoTransform({ rotateX: 7, rotateY: -14, zoom: 1 });
+  };
 
   const openFeatures = () => {
     document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
@@ -435,6 +487,98 @@ const LandingPage = () => {
               </Reveal>
             ))}
           </div>
+        </section>
+
+        <section id="demo-video" className="mx-auto w-full max-w-6xl px-4 py-8 md:px-6">
+          <Reveal>
+            <div className="demo-video-section">
+              <div className="demo-video-copy">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-300">Demo video</p>
+                <h3 className="mt-3 text-3xl font-bold md:text-4xl">Watch the Shorts demo inside GymForge</h3>
+                <p className="mt-3 text-sm leading-relaxed text-zinc-300 md:text-base">
+                  The player stays embedded on this page. Drag the top handle to rotate the video card, then zoom with the controls or your mouse wheel.
+                </p>
+
+                <div className="mt-6 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => updateVideoTransform({ zoom: videoTransform.zoom - 0.08 })}
+                    className="demo-video-control"
+                    aria-label="Zoom out demo video"
+                  >
+                    -
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateVideoTransform({ zoom: videoTransform.zoom + 0.08 })}
+                    className="demo-video-control"
+                    aria-label="Zoom in demo video"
+                  >
+                    +
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateVideoTransform({ rotateY: videoTransform.rotateY - 18 })}
+                    className="demo-video-control"
+                    aria-label="Rotate demo video left"
+                  >
+                    Left
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateVideoTransform({ rotateY: videoTransform.rotateY + 18 })}
+                    className="demo-video-control"
+                    aria-label="Rotate demo video right"
+                  >
+                    Right
+                  </button>
+                  <button
+                    type="button"
+                    onClick={resetVideoTransform}
+                    className="demo-video-control demo-video-control-reset"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              <div
+                className="demo-video-stage"
+                onWheel={handleVideoWheel}
+                aria-label="Rotatable and zoomable GymForge demo video"
+              >
+                <div
+                  className="demo-video-card"
+                  style={{
+                    transform: `rotateX(${videoTransform.rotateX}deg) rotateY(${videoTransform.rotateY}deg) scale(${videoTransform.zoom})`
+                  }}
+                >
+                  <div
+                    className="demo-video-drag-handle"
+                    onPointerDown={handleVideoDragStart}
+                    onPointerMove={handleVideoDrag}
+                    onPointerUp={handleVideoDragEnd}
+                    onPointerCancel={handleVideoDragEnd}
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Drag to rotate demo video"
+                  >
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                  <div className="demo-video-frame">
+                    <iframe
+                      title="GymForge demo video"
+                      src="https://www.youtube.com/embed/nu8rzPjRYTI?rel=0&modestbranding=1&playsinline=1"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </section>
 
         <section id="how" className="mx-auto w-full max-w-6xl px-4 py-8 md:px-6">

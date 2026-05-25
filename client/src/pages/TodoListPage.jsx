@@ -1,6 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 import EmptyState from "../components/EmptyState";
 import SkeletonCard from "../components/SkeletonCard";
@@ -13,7 +14,9 @@ const dayLetters = ["M", "T", "W", "T", "F", "S", "S"];
 
 const TodoListPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
+  const redirectedToWallpaperRef = useRef(false);
   const demoMode = isDemoAthlete(user);
   const todayKey = toYmd(new Date());
   const [selectedDate, setSelectedDate] = useState(todayKey);
@@ -204,9 +207,28 @@ const TodoListPage = () => {
     }
   };
 
+  const redirectToWallpaperWhenComplete = (nextTodos, date) => {
+    const hasTodos = nextTodos.length > 0;
+    const allDone = hasTodos && nextTodos.every((item) => item.completed);
+
+    if (!allDone || redirectedToWallpaperRef.current) {
+      return;
+    }
+
+    redirectedToWallpaperRef.current = true;
+    toast.success("Workout todos complete. Opening your streak wallpaper.");
+    navigate("/wallpaper", {
+      state: {
+        fromCompletedTodos: true,
+        completedDate: date
+      }
+    });
+  };
+
   const toggleTodo = async (todo) => {
     if (demoMode) {
-      setTodos((prev) => prev.map((item) => (item._id === todo._id ? { ...item, completed: !item.completed } : item)));
+      const nextTodos = todos.map((item) => (item._id === todo._id ? { ...item, completed: !item.completed } : item));
+      setTodos(nextTodos);
       setWeekStatus((prev) => {
         const current = prev[selectedDate] || { total: todos.length, completed: 0 };
         return {
@@ -217,12 +239,15 @@ const TodoListPage = () => {
           }
         };
       });
+      redirectToWallpaperWhenComplete(nextTodos, selectedDate);
       return;
     }
 
     try {
       await api.patch(`/todos/${todo._id}`, { completed: !todo.completed });
-      await Promise.all([refreshTodosForDate(selectedDate), refreshWeekStatus()]);
+      const [nextTodos] = await Promise.all([fetchTodosByDate(selectedDate), refreshWeekStatus()]);
+      setTodos(nextTodos);
+      redirectToWallpaperWhenComplete(nextTodos, selectedDate);
     } catch {
       toast.error("Could not update todo. Try again.");
     }

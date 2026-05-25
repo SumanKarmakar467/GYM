@@ -7,6 +7,7 @@ import SkeletonCard, { SkeletonGrid } from "../components/SkeletonCard";
 import AppNavbar from "../components/layout/AppNavbar";
 import useAuth from "../hooks/useAuth";
 import { demoWorkoutPlan, isDemoAthlete } from "../utils/demoUserData";
+import { buildExerciseGuide } from "../utils/exerciseGuide";
 
 const parseRestSeconds = (restValue) => {
   if (typeof restValue === "number" && Number.isFinite(restValue)) {
@@ -73,6 +74,75 @@ const demoLabels = {
   general: "Full body control"
 };
 
+const exerciseIcons = {
+  lower: "L",
+  push: "P",
+  pull: "B",
+  cardio: "C",
+  general: "G"
+};
+
+const muscleProfiles = {
+  lower: [
+    ["Quads", 92],
+    ["Glutes", 84],
+    ["Hamstrings", 70],
+    ["Core", 45]
+  ],
+  push: [
+    ["Chest", 90],
+    ["Shoulders", 74],
+    ["Triceps", 82],
+    ["Core", 38]
+  ],
+  pull: [
+    ["Lats", 88],
+    ["Upper Back", 82],
+    ["Biceps", 68],
+    ["Rear Delts", 58]
+  ],
+  cardio: [
+    ["Heart Rate", 95],
+    ["Leg Drive", 76],
+    ["Core", 62],
+    ["Calves", 55]
+  ],
+  general: [
+    ["Full Body", 84],
+    ["Core", 72],
+    ["Glutes", 58],
+    ["Shoulders", 45]
+  ]
+};
+
+const getExerciseName = (exercise) => exercise?.exerciseName || exercise?.name || "Exercise";
+
+const getExerciseNumber = (value, fallback = 0) => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  const match = String(value || "").match(/\d+/);
+  return match ? Number(match[0]) : fallback;
+};
+
+const formatRestShort = (restValue) => {
+  const seconds = parseRestSeconds(restValue);
+
+  if (seconds >= 60 && seconds % 60 === 0) {
+    return `${seconds / 60}m`;
+  }
+
+  return `${seconds}s`;
+};
+
+const getDifficulty = (exercise, type) => {
+  const reps = getExerciseNumber(exercise?.reps, 10);
+  const sets = getExerciseNumber(exercise?.sets, 3);
+  const base = type === "cardio" ? 4 : type === "general" ? 3 : 3;
+  return Math.max(2, Math.min(5, base + (sets >= 4 ? 1 : 0) + (reps >= 15 ? 1 : 0)));
+};
+
 const DemoAnimation = ({ type }) => {
   return (
     <div className={`demo-stage demo-stage-3d demo-stage-${type}`}>
@@ -126,7 +196,9 @@ const WorkoutDetailPage = () => {
   const [completedMap, setCompletedMap] = useState({});
   const [notesMap, setNotesMap] = useState({});
   const [restTimer, setRestTimer] = useState(null);
-  const [demoExercise, setDemoExercise] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isPlayerExpanded, setIsPlayerExpanded] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const [pulseKey, setPulseKey] = useState("");
   const [timerBarWidth, setTimerBarWidth] = useState(100);
   const didCelebrateRef = useRef(false);
@@ -164,6 +236,17 @@ const WorkoutDetailPage = () => {
 
   const activeDay = useMemo(() => pickActiveWorkoutDay(plan), [plan]);
   const exercises = activeDay?.exercises || [];
+  const selectedExercise = exercises[selectedIndex] || exercises[0] || null;
+  const selectedKey = selectedExercise ? `${activeDay?.weekNumber || 0}-${selectedIndex}` : "";
+  const selectedName = getExerciseName(selectedExercise);
+  const selectedType = getDemoType(selectedName);
+  const selectedGuide = selectedExercise ? buildExerciseGuide(selectedExercise) : null;
+  const musclesWorked = muscleProfiles[selectedType] || muscleProfiles.general;
+  const selectedSets = getExerciseNumber(selectedExercise?.sets, 3);
+  const selectedReps = getExerciseNumber(selectedExercise?.reps, 10);
+  const selectedRest = formatRestShort(selectedExercise?.rest || 60);
+  const selectedCalories = Math.max(25, selectedSets * selectedReps * (selectedType === "cardio" ? 3 : 2));
+  const selectedDifficulty = getDifficulty(selectedExercise || {}, selectedType);
   const totalExercises = exercises.length;
   const completedExercises = exercises.reduce((count, _exercise, index) => {
     const key = `${activeDay?.weekNumber || 0}-${index}`;
@@ -187,6 +270,10 @@ const WorkoutDetailPage = () => {
       didCelebrateRef.current = false;
     }
   }, [completedExercises, totalExercises]);
+
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [activeDay?.weekNumber, activeDay?.dayName]);
 
   useEffect(() => {
     if (!restTimer) {
@@ -237,6 +324,14 @@ const WorkoutDetailPage = () => {
     }
   };
 
+  const selectPreviousExercise = () => {
+    setSelectedIndex((current) => Math.max(0, current - 1));
+  };
+
+  const selectNextExercise = () => {
+    setSelectedIndex((current) => Math.min(totalExercises - 1, current + 1));
+  };
+
   const radius = 52;
   const circumference = 2 * Math.PI * radius;
   const safeTotal = Math.max(totalExercises, 1);
@@ -283,109 +378,157 @@ const WorkoutDetailPage = () => {
   return (
     <div className="min-h-screen pb-24">
       <AppNavbar />
-      <main className="mx-auto w-full max-w-5xl px-4 pb-6 md:px-6">
-        <section className="card mt-2 p-5 md:p-6">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-brandSecondary">Week {activeDay.weekNumber}</p>
-          <h1 className="mt-2 text-3xl font-bold">{activeDay.dayName} - {activeDay.focus}</h1>
-          <div className="mt-5 grid place-items-center rounded-2xl border border-borderSubtle bg-bgSecondary p-5">
-            <div className="relative">
-              <svg width="132" height="132" viewBox="0 0 132 132" className="-rotate-90">
-                <circle cx="66" cy="66" r={radius} stroke="var(--border-subtle)" strokeWidth="10" fill="none" />
-                <circle
-                  className="ring-progress"
-                  cx="66"
-                  cy="66"
-                  r={radius}
-                  stroke="#22c55e"
-                  strokeWidth="10"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={ringOffset}
-                />
-              </svg>
-              <div className="absolute inset-0 grid place-items-center text-center">
-                <p className="font-heading text-xl font-bold">{completedExercises}/{totalExercises} Done</p>
-              </div>
-            </div>
-            <p className="mt-3 text-xs uppercase tracking-[0.18em] text-brandSecondary">{percent}% complete</p>
+      <main className={`workout-player-shell ${isPlayerExpanded ? "is-expanded" : ""}`}>
+        <section className="workout-player-topbar">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-brandSecondary">Week {activeDay.weekNumber}</p>
+            <h1>{activeDay.dayName} - {activeDay.focus}</h1>
+          </div>
+          <div className="workout-progress-ring">
+            <svg width="68" height="68" viewBox="0 0 132 132" className="-rotate-90">
+              <circle cx="66" cy="66" r={radius} stroke="var(--border-subtle)" strokeWidth="12" fill="none" />
+              <circle
+                className="ring-progress"
+                cx="66"
+                cy="66"
+                r={radius}
+                stroke="#ff6b00"
+                strokeWidth="12"
+                fill="none"
+                strokeLinecap="round"
+                strokeDasharray={circumference}
+                strokeDashoffset={ringOffset}
+              />
+            </svg>
+            <span>{percent}%</span>
           </div>
         </section>
 
-        <motion.section
-          variants={listVariants}
-          initial={prefersReducedMotion ? false : "hidden"}
-          animate={prefersReducedMotion ? false : "show"}
-          className="mt-4 space-y-3"
-        >
-          {exercises.map((exercise, index) => {
-            const key = `${activeDay.weekNumber}-${index}`;
-            const done = Boolean(completedMap[key]);
-            const restLabel = exercise.rest ? `${exercise.rest} rest` : "60s rest";
+        <div className="workout-demo-layout">
+          <aside className="workout-demo-sidebar">
+            <p className="workout-panel-label">Workout Plan</p>
+            <motion.div
+              variants={listVariants}
+              initial={prefersReducedMotion ? false : "hidden"}
+              animate={prefersReducedMotion ? false : "show"}
+              className="workout-demo-list"
+            >
+              {exercises.map((exercise, index) => {
+                const name = getExerciseName(exercise);
+                const type = getDemoType(name);
+                const key = `${activeDay.weekNumber}-${index}`;
+                const done = Boolean(completedMap[key]);
+                const selected = index === selectedIndex;
 
-            return (
-              <motion.article
-                key={key}
-                variants={cardVariants}
-                animate={{ scale: pulseKey === key ? 1.02 : 1 }}
-                transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
-                className={`card rounded-2xl border-l-4 p-5 transition-[border-color] duration-300 ${done ? "border-l-emerald-500" : "border-l-transparent"}`}
+                return (
+                  <motion.button
+                    key={key}
+                    variants={cardVariants}
+                    animate={{ scale: pulseKey === key ? 1.02 : 1 }}
+                    transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+                    type="button"
+                    onClick={() => setSelectedIndex(index)}
+                    className={`workout-demo-item ${selected ? "is-selected" : ""} ${done ? "is-done" : ""}`}
+                  >
+                    <span className="workout-demo-icon">{exerciseIcons[type] || "G"}</span>
+                    <span className="min-w-0">
+                      <strong>{name}</strong>
+                      <small>{exercise.sets || 3} sets · {exercise.reps || "10"} reps</small>
+                    </span>
+                    {done ? <span className="workout-demo-dot is-complete" /> : selected ? <span className="workout-demo-dot" /> : null}
+                  </motion.button>
+                );
+              })}
+            </motion.div>
+          </aside>
+
+          <section className="workout-demo-player" aria-label={`${selectedName} workout demo`}>
+            <div className="workout-now-playing">
+              <span />
+              Now Playing - {selectedName}
+            </div>
+
+            <div className="workout-video-phone">
+              <DemoAnimation type={selectedType} />
+              <div className="workout-video-gradient">
+                <h2>{selectedName}</h2>
+                <div className="workout-video-tags">
+                  <span>{selectedGuide?.label || "Technique"}</span>
+                  <span>{selectedSets} sets</span>
+                  <span>{selectedReps} reps</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="workout-player-controls">
+              <button type="button" onClick={selectPreviousExercise} disabled={selectedIndex === 0}>
+                Prev
+              </button>
+              <button
+                type="button"
+                className="is-primary"
+                onClick={() => selectedExercise && toggleDone(selectedExercise, selectedIndex)}
+                aria-pressed={Boolean(completedMap[selectedKey])}
               >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h2 className="text-2xl font-bold">{exercise.name}</h2>
-                    <p className="mt-2 text-sm text-textSecondary">
-                      {exercise.sets || 3} x {exercise.reps || "10"} - {restLabel}
-                    </p>
-                  </div>
+                {completedMap[selectedKey] ? "Completed" : "Mark Done"}
+              </button>
+              <button type="button" onClick={() => setIsMuted((current) => !current)}>
+                {isMuted ? "Muted" : "Sound"}
+              </button>
+              <button type="button" onClick={selectNextExercise} disabled={selectedIndex >= totalExercises - 1}>
+                Next
+              </button>
+              <button type="button" onClick={() => setIsPlayerExpanded((current) => !current)}>
+                {isPlayerExpanded ? "Exit" : "Fullscreen"}
+              </button>
+            </div>
+          </section>
 
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setDemoExercise(exercise)}
-                      className="rounded-lg border border-brandPrimary/40 bg-brandPrimary/10 px-3 py-2 text-xs font-semibold text-brandPrimary hover:bg-brandPrimary/20 focus-visible:bg-brandPrimary/20"
-                    >
-                      View Demo
-                    </button>
-
-                    <motion.button
-                      whileTap={prefersReducedMotion ? undefined : { scale: 1.02 }}
-                      type="button"
-                      onClick={() => toggleDone(exercise, index)}
-                      aria-label={`Mark ${exercise.name} as done`}
-                      aria-pressed={done}
-                      className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-100"
-                    >
-                      <span className="grid h-5 w-5 place-items-center rounded border border-emerald-300/70 bg-black/20">
-                        <motion.span
-                          initial={false}
-                          animate={done ? { scale: 1, rotate: 0, opacity: 1 } : { scale: 0, rotate: -45, opacity: 0 }}
-                          transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
-                          className="text-xs"
-                        >
-                          ?
-                        </motion.span>
-                      </span>
-                      <span>{done ? "Done" : "Mark Done"}</span>
-                    </motion.button>
-                  </div>
+          <aside className="workout-demo-inspector">
+            <p className="workout-panel-label">Muscles Worked</p>
+            <div className="workout-muscle-list">
+              {musclesWorked.map(([muscle, value]) => (
+                <div key={muscle} className="workout-muscle-row">
+                  <span>{muscle}</span>
+                  <div><span style={{ width: `${value}%` }} /></div>
+                  <small>{value}%</small>
                 </div>
+              ))}
+            </div>
 
-                <div className="mt-4">
-                  <label htmlFor={`note-${key}`} className="text-sm text-textSecondary">Notes</label>
-                  <textarea
-                    id={`note-${key}`}
-                    rows={3}
-                    className="input-field mt-2 resize-y"
-                    placeholder="Add your form notes or weight used..."
-                    value={notesMap[key] || ""}
-                    onChange={(event) => setNotesMap((prev) => ({ ...prev, [key]: event.target.value }))}
-                  />
-                </div>
-              </motion.article>
-            );
-          })}
-        </motion.section>
+            <p className="workout-panel-label mt-6">Workout Stats</p>
+            <div className="workout-stat-grid">
+              <div><strong>{selectedSets}</strong><span>Sets</span></div>
+              <div><strong>{selectedReps}</strong><span>Reps</span></div>
+              <div><strong>{selectedRest}</strong><span>Rest</span></div>
+              <div><strong>{selectedCalories}</strong><span>Calories</span></div>
+            </div>
+
+            <p className="workout-panel-label mt-6">Difficulty</p>
+            <div className="workout-stars" aria-label={`${selectedDifficulty} out of 5 difficulty`}>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <span key={index} className={index < selectedDifficulty ? "is-active" : ""}>★</span>
+              ))}
+            </div>
+
+            <p className="workout-panel-label mt-6">Form Tips</p>
+            <ul className="workout-tip-list">
+              {(selectedGuide?.cues || []).map((cue) => (
+                <li key={cue}>{cue}</li>
+              ))}
+            </ul>
+
+            <label htmlFor={`note-${selectedKey}`} className="workout-panel-label mt-6 block">Training Notes</label>
+            <textarea
+              id={`note-${selectedKey}`}
+              rows={4}
+              className="input-field mt-3 resize-y"
+              placeholder="Add weight, form notes, or pain-free range..."
+              value={notesMap[selectedKey] || ""}
+              onChange={(event) => setNotesMap((prev) => ({ ...prev, [selectedKey]: event.target.value }))}
+            />
+          </aside>
+        </div>
       </main>
 
       <AnimatePresence>
@@ -425,44 +568,6 @@ const WorkoutDetailPage = () => {
         ) : null}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {demoExercise ? (
-          <motion.div
-            initial={prefersReducedMotion ? false : { opacity: 0 }}
-            animate={prefersReducedMotion ? false : { opacity: 1 }}
-            exit={prefersReducedMotion ? false : { opacity: 0 }}
-            className="fixed inset-0 z-50 grid place-items-center bg-black/70 px-4"
-          >
-            <motion.div
-              initial={prefersReducedMotion ? false : { scale: 0.96, opacity: 0 }}
-              animate={prefersReducedMotion ? false : { scale: 1, opacity: 1 }}
-              exit={prefersReducedMotion ? false : { scale: 0.96, opacity: 0 }}
-              className="w-full max-w-xl rounded-2xl border border-borderSubtle bg-[#0c1723] p-6"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-2xl font-bold">{demoExercise.name} Demo</h3>
-                  <p className="mt-1 text-sm text-textSecondary">3D-style animated local guide for home training form.</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setDemoExercise(null)}
-                  className="rounded-lg border border-zinc-600 px-3 py-1 text-sm text-zinc-200"
-                >
-                  Close
-                </button>
-              </div>
-
-              <div className="mt-5 rounded-xl border border-borderSubtle bg-[#09121d] p-4">
-                <DemoAnimation type={getDemoType(demoExercise.name)} />
-                <p className="mt-4 text-sm text-textSecondary">
-                  Keep your core tight, use controlled tempo, and match the movement path before increasing reps.
-                </p>
-              </div>
-            </motion.div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
     </div>
   );
 };

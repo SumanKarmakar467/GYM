@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import html2canvas from "html2canvas";
+import { useLocation } from "react-router-dom";
 import api from "../api/api";
 import EmptyState from "../components/EmptyState";
 import WallpaperGenerator from "../components/WallpaperGenerator";
@@ -55,14 +55,15 @@ const buildDemoProgressTodos = () => {
 
 const WallpaperPage = () => {
   const { user } = useAuth();
+  const location = useLocation();
   const previewRef = useRef(null);
   const demoMode = isDemoAthlete(user);
+  const openedFromCompletedTodos = Boolean(location.state?.fromCompletedTodos);
   const [quote, setQuote] = useState("");
   const [selectedStyle, setSelectedStyle] = useState("Dark");
   const [loading, setLoading] = useState(true);
   const [loadingRandom, setLoadingRandom] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [downloading, setDownloading] = useState(false);
   const [hasSavedConfig, setHasSavedConfig] = useState(false);
   const [progressDays, setProgressDays] = useState([]);
 
@@ -176,35 +177,18 @@ const WallpaperPage = () => {
     }
   };
 
-  const downloadPreview = async () => {
-    if (!previewRef.current || downloading) {
-      return;
-    }
-
-    setDownloading(true);
-    try {
-      const canvas = await html2canvas(previewRef.current, {
-        scale: 2,
-        useCORS: true
-      });
-
-      const url = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "gymforge-wallpaper.png";
-      link.click();
-    } finally {
-      setDownloading(false);
-    }
-  };
-
   return (
     <div className="page-enter min-h-screen">
       <AppNavbar />
       <main className="mx-auto w-full max-w-6xl px-4 pb-10 md:px-6">
         <section className="card p-6 md:p-8">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-brandSecondary">Wallpaper Studio</p>
-          <h1 className="mt-2 text-3xl font-bold">Motivational Wallpaper Generator</h1>
+          <h1 className="mt-2 text-3xl font-bold">Streak Wallpaper Generator</h1>
+          {openedFromCompletedTodos ? (
+            <p className="mt-2 text-sm text-emerald-200">
+              Workout todos complete. Your latest completion data is now feeding the wallpaper streak preview.
+            </p>
+          ) : null}
           {demoMode ? (
             <p className="mt-2 text-sm text-textSecondary">
               Saved dummy wallpaper setup for {user.email}, matching the one-month home-workout progress story.
@@ -239,12 +223,11 @@ const WallpaperPage = () => {
                 onSelectStyle={setSelectedStyle}
                 onRandomQuote={generateRandomQuote}
                 onGeneratePreview={savePreview}
-                onDownload={downloadPreview}
                 previewRef={previewRef}
                 loadingRandom={loadingRandom}
                 saving={saving}
-                downloading={downloading}
                 progressDays={progressDays}
+                openedFromCompletedTodos={openedFromCompletedTodos}
               />
             </>
           )}

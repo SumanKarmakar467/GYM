@@ -36,11 +36,23 @@ const allowedOrigins = Array.from(
       .concat(defaultOrigins)
   )
 );
+const isAllowedLocalDevOrigin = (origin) => {
+  if (process.env.NODE_ENV === "production") {
+    return false;
+  }
+
+  try {
+    const url = new URL(origin);
+    return ["localhost", "127.0.0.1"].includes(url.hostname) && ["http:", "https:"].includes(url.protocol);
+  } catch {
+    return false;
+  }
+};
 
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(origin) || isAllowedLocalDevOrigin(origin)) {
         callback(null, true);
       } else {
         callback(new Error("CORS origin not allowed"));
