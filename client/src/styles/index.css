@@ -182,6 +182,100 @@ select:focus {
   animation: orbSecondary 6s ease-in-out infinite alternate;
 }
 
+.floating-dumbbells {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.floating-dumbbells span {
+  position: absolute;
+  width: 82px;
+  height: 18px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 107, 0, 0.16), rgba(244, 244, 245, 0.2), rgba(255, 107, 0, 0.16));
+  opacity: 0.16;
+  filter: blur(0.2px);
+  animation: floatingDumbbell 16s linear infinite;
+}
+
+.floating-dumbbells span::before,
+.floating-dumbbells span::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 40px;
+  border-radius: 6px;
+  background: rgba(255, 107, 0, 0.2);
+  transform: translateY(-50%);
+  box-shadow:
+    0 0 0 5px rgba(255, 255, 255, 0.035),
+    0 0 22px rgba(255, 107, 0, 0.15);
+}
+
+.floating-dumbbells span::before {
+  left: -8px;
+}
+
+.floating-dumbbells span::after {
+  right: -8px;
+}
+
+.floating-dumbbells span:nth-child(1) {
+  left: 7%;
+  top: 16%;
+  transform: rotate(-18deg);
+  animation-delay: -2s;
+}
+
+.floating-dumbbells span:nth-child(2) {
+  left: 78%;
+  top: 12%;
+  width: 68px;
+  transform: rotate(24deg);
+  animation-duration: 19s;
+  animation-delay: -7s;
+}
+
+.floating-dumbbells span:nth-child(3) {
+  left: 14%;
+  top: 72%;
+  width: 74px;
+  transform: rotate(18deg);
+  animation-duration: 21s;
+  animation-delay: -12s;
+}
+
+.floating-dumbbells span:nth-child(4) {
+  left: 84%;
+  top: 64%;
+  width: 92px;
+  transform: rotate(-26deg);
+  animation-duration: 18s;
+  animation-delay: -5s;
+}
+
+.floating-dumbbells span:nth-child(5) {
+  left: 43%;
+  top: 24%;
+  width: 58px;
+  transform: rotate(11deg);
+  animation-duration: 23s;
+  animation-delay: -16s;
+}
+
+.floating-dumbbells span:nth-child(6) {
+  left: 56%;
+  top: 84%;
+  width: 76px;
+  transform: rotate(-9deg);
+  animation-duration: 20s;
+  animation-delay: -10s;
+}
+
 .landing-nav {
   transition: background-color 0.25s ease, backdrop-filter 0.25s ease, box-shadow 0.25s ease;
 }
@@ -297,7 +391,7 @@ select:focus {
   pointer-events: none;
 }
 
-.hero-3d-scene {
+.hero-collage-scene {
   position: absolute;
   inset: 7% 1% 5% 5%;
   z-index: 3;
@@ -312,7 +406,8 @@ select:focus {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
-.hero-3d-grid {
+.hero-collage-scene::before {
+  content: "";
   position: absolute;
   inset: 0;
   background:
@@ -321,6 +416,157 @@ select:focus {
   background-size: 48px 48px;
   opacity: 0.35;
   mask-image: linear-gradient(to bottom, black 0%, transparent 78%);
+}
+
+.hero-collage-scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.62), transparent 30%, transparent 78%, rgba(0, 0, 0, 0.48)),
+    radial-gradient(circle at 58% 40%, transparent, rgba(0, 0, 0, 0.36) 72%),
+    linear-gradient(180deg, transparent 58%, rgba(0, 0, 0, 0.62));
+  pointer-events: none;
+}
+
+.hero-collage-grid {
+  position: absolute;
+  inset: 18px;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: 1.12fr 0.82fr 0.9fr;
+  grid-template-rows: 1fr 0.86fr;
+  gap: 12px;
+  transform: translateZ(34px);
+}
+
+.hero-collage-card {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 16px;
+  background: #050505;
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(255, 107, 0, 0.08);
+}
+
+.hero-collage-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, rgba(255, 107, 0, 0.18), transparent 36%),
+    linear-gradient(180deg, transparent 48%, rgba(0, 0, 0, 0.62));
+  pointer-events: none;
+}
+
+.hero-collage-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.8) contrast(1.16) brightness(0.82);
+  transform: scale(1.04);
+  transition: transform 0.5s ease, filter 0.5s ease;
+}
+
+.hero-collage-card:hover img {
+  transform: scale(1.12);
+  filter: grayscale(0.35) contrast(1.2) brightness(0.96);
+}
+
+.hero-collage-card-large {
+  grid-column: 1 / 2;
+  grid-row: 1 / 3;
+}
+
+.hero-collage-card-tall {
+  grid-column: 2 / 3;
+  grid-row: 1 / 3;
+}
+
+.hero-collage-card-small {
+  grid-column: 3 / 4;
+  grid-row: 1 / 2;
+}
+
+.hero-collage-card-wide {
+  grid-column: 3 / 4;
+  grid-row: 2 / 3;
+}
+
+.hero-collage-card-portrait {
+  position: absolute;
+  right: 9%;
+  bottom: 8%;
+  z-index: 4;
+  width: 34%;
+  height: 46%;
+  transform: rotate(-2deg);
+}
+
+.hero-collage-badge,
+.hero-collage-stat {
+  position: absolute;
+  z-index: 7;
+  border: 1px solid rgba(249, 115, 22, 0.28);
+  background: rgba(10, 10, 10, 0.78);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.34);
+}
+
+.hero-collage-badge {
+  left: 50%;
+  top: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  padding: 8px 14px;
+  color: #f8fafc;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.hero-collage-badge span {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #22c55e;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.78);
+  animation: blink 1s infinite;
+}
+
+.hero-collage-stat {
+  left: 24px;
+  bottom: 22px;
+  display: grid;
+  gap: 3px;
+  min-width: 170px;
+  border-radius: 14px;
+  padding: 13px 15px;
+}
+
+.hero-collage-stat span,
+.hero-collage-stat small {
+  color: rgba(244, 244, 245, 0.68);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hero-collage-stat strong {
+  color: #fb923c;
+  font-size: 1.2rem;
 }
 
 .hero-3d-rings span {
@@ -365,166 +611,201 @@ select:focus {
   animation: heroRepMeter 1.55s ease-in-out infinite;
 }
 
-.hero-3d-athlete {
+.hero-bodybuilder {
   position: absolute;
   left: 52%;
-  bottom: 60px;
+  bottom: 42px;
   --hero-athlete-scale: 1;
-  width: 230px;
-  height: 330px;
-  margin-left: -115px;
+  width: 250px;
+  height: 340px;
+  margin-left: -125px;
   transform-origin: 50% 92%;
   transform-style: preserve-3d;
-  animation: heroDeadliftBody 1.8s ease-in-out infinite;
+  animation: heroBodybuilderLift 1.9s ease-in-out infinite;
   filter: drop-shadow(0 28px 24px rgba(0, 0, 0, 0.6));
 }
 
-.hero-3d-athlete span {
+.hero-bodybuilder span {
   position: absolute;
   display: block;
 }
 
-.hero-3d-head {
-  left: 94px;
-  top: 5px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #f5c28b, #b8672a);
-  box-shadow: inset -10px -6px 12px rgba(0, 0, 0, 0.22);
-}
-
-.hero-3d-neck {
-  left: 104px;
-  top: 42px;
-  width: 24px;
-  height: 28px;
+.hero-bodybuilder-neck {
+  left: 108px;
+  top: 4px;
+  width: 34px;
+  height: 42px;
   border-radius: 999px;
-  background: #c87938;
+  background: linear-gradient(145deg, #c87938, #7c2d12);
+  opacity: 0.92;
 }
 
-.hero-3d-torso {
-  left: 63px;
-  top: 62px;
-  width: 104px;
-  height: 130px;
-  border-radius: 46px 46px 28px 28px;
+.hero-bodybuilder-traps {
+  left: 68px;
+  top: 34px;
+  width: 114px;
+  height: 54px;
+  border-radius: 54px 54px 16px 16px;
   background:
-    radial-gradient(circle at 48% 36%, rgba(255, 255, 255, 0.18), transparent 22%),
-    linear-gradient(145deg, #ff7a18, #a83210 78%);
-  box-shadow: inset -18px -20px 28px rgba(0, 0, 0, 0.24);
+    radial-gradient(circle at 28% 48%, rgba(255, 255, 255, 0.14), transparent 22%),
+    radial-gradient(circle at 72% 48%, rgba(255, 255, 255, 0.12), transparent 22%),
+    linear-gradient(145deg, #ff8a1f, #9f2d10 76%);
+  box-shadow: inset -16px -14px 22px rgba(0, 0, 0, 0.25);
 }
 
-.hero-3d-arm,
-.hero-3d-forearm,
-.hero-3d-leg,
-.hero-3d-shin {
+.hero-bodybuilder-shoulder {
+  top: 58px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.24), transparent 22%),
+    linear-gradient(145deg, #ff8a1f, #8f250c 78%);
+}
+
+.hero-bodybuilder-shoulder-left {
+  left: 34px;
+}
+
+.hero-bodybuilder-shoulder-right {
+  right: 34px;
+}
+
+.hero-bodybuilder-torso {
+  left: 62px;
+  top: 76px;
+  width: 126px;
+  height: 154px;
+  border-radius: 46px 46px 30px 30px;
+  background:
+    linear-gradient(90deg, transparent 48%, rgba(0, 0, 0, 0.18) 50%, transparent 52%),
+    radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.18), transparent 20%),
+    linear-gradient(145deg, #ff7417, #b7330f 72%, #5a1609);
+  clip-path: polygon(7% 0, 93% 0, 82% 100%, 18% 100%);
+  box-shadow: inset -22px -24px 30px rgba(0, 0, 0, 0.28);
+}
+
+.hero-bodybuilder-pec {
+  top: 98px;
+  width: 52px;
+  height: 36px;
+  border-radius: 48% 48% 34% 34%;
+  background: radial-gradient(circle at 44% 36%, rgba(255, 255, 255, 0.2), transparent 24%), rgba(255, 163, 64, 0.46);
+}
+
+.hero-bodybuilder-pec-left {
+  left: 68px;
+}
+
+.hero-bodybuilder-pec-right {
+  right: 68px;
+}
+
+.hero-bodybuilder-abs {
+  left: 99px;
+  top: 140px;
+  width: 52px;
+  height: 78px;
+  border-radius: 24px;
+  background:
+    linear-gradient(90deg, transparent 47%, rgba(255, 255, 255, 0.25) 50%, transparent 53%),
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0 2px, transparent 2px 24px);
+  opacity: 0.9;
+}
+
+.hero-bodybuilder-arm,
+.hero-bodybuilder-forearm,
+.hero-bodybuilder-leg {
   border-radius: 999px;
   transform-origin: 50% 12px;
   box-shadow: inset -6px -8px 10px rgba(0, 0, 0, 0.26);
 }
 
-.hero-3d-arm {
-  top: 90px;
-  width: 24px;
-  height: 92px;
+.hero-bodybuilder-arm {
+  top: 104px;
+  width: 30px;
+  height: 96px;
   background: linear-gradient(145deg, #f7bd83, #b65d22);
 }
 
-.hero-3d-arm-left {
-  left: 46px;
+.hero-bodybuilder-arm-left {
+  left: 42px;
   transform: rotate(36deg);
-  animation: heroDeadliftArmLeft 1.8s ease-in-out infinite;
+  animation: heroBodybuilderArmLeft 1.9s ease-in-out infinite;
 }
 
-.hero-3d-arm-right {
-  right: 46px;
+.hero-bodybuilder-arm-right {
+  right: 42px;
   transform: rotate(-36deg);
-  animation: heroDeadliftArmRight 1.8s ease-in-out infinite;
+  animation: heroBodybuilderArmRight 1.9s ease-in-out infinite;
 }
 
-.hero-3d-forearm {
-  top: 160px;
-  width: 22px;
-  height: 86px;
+.hero-bodybuilder-forearm {
+  top: 180px;
+  width: 28px;
+  height: 90px;
   background: linear-gradient(145deg, #f7bd83, #a84f1f);
 }
 
-.hero-3d-forearm-left {
-  left: 24px;
+.hero-bodybuilder-forearm-left {
+  left: 16px;
   transform: rotate(54deg);
-  animation: heroDeadliftForearmLeft 1.8s ease-in-out infinite;
+  animation: heroBodybuilderForearmLeft 1.9s ease-in-out infinite;
 }
 
-.hero-3d-forearm-right {
-  right: 24px;
+.hero-bodybuilder-forearm-right {
+  right: 16px;
   transform: rotate(-54deg);
-  animation: heroDeadliftForearmRight 1.8s ease-in-out infinite;
+  animation: heroBodybuilderForearmRight 1.9s ease-in-out infinite;
 }
 
-.hero-3d-leg {
-  top: 184px;
-  width: 30px;
-  height: 108px;
+.hero-bodybuilder-leg {
+  top: 220px;
+  width: 34px;
+  height: 116px;
   background: linear-gradient(145deg, #27272a, #111);
+  transform-origin: 50% 0;
 }
 
-.hero-3d-leg-left {
-  left: 74px;
+.hero-bodybuilder-leg-left {
+  left: 79px;
   transform: rotate(12deg);
-  animation: heroDeadliftLegLeft 1.8s ease-in-out infinite;
+  animation: heroBodybuilderLegLeft 1.9s ease-in-out infinite;
 }
 
-.hero-3d-leg-right {
-  right: 74px;
+.hero-bodybuilder-leg-right {
+  right: 79px;
   transform: rotate(-12deg);
-  animation: heroDeadliftLegRight 1.8s ease-in-out infinite;
+  animation: heroBodybuilderLegRight 1.9s ease-in-out infinite;
 }
 
-.hero-3d-shin {
-  top: 270px;
-  width: 28px;
-  height: 70px;
-  background: linear-gradient(145deg, #3f3f46, #151515);
-}
-
-.hero-3d-shin-left {
-  left: 62px;
-  transform: rotate(16deg);
-}
-
-.hero-3d-shin-right {
-  right: 62px;
-  transform: rotate(-16deg);
-}
-
-.hero-3d-bar {
-  left: -16px;
-  top: 230px;
-  width: 262px;
+.hero-bodybuilder-bar {
+  left: -24px;
+  top: 242px;
+  width: 298px;
   height: 12px;
   border-radius: 999px;
   background: linear-gradient(90deg, #9ca3af, #f8fafc, #71717a);
-  animation: heroDeadliftBar 1.8s ease-in-out infinite;
+  animation: heroBodybuilderBar 1.9s ease-in-out infinite;
 }
 
-.hero-3d-plate {
-  top: 203px;
-  width: 66px;
-  height: 66px;
-  border: 9px solid #ff7a18;
+.hero-bodybuilder-plate {
+  top: 213px;
+  width: 72px;
+  height: 72px;
+  border: 10px solid #ff7a18;
   border-radius: 50%;
   background: #111;
-  animation: heroDeadliftBar 1.8s ease-in-out infinite;
+  animation: heroBodybuilderBar 1.9s ease-in-out infinite;
   box-shadow: 0 0 28px rgba(249, 115, 22, 0.22);
 }
 
-.hero-3d-plate-left {
-  left: -56px;
+.hero-bodybuilder-plate-left {
+  left: -64px;
 }
 
-.hero-3d-plate-right {
-  right: -56px;
+.hero-bodybuilder-plate-right {
+  right: -64px;
 }
 
 .hero-3d-panel {
@@ -2231,6 +2512,14 @@ select:focus {
   to { transform: translate3d(20px, -30px, 0); }
 }
 
+@keyframes floatingDumbbell {
+  0% { margin-top: 0; opacity: 0.08; }
+  25% { opacity: 0.2; }
+  50% { margin-top: -34px; opacity: 0.16; }
+  75% { opacity: 0.22; }
+  100% { margin-top: 0; opacity: 0.08; }
+}
+
 @keyframes heroGlow {
   from { transform: scale(0.98); opacity: 0.65; }
   to { transform: scale(1.04); opacity: 1; }
@@ -2251,52 +2540,52 @@ select:focus {
   50% { height: 92%; }
 }
 
-@keyframes heroDeadliftBody {
-  0%, 100% { transform: rotateX(0deg) translateY(18px) scale(var(--hero-athlete-scale)) scaleY(0.94); }
-  45% { transform: rotateX(-8deg) translateY(-16px) scale(var(--hero-athlete-scale)) scaleY(1.02); }
-  70% { transform: rotateX(-4deg) translateY(-4px) scale(var(--hero-athlete-scale)) scaleY(0.99); }
+@keyframes heroBodybuilderLift {
+  0%, 100% { transform: translateY(20px) scale(var(--hero-athlete-scale)) scaleY(0.96); }
+  42% { transform: translateY(-18px) scale(var(--hero-athlete-scale)) scaleY(1.03); }
+  68% { transform: translateY(-4px) scale(var(--hero-athlete-scale)) scaleY(1); }
 }
 
-@keyframes heroDeadliftArmLeft {
-  0%, 100% { transform: rotate(48deg); }
-  45% { transform: rotate(22deg); }
-  70% { transform: rotate(32deg); }
+@keyframes heroBodybuilderArmLeft {
+  0%, 100% { transform: rotate(50deg); }
+  42% { transform: rotate(22deg); }
+  68% { transform: rotate(34deg); }
 }
 
-@keyframes heroDeadliftArmRight {
-  0%, 100% { transform: rotate(-48deg); }
-  45% { transform: rotate(-22deg); }
-  70% { transform: rotate(-32deg); }
+@keyframes heroBodybuilderArmRight {
+  0%, 100% { transform: rotate(-50deg); }
+  42% { transform: rotate(-22deg); }
+  68% { transform: rotate(-34deg); }
 }
 
-@keyframes heroDeadliftForearmLeft {
-  0%, 100% { transform: rotate(64deg) translateY(0); }
-  45% { transform: rotate(32deg) translateY(-8px); }
-  70% { transform: rotate(46deg) translateY(-3px); }
+@keyframes heroBodybuilderForearmLeft {
+  0%, 100% { transform: rotate(66deg) translateY(0); }
+  42% { transform: rotate(32deg) translateY(-10px); }
+  68% { transform: rotate(48deg) translateY(-4px); }
 }
 
-@keyframes heroDeadliftForearmRight {
-  0%, 100% { transform: rotate(-64deg) translateY(0); }
-  45% { transform: rotate(-32deg) translateY(-8px); }
-  70% { transform: rotate(-46deg) translateY(-3px); }
+@keyframes heroBodybuilderForearmRight {
+  0%, 100% { transform: rotate(-66deg) translateY(0); }
+  42% { transform: rotate(-32deg) translateY(-10px); }
+  68% { transform: rotate(-48deg) translateY(-4px); }
 }
 
-@keyframes heroDeadliftLegLeft {
-  0%, 100% { transform: rotate(22deg); }
-  45% { transform: rotate(8deg); }
-  70% { transform: rotate(14deg); }
+@keyframes heroBodybuilderLegLeft {
+  0%, 100% { transform: rotate(18deg); }
+  42% { transform: rotate(7deg); }
+  68% { transform: rotate(12deg); }
 }
 
-@keyframes heroDeadliftLegRight {
-  0%, 100% { transform: rotate(-22deg); }
-  45% { transform: rotate(-8deg); }
-  70% { transform: rotate(-14deg); }
+@keyframes heroBodybuilderLegRight {
+  0%, 100% { transform: rotate(-18deg); }
+  42% { transform: rotate(-7deg); }
+  68% { transform: rotate(-12deg); }
 }
 
-@keyframes heroDeadliftBar {
-  0%, 100% { transform: translateY(30px); }
-  45% { transform: translateY(-52px); }
-  70% { transform: translateY(-24px); }
+@keyframes heroBodybuilderBar {
+  0%, 100% { transform: translateY(32px); }
+  42% { transform: translateY(-50px); }
+  68% { transform: translateY(-22px); }
 }
 
 @keyframes scrollDown {
@@ -2458,7 +2747,7 @@ select:focus {
     min-height: 380px;
   }
 
-  .hero-3d-athlete {
+  .hero-bodybuilder {
     --hero-athlete-scale: 0.88;
   }
 
@@ -2498,31 +2787,52 @@ select:focus {
     min-height: 310px;
   }
 
-  .hero-3d-scene {
+  .hero-collage-scene {
     inset: 6% 0 4% 2%;
   }
 
-  .hero-3d-athlete {
-    left: 54%;
-    bottom: 34px;
-    --hero-athlete-scale: 0.72;
+  .hero-collage-grid {
+    inset: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: 1fr 1fr 0.78fr;
+    gap: 8px;
   }
 
-  .hero-3d-panel {
-    min-width: 112px;
-    padding: 9px 10px;
+  .hero-collage-card-large {
+    grid-column: 1 / 2;
+    grid-row: 1 / 3;
   }
 
-  .hero-3d-panel strong {
-    font-size: 0.95rem;
+  .hero-collage-card-tall {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
   }
 
-  .hero-3d-panel small,
-  .hero-3d-panel span {
-    font-size: 0.58rem;
+  .hero-collage-card-small {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
   }
 
-  .hero-3d-status {
+  .hero-collage-card-wide,
+  .hero-collage-card-portrait {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    width: auto;
+    height: auto;
+    transform: none;
+    grid-row: 3 / 4;
+  }
+
+  .hero-collage-card-wide {
+    grid-column: 1 / 2;
+  }
+
+  .hero-collage-card-portrait {
+    grid-column: 2 / 3;
+  }
+
+  .hero-collage-badge {
     top: 14px;
     max-width: 80%;
     overflow: hidden;
@@ -2530,10 +2840,20 @@ select:focus {
     font-size: 0.62rem;
   }
 
-  .hero-3d-meter {
-    left: 16px;
-    top: 56px;
-    height: 118px;
+  .hero-collage-stat {
+    left: 14px;
+    bottom: 14px;
+    min-width: 130px;
+    padding: 10px 12px;
+  }
+
+  .hero-collage-stat strong {
+    font-size: 0.95rem;
+  }
+
+  .hero-collage-stat span,
+  .hero-collage-stat small {
+    font-size: 0.56rem;
   }
 
   .tracker-showcase {

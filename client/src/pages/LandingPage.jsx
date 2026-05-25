@@ -401,6 +401,14 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
+      <div className="floating-dumbbells" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
       <motion.header
         initial={prefersReducedMotion ? false : { opacity: 0, y: -20 }}
         animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
@@ -532,48 +540,55 @@ const LandingPage = () => {
               animate={prefersReducedMotion ? false : { opacity: 1, x: 0, scale: 1 }}
               transition={{ delay: prefersReducedMotion ? 0 : 0.35, duration: prefersReducedMotion ? 0 : 0.75, ease: "easeOut" }}
               className="hero-visual-shell"
-              aria-label="3D animated athlete performing a workout"
+              aria-label="Animated bodybuilding image collage"
             >
               <div className="hero-visual-glow" />
-              <div className="hero-3d-scene">
-                <div className="hero-3d-grid" />
-                <div className="hero-3d-rings">
-                  <span />
-                  <span />
-                  <span />
+              <div className="hero-collage-scene">
+                <div className="hero-collage-grid">
+                  <motion.figure
+                    className="hero-collage-card hero-collage-card-large"
+                    animate={prefersReducedMotion ? false : { y: [0, -12, 0], rotateZ: [-1, 1, -1] }}
+                    transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <img src="/images/hero-collage/bodybuilder-shadow.jpg" alt="Bodybuilder silhouette in dramatic light" />
+                  </motion.figure>
+                  <motion.figure
+                    className="hero-collage-card hero-collage-card-tall"
+                    animate={prefersReducedMotion ? false : { y: [0, 10, 0], rotateZ: [1, -1, 1] }}
+                    transition={{ duration: 7.2, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <img src="/images/hero-collage/classic-pose.jpg" alt="Classic bodybuilding pose" />
+                  </motion.figure>
+                  <motion.figure
+                    className="hero-collage-card hero-collage-card-small"
+                    animate={prefersReducedMotion ? false : { y: [0, -8, 0], scale: [1, 1.03, 1] }}
+                    transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <img src="/images/hero-collage/body-detail.jpg" alt="Bodybuilder leg and torso detail" />
+                  </motion.figure>
+                  <motion.figure
+                    className="hero-collage-card hero-collage-card-wide"
+                    animate={prefersReducedMotion ? false : { y: [0, 8, 0], scale: [1, 1.025, 1] }}
+                    transition={{ duration: 6.2, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <img src="/images/hero-collage/front-pose.jpg" alt="Front bodybuilding pose" />
+                  </motion.figure>
+                  <motion.figure
+                    className="hero-collage-card hero-collage-card-portrait"
+                    animate={prefersReducedMotion ? false : { y: [0, -10, 0], rotateZ: [0.8, -0.8, 0.8] }}
+                    transition={{ duration: 7.8, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <img src="/images/hero-collage/upper-body.jpg" alt="Upper body bodybuilding portrait" />
+                  </motion.figure>
                 </div>
-                <div className="hero-3d-meter">
+                <div className="hero-collage-badge">
                   <span />
+                  Bodybuilding visual system
                 </div>
-                <div className="hero-3d-athlete" aria-hidden="true">
-                  <span className="hero-3d-head" />
-                  <span className="hero-3d-neck" />
-                  <span className="hero-3d-torso" />
-                  <span className="hero-3d-arm hero-3d-arm-left" />
-                  <span className="hero-3d-arm hero-3d-arm-right" />
-                  <span className="hero-3d-forearm hero-3d-forearm-left" />
-                  <span className="hero-3d-forearm hero-3d-forearm-right" />
-                  <span className="hero-3d-leg hero-3d-leg-left" />
-                  <span className="hero-3d-leg hero-3d-leg-right" />
-                  <span className="hero-3d-shin hero-3d-shin-left" />
-                  <span className="hero-3d-shin hero-3d-shin-right" />
-                  <span className="hero-3d-bar" />
-                  <span className="hero-3d-plate hero-3d-plate-left" />
-                  <span className="hero-3d-plate hero-3d-plate-right" />
-                </div>
-                <div className="hero-3d-panel hero-3d-panel-left">
-                  <span>Workout</span>
-                  <strong>Push Power</strong>
-                  <small>4 sets · 12 reps</small>
-                </div>
-                <div className="hero-3d-panel hero-3d-panel-right">
-                  <span>Form</span>
-                  <strong>92%</strong>
-                  <small>Tempo locked</small>
-                </div>
-                <div className="hero-3d-status">
-                  <span />
-                  Live training demo
+                <div className="hero-collage-stat">
+                  <span>Focus</span>
+                  <strong>Hypertrophy</strong>
+                  <small>Strength · Shape · Discipline</small>
                 </div>
               </div>
             </motion.div>
