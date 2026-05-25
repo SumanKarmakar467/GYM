@@ -464,6 +464,334 @@ select:focus {
   box-shadow: 0 20px 54px rgba(0, 0, 0, 0.38);
 }
 
+.register-stage {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255, 69, 0, 0.16), transparent 34%),
+    radial-gradient(circle at 82% 72%, rgba(45, 212, 191, 0.1), transparent 30%),
+    var(--color-iron);
+}
+
+.register-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(circle at center, black, transparent 72%);
+}
+
+.register-stage > * {
+  position: relative;
+  z-index: 1;
+}
+
+.register-welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(5, 5, 5, 0.86);
+  backdrop-filter: blur(18px);
+}
+
+.register-welcome-card {
+  position: relative;
+  display: grid;
+  width: min(92vw, 440px);
+  min-height: 430px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 107, 0, 0.34);
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(145deg, rgba(255, 107, 0, 0.12), transparent 34%),
+    #101010;
+  padding: 34px;
+  text-align: center;
+  box-shadow:
+    0 28px 90px rgba(0, 0, 0, 0.58),
+    0 0 48px rgba(255, 107, 0, 0.18);
+}
+
+.register-welcome-card::before {
+  content: "";
+  position: absolute;
+  inset: -45%;
+  background: conic-gradient(from 90deg, transparent, rgba(255, 107, 0, 0.42), transparent, rgba(45, 212, 191, 0.24), transparent);
+  animation: welcomeSpin 3s linear infinite;
+}
+
+.register-welcome-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.register-welcome-mark {
+  display: grid;
+  width: 116px;
+  height: 116px;
+  place-items: center;
+  border: 1px solid rgba(255, 107, 0, 0.42);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 34%, rgba(255, 255, 255, 0.22), transparent 34%),
+    linear-gradient(145deg, #ff6b00, #7c2d12);
+  box-shadow:
+    0 0 0 12px rgba(255, 107, 0, 0.08),
+    0 0 48px rgba(255, 107, 0, 0.42);
+  color: #090909;
+  font-family: "Barlow Condensed", "Barlow", sans-serif;
+  font-size: 2.4rem;
+  font-weight: 900;
+  animation: welcomeMarkPulse 1.8s ease-in-out infinite;
+}
+
+.register-welcome-rings {
+  position: absolute;
+  inset: 36px;
+  pointer-events: none;
+}
+
+.register-welcome-rings span {
+  position: absolute;
+  inset: 50%;
+  border: 1px solid rgba(255, 107, 0, 0.24);
+  border-radius: 50%;
+  animation: welcomeRing 1.8s ease-out infinite;
+}
+
+.register-welcome-rings span:nth-child(2) {
+  animation-delay: 0.45s;
+}
+
+.register-welcome-rings span:nth-child(3) {
+  animation-delay: 0.9s;
+}
+
+.register-welcome-kicker {
+  margin-top: 24px;
+  color: #fb923c;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.register-welcome-card h2 {
+  margin-top: 8px;
+  color: #fff;
+  font-size: clamp(2rem, 8vw, 3.4rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.register-welcome-copy {
+  max-width: 320px;
+  margin-top: 12px;
+  color: #d4d4d8;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.register-welcome-loader {
+  width: min(100%, 300px);
+  height: 6px;
+  margin-top: 26px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.register-welcome-loader span {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff6b00, #facc15, #2dd4bf);
+  animation: welcomeLoad 1.4s ease-in-out infinite;
+}
+
+.landing-feature-radar {
+  position: relative;
+}
+
+.landing-feature-radar-grid {
+  display: grid;
+  gap: 26px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(135deg, rgba(255, 107, 0, 0.13), transparent 32%),
+    radial-gradient(circle at 82% 22%, rgba(45, 212, 191, 0.16), transparent 28%),
+    #101010;
+  padding: 24px;
+}
+
+.landing-feature-radar-copy {
+  max-width: 560px;
+}
+
+.landing-feature-radar-panel {
+  position: relative;
+  display: grid;
+  min-height: 430px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    #060606;
+  background-size: 34px 34px;
+}
+
+.feature-radar-orbit {
+  position: absolute;
+  inset: 34px;
+  pointer-events: none;
+}
+
+.feature-radar-orbit span {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255, 107, 0, 0.16);
+  border-radius: 50%;
+  animation: radarOrbit 7s linear infinite;
+}
+
+.feature-radar-orbit span:nth-child(2) {
+  inset: 56px;
+  border-color: rgba(45, 212, 191, 0.16);
+  animation-duration: 9s;
+  animation-direction: reverse;
+}
+
+.feature-radar-orbit span:nth-child(3) {
+  inset: 112px;
+  border-color: rgba(250, 204, 21, 0.14);
+  animation-duration: 5s;
+}
+
+.feature-radar-card {
+  position: relative;
+  z-index: 1;
+  width: min(92%, 430px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1rem;
+  background: rgba(13, 13, 13, 0.84);
+  padding: 22px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+}
+
+.feature-radar-label {
+  color: #fb923c;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.feature-radar-card h3 {
+  margin-top: 8px;
+  color: #fff;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  line-height: 1.05;
+}
+
+.feature-radar-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.feature-radar-stats div {
+  display: grid;
+  min-height: 78px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.045);
+  text-align: center;
+}
+
+.feature-radar-stats strong {
+  color: #ff6b00;
+  font-family: "Barlow Condensed", "Barlow", sans-serif;
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.feature-radar-stats span {
+  max-width: 86px;
+  color: #a1a1aa;
+  font-size: 0.68rem;
+  line-height: 1.2;
+}
+
+.feature-radar-activity {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.feature-radar-activity p {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 0.55rem;
+  background: rgba(255, 255, 255, 0.035);
+  padding: 8px 10px;
+  color: #d4d4d8;
+  font-size: 0.82rem;
+}
+
+.feature-radar-activity p span {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #2dd4bf;
+  box-shadow: 0 0 16px rgba(45, 212, 191, 0.8);
+}
+
+.feature-radar-tabs {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+  transform: translateX(-50%);
+}
+
+.feature-radar-tabs button {
+  width: 26px;
+  height: 6px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.feature-radar-tabs button.is-active {
+  width: 44px;
+  background: #ff6b00;
+  box-shadow: 0 0 18px rgba(255, 107, 0, 0.52);
+}
+
 .workout-player-shell {
   width: min(100%, 1480px);
   margin: 0 auto;
@@ -1467,6 +1795,38 @@ select:focus {
   100% { transform: translateY(16px); opacity: 0; }
 }
 
+@keyframes welcomeSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes welcomeMarkPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+@keyframes welcomeRing {
+  0% {
+    transform: translate(-50%, -50%) scale(0.1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.3);
+    opacity: 0;
+  }
+}
+
+@keyframes welcomeLoad {
+  0% { transform: translateX(-120%); }
+  50% { transform: translateX(75%); }
+  100% { transform: translateX(250%); }
+}
+
+@keyframes radarOrbit {
+  from { transform: rotate(0deg) scale(0.98); }
+  to { transform: rotate(360deg) scale(1.02); }
+}
+
 @keyframes demoLower {
   0%, 100% { transform: translateY(0) scaleY(1); }
   50% { transform: translateY(20px) scaleY(0.82); }
@@ -1567,6 +1927,11 @@ select:focus {
     padding: 1.5rem;
   }
 
+  .landing-feature-radar-grid {
+    grid-template-columns: minmax(0, 0.82fr) minmax(380px, 1fr);
+    padding: 32px;
+  }
+
   .demo-video-section {
     grid-template-columns: minmax(0, 0.82fr) minmax(360px, 1fr);
     padding: 32px;
@@ -1627,6 +1992,38 @@ select:focus {
 
   .hero-visual-stat strong {
     font-size: 0.95rem;
+  }
+
+  .register-welcome-card {
+    min-height: 390px;
+    padding: 26px 18px;
+  }
+
+  .register-welcome-mark {
+    width: 92px;
+    height: 92px;
+    font-size: 1.9rem;
+  }
+
+  .landing-feature-radar-grid {
+    padding: 18px;
+  }
+
+  .landing-feature-radar-panel {
+    min-height: 470px;
+  }
+
+  .feature-radar-card {
+    width: min(94%, 360px);
+    padding: 18px;
+  }
+
+  .feature-radar-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-radar-stats div {
+    min-height: 62px;
   }
 
   .workout-player-shell {

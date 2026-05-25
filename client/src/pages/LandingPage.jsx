@@ -77,6 +77,39 @@ const tickerItems = [
   { id: "free", target: 100, suffix: "%", label: "Free" }
 ];
 
+const featureInsights = [
+  {
+    label: "AI Workout Generator",
+    headline: "Plans tuned by goal, schedule, equipment, and level.",
+    stats: [
+      { value: "4 wk", label: "smart plan blocks" },
+      { value: "42", label: "exercise swaps" },
+      { value: "90s", label: "plan generation" }
+    ],
+    activity: ["Goal scanned", "Split selected", "Volume balanced", "Plan ready"]
+  },
+  {
+    label: "Daily Todo Tracker",
+    headline: "Training tasks become a clean daily execution board.",
+    stats: [
+      { value: "14", label: "day streak" },
+      { value: "86%", label: "habits cleared" },
+      { value: "7", label: "tasks today" }
+    ],
+    activity: ["Warm-up done", "Push day active", "Hydration logged", "Recovery queued"]
+  },
+  {
+    label: "Wallpaper Motivation",
+    headline: "Custom lock-screen energy made from your own fitness goal.",
+    stats: [
+      { value: "12", label: "visual styles" },
+      { value: "4K", label: "export ready" },
+      { value: "1 tap", label: "download" }
+    ],
+    activity: ["Goal parsed", "Theme matched", "Quote forged", "Wallpaper saved"]
+  }
+];
+
 const easeOutCubic = (t) => 1 - (1 - t) ** 3;
 
 const formatTicker = (item, value) => {
@@ -95,6 +128,7 @@ const LandingPage = () => {
   const [typed, setTyped] = useState("");
   const dragStartRef = useRef(null);
   const [videoTransform, setVideoTransform] = useState({ rotateX: 7, rotateY: -14, zoom: 1 });
+  const [activeInsightIndex, setActiveInsightIndex] = useState(0);
   const [counters, setCounters] = useState(
     Object.fromEntries(tickerItems.map((item) => [item.id, 0]))
   );
@@ -197,8 +231,21 @@ const LandingPage = () => {
     };
   }, [prefersReducedMotion]);
 
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      return undefined;
+    }
+
+    const interval = window.setInterval(() => {
+      setActiveInsightIndex((current) => (current + 1) % featureInsights.length);
+    }, 2800);
+
+    return () => window.clearInterval(interval);
+  }, [prefersReducedMotion]);
+
   const duplicatedTicker = useMemo(() => [...tickerItems, ...tickerItems], []);
   const duplicatedTestimonials = useMemo(() => [...testimonials, ...testimonials], []);
+  const activeInsight = featureInsights[activeInsightIndex];
 
   const clampVideoTransform = (nextTransform) => ({
     rotateX: Math.max(-28, Math.min(28, nextTransform.rotateX)),
@@ -443,6 +490,77 @@ const LandingPage = () => {
               );
             })}
           </div>
+        </section>
+
+        <section className="landing-feature-radar mx-auto w-full max-w-6xl px-4 py-16 md:px-6">
+          <Reveal>
+            <div className="landing-feature-radar-grid">
+              <div className="landing-feature-radar-copy">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-300">Live feature pulse</p>
+                <h2 className="mt-3 text-3xl font-bold md:text-4xl">Random GymForge signals that make progress feel alive</h2>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-300 md:text-base">
+                  The landing page now shows animated feature data: workout generation, todo progress, and wallpaper motivation cycling like a live product dashboard.
+                </p>
+              </div>
+
+              <div className="landing-feature-radar-panel">
+                <div className="feature-radar-orbit" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeInsight.label}
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 18, scale: 0.97 }}
+                    animate={prefersReducedMotion ? false : { opacity: 1, y: 0, scale: 1 }}
+                    exit={prefersReducedMotion ? false : { opacity: 0, y: -18, scale: 0.97 }}
+                    transition={{ duration: prefersReducedMotion ? 0 : 0.35 }}
+                    className="feature-radar-card"
+                  >
+                    <p className="feature-radar-label">{activeInsight.label}</p>
+                    <h3>{activeInsight.headline}</h3>
+
+                    <div className="feature-radar-stats">
+                      {activeInsight.stats.map((stat) => (
+                        <div key={`${activeInsight.label}-${stat.label}`}>
+                          <strong>{stat.value}</strong>
+                          <span>{stat.label}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="feature-radar-activity">
+                      {activeInsight.activity.map((item, index) => (
+                        <motion.p
+                          key={`${activeInsight.label}-${item}`}
+                          initial={prefersReducedMotion ? false : { opacity: 0, x: -10 }}
+                          animate={prefersReducedMotion ? false : { opacity: 1, x: 0 }}
+                          transition={{ delay: prefersReducedMotion ? 0 : index * 0.08 }}
+                        >
+                          <span />
+                          {item}
+                        </motion.p>
+                      ))}
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+
+                <div className="feature-radar-tabs">
+                  {featureInsights.map((item, index) => (
+                    <button
+                      key={item.label}
+                      type="button"
+                      className={index === activeInsightIndex ? "is-active" : ""}
+                      onClick={() => setActiveInsightIndex(index)}
+                      aria-label={`Show ${item.label} data`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </section>
 
         <section id="features" className="mx-auto w-full max-w-6xl px-4 py-20 md:px-6">

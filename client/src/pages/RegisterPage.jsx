@@ -1,3 +1,4 @@
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -29,8 +30,10 @@ const getPasswordStrength = (password) => {
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const prefersReducedMotion = useReducedMotion();
   const { user, register, loginWithGoogle } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+  const [welcomeActive, setWelcomeActive] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -43,7 +46,14 @@ const RegisterPage = () => {
 
   const strength = useMemo(() => getPasswordStrength(form.password), [form.password]);
 
-  if (user) {
+  const finishWelcome = (route) => {
+    const delay = prefersReducedMotion ? 250 : 1800;
+    window.setTimeout(() => {
+      navigate(route, { replace: true });
+    }, delay);
+  };
+
+  if (user && !welcomeActive && !submitting) {
     return <Navigate to={getPostAuthRoute(user)} replace />;
   }
 
@@ -78,8 +88,9 @@ const RegisterPage = () => {
     setSubmitting(true);
     try {
       await register({ name, email, password, dietPreference: form.dietPreference });
+      setWelcomeActive(true);
       toast.success("Account created. Let's forge your plan.");
-      navigate("/onboarding", { replace: true });
+      finishWelcome("/onboarding");
     } catch (error) {
       const message = error.response?.data?.message || "Backend server is not running. Start the server with npm run dev.";
       toast.error(message);
@@ -92,8 +103,9 @@ const RegisterPage = () => {
     setSubmitting(true);
     try {
       const nextUser = await loginWithGoogle();
+      setWelcomeActive(true);
       toast.success("Welcome back.");
-      navigate(getPostAuthRoute(nextUser), { replace: true });
+      finishWelcome(getPostAuthRoute(nextUser));
     } catch {
       toast.error("Failed to continue with Google.");
     } finally {
@@ -102,7 +114,41 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="grid min-h-screen place-items-center bg-iron px-4 py-10 text-chalk">
+    <div className="register-stage grid min-h-screen place-items-center bg-iron px-4 py-10 text-chalk">
+      <AnimatePresence>
+        {welcomeActive ? (
+          <motion.div
+            initial={prefersReducedMotion ? false : { opacity: 0 }}
+            animate={prefersReducedMotion ? false : { opacity: 1 }}
+            exit={prefersReducedMotion ? false : { opacity: 0 }}
+            className="register-welcome-overlay"
+            aria-live="polite"
+          >
+            <motion.div
+              initial={prefersReducedMotion ? false : { scale: 0.84, y: 24, opacity: 0 }}
+              animate={prefersReducedMotion ? false : { scale: 1, y: 0, opacity: 1 }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.45, ease: "easeOut" }}
+              className="register-welcome-card"
+            >
+              <div className="register-welcome-mark">
+                <span>GF</span>
+              </div>
+              <div className="register-welcome-rings">
+                <span />
+                <span />
+                <span />
+              </div>
+              <p className="register-welcome-kicker">Account created</p>
+              <h2>Your Forge Is Ready</h2>
+              <p className="register-welcome-copy">Building your onboarding path, workout profile, and first training dashboard.</p>
+              <div className="register-welcome-loader">
+                <span />
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
       <div className="w-full max-w-md">
         <p className="text-center font-display text-5xl tracking-widest">
           <span className="text-chalk">GYM</span>
