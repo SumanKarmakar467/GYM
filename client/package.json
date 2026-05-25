@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "generate:assets": "node scripts/generate-brand-assets.mjs",
+    "generate:landing-assets": "node scripts/generate-landing-assets.mjs",
     "generate-icons": "node scripts/generate-icons.mjs",
     "generate-screenshots": "node scripts/generate-screenshots.mjs"
   },

@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="6" fill="#0a0a0a"/>
-  <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle"
-    font-family="Arial Black,sans-serif" font-weight="900" font-size="13"
-    fill="#f97316">GF</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="10" x2="54" y1="8" y2="58" gradientUnits="userSpaceOnUse"><stop stop-color="#ffb347"/><stop offset=".48" stop-color="#ff6b35"/><stop offset="1" stop-color="#f97316"/></linearGradient></defs><rect width="64" height="64" rx="14" fill="#080808"/><path d="M18 38h-6v-12h6v-8h8v28h-8v-8Zm28 0h6v-12h-6v-8h-8v28h8v-8ZM26 28h12v8H26z" fill="url(#g)"/><path d="M20 14h24" stroke="#fff7ed" stroke-width="4" stroke-linecap="round" opacity=".88"/></svg>

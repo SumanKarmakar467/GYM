@@ -263,6 +263,19 @@ select:focus {
   animation: heroGlow 5s ease-in-out infinite alternate;
 }
 
+.hero-visual-shell::before {
+  content: "";
+  position: absolute;
+  inset: 2% 4% 0 0;
+  z-index: 2;
+  border-radius: 30px;
+  background:
+    linear-gradient(120deg, rgba(249, 115, 22, 0.16), transparent 34%),
+    linear-gradient(270deg, rgba(14, 165, 233, 0.12), transparent 42%);
+  transform: rotateY(-7deg) rotateX(3deg);
+  animation: heroFrameFloat 7s ease-in-out infinite;
+}
+
 .hero-visual-photo {
   position: absolute;
   inset: 7% 1% 5% 5%;
@@ -375,6 +388,25 @@ select:focus {
   overflow: hidden;
 }
 
+.feature-card-media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0a0a0a;
+}
+
+.feature-card-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, transparent 48%, rgba(10, 10, 10, 0.54)),
+    radial-gradient(circle at 82% 18%, rgba(249, 115, 22, 0.22), transparent 32%);
+  pointer-events: none;
+}
+
 .feature-card::before {
   content: "";
   position: absolute;
@@ -394,6 +426,42 @@ select:focus {
 
 .cta-spin-overlay {
   animation: spin 12s linear infinite;
+}
+
+.tracker-showcase {
+  position: relative;
+  min-height: 430px;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(circle at 22% 18%, rgba(249, 115, 22, 0.22), transparent 36%),
+    radial-gradient(circle at 88% 82%, rgba(14, 165, 233, 0.16), transparent 34%),
+    #080808;
+}
+
+.tracker-showcase-image {
+  position: absolute;
+  inset: 18px;
+  width: calc(100% - 36px);
+  height: calc(100% - 36px);
+  border-radius: 1rem;
+  object-fit: cover;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+}
+
+.tracker-showcase-panel {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 24px;
+  z-index: 2;
+  border: 1px solid rgba(249, 115, 22, 0.24);
+  border-radius: 1rem;
+  background: rgba(10, 10, 10, 0.78);
+  padding: 18px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 54px rgba(0, 0, 0, 0.38);
 }
 
 .demo-stage {
@@ -585,6 +653,11 @@ select:focus {
   to { transform: scale(1.04); opacity: 1; }
 }
 
+@keyframes heroFrameFloat {
+  0%, 100% { transform: rotateY(-7deg) rotateX(3deg) translate3d(0, 0, 0); }
+  50% { transform: rotateY(-5deg) rotateX(4deg) translate3d(0, -12px, 0); }
+}
+
 @keyframes scrollDown {
   0% { transform: translateY(0); opacity: 0.9; }
   70% { transform: translateY(13px); opacity: 0.25; }
@@ -646,6 +719,17 @@ select:focus {
 @media (max-width: 640px) {
   .hero-visual-shell {
     min-height: 310px;
+  }
+
+  .tracker-showcase {
+    min-height: 360px;
+  }
+
+  .tracker-showcase-panel {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    padding: 14px;
   }
 
   .hero-visual-stat {

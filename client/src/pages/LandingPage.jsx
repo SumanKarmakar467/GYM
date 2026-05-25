@@ -10,17 +10,20 @@ const featureCards = [
   {
     icon: "🧠",
     title: "AI Workout Generator",
-    description: "Tell us your goal and experience. Get a personalized plan in seconds."
+    image: "/images/feature-ai-workout.webp",
+    description: "Enter your goal, experience, equipment, and schedule. GymForge turns it into a structured plan with clear exercise targets."
   },
   {
     icon: "✅",
     title: "Daily Todo Tracker",
-    description: "Stay consistent with date-aware habit tracking and streak rewards."
+    image: "/images/feature-todo-tracker.webp",
+    description: "Every workout becomes a focused daily checklist so you can finish reps, habits, recovery, and streak goals without guessing."
   },
   {
     icon: "🖼️",
     title: "Motivational Wallpapers",
-    description: "Generate custom gym wallpapers to keep you locked in."
+    image: "/images/feature-wallpapers.webp",
+    description: "Create lock-screen style motivation from your training goal, so the plan follows you even before you open the app."
   }
 ];
 
@@ -337,8 +340,8 @@ const LandingPage = () => {
             >
               <div className="hero-visual-glow" />
               <motion.img
-                src="/images/hero-gymforge.jpg"
-                alt="Barbell in a dramatic gym training space"
+                src="/images/hero-gymforge-forge.webp"
+                alt="Athlete lifting a barbell beside a GymForge workout dashboard"
                 className="hero-visual-photo"
                 animate={prefersReducedMotion ? false : { y: [0, -16, 0], scale: [1, 1.025, 1] }}
                 transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
@@ -404,18 +407,30 @@ const LandingPage = () => {
                 <motion.article
                   whileHover={prefersReducedMotion ? undefined : { y: -6, borderColor: "rgba(249,115,22,0.4)" }}
                   transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
-                  className="feature-card rounded-2xl border border-white/10 bg-[#141414] p-6"
-                  aria-hidden="true"
+                  className="feature-card rounded-2xl border border-white/10 bg-[#141414] p-4"
                 >
-                  <motion.div
-                    whileHover={prefersReducedMotion ? undefined : { scale: 1.1, rotate: 5 }}
-                    transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
-                    className="inline-grid h-12 w-12 place-items-center rounded-xl bg-orange-500/15 text-2xl"
-                  >
-                    {feature.icon}
-                  </motion.div>
-                  <h3 className="mt-4 text-xl font-semibold">{feature.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-zinc-300">{feature.description}</p>
+                  <div className="feature-card-media">
+                    <motion.img
+                      src={feature.image}
+                      alt={`${feature.title} preview`}
+                      className="h-full w-full object-cover"
+                      whileHover={prefersReducedMotion ? undefined : { scale: 1.06 }}
+                      transition={{ duration: prefersReducedMotion ? 0 : 0.35 }}
+                    />
+                  </div>
+                  <div className="mt-5 flex items-start gap-3">
+                    <motion.div
+                      whileHover={prefersReducedMotion ? undefined : { scale: 1.1, rotate: 5 }}
+                      transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
+                      className="inline-grid h-11 w-11 flex-shrink-0 place-items-center rounded-xl bg-orange-500/15 text-xl"
+                    >
+                      {feature.icon}
+                    </motion.div>
+                    <div>
+                      <h3 className="text-xl font-semibold">{feature.title}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-zinc-300">{feature.description}</p>
+                    </div>
+                  </div>
                 </motion.article>
               </Reveal>
             ))}
@@ -427,7 +442,7 @@ const LandingPage = () => {
             <Reveal direction="left">
               <div>
                 <h3 className="text-3xl font-bold">How It Works</h3>
-                <p className="mt-3 text-zinc-300">From setup to consistency, GymForge keeps your workflow simple and high output.</p>
+                <p className="mt-3 text-zinc-300">From setup to consistency, GymForge keeps your workflow simple: generate the plan, convert it into daily actions, then track what you complete.</p>
 
                 <div className="mt-6 space-y-3">
                   {steps.map((step, index) => (
@@ -454,18 +469,20 @@ const LandingPage = () => {
             </Reveal>
 
             <Reveal direction="right" delay={200}>
-              <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-orange-500/15 via-black/30 to-purple-500/15 p-5">
-                <p className="text-xs uppercase tracking-[0.18em] text-orange-300">Live Preview</p>
-                <div className="mt-4 rounded-xl border border-white/10 bg-black/40 p-4">
-                  <p className="text-sm text-zinc-400">Today Progress</p>
-                  <p className="mt-2 text-3xl font-bold">72%</p>
-                  <div className="mt-4 h-2 rounded-full bg-white/10">
-                    <div className="h-full w-[72%] rounded-full bg-orange-400" />
-                  </div>
-                  <div className="mt-5 grid grid-cols-2 gap-3 text-sm text-zinc-300">
-                    <div className="rounded-lg border border-white/10 p-3">Streak: 14 days</div>
-                    <div className="rounded-lg border border-white/10 p-3">Plan: 3 months</div>
-                  </div>
+              <div className="tracker-showcase">
+                <motion.img
+                  src="/images/todo-tracker-showcase.webp"
+                  alt="GymForge daily todo tracker showing workout progress and completed habits"
+                  className="tracker-showcase-image"
+                  animate={prefersReducedMotion ? false : { y: [0, -10, 0] }}
+                  transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
+                />
+                <div className="tracker-showcase-panel">
+                  <p className="text-xs uppercase tracking-[0.18em] text-orange-300">Todo Tracker</p>
+                  <p className="mt-2 text-lg font-semibold text-white">See the day at a glance</p>
+                  <p className="mt-2 text-sm leading-relaxed text-zinc-300">
+                    Completed habits, next actions, streaks, and progress are visible together, so the app feels like a coach and checklist in one.
+                  </p>
                 </div>
               </div>
             </Reveal>
