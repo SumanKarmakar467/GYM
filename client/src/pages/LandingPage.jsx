@@ -110,6 +110,39 @@ const featureInsights = [
   }
 ];
 
+const exerciseVisuals = [
+  {
+    title: "Lat Pulldown",
+    image: "/images/exercises/lat-pulldown.jpg",
+    focus: "Lats + Upper Back",
+    cue: "Pull elbows down, keep chest tall."
+  },
+  {
+    title: "Incline Curl",
+    image: "/images/exercises/incline-curl.jpg",
+    focus: "Biceps",
+    cue: "Keep shoulders pinned, curl with control."
+  },
+  {
+    title: "Dumbbell Press",
+    image: "/images/exercises/dumbbell-press.jpg",
+    focus: "Shoulders + Triceps",
+    cue: "Brace ribs and press in a clean vertical path."
+  },
+  {
+    title: "Push-Up",
+    image: "/images/exercises/push-up.jpg",
+    focus: "Chest + Core",
+    cue: "Keep body straight and lower with tempo."
+  },
+  {
+    title: "Pull-Up",
+    image: "/images/exercises/pull-up.jpg",
+    focus: "Back + Arms",
+    cue: "Start from a dead hang, drive elbows down."
+  }
+];
+
 const easeOutCubic = (t) => 1 - (1 - t) ** 3;
 
 const formatTicker = (item, value) => {
@@ -245,6 +278,7 @@ const LandingPage = () => {
 
   const duplicatedTicker = useMemo(() => [...tickerItems, ...tickerItems], []);
   const duplicatedTestimonials = useMemo(() => [...testimonials, ...testimonials], []);
+  const duplicatedExerciseVisuals = useMemo(() => [...exerciseVisuals, ...exerciseVisuals], []);
   const activeInsight = featureInsights[activeInsightIndex];
 
   const clampVideoTransform = (nextTransform) => ({
@@ -621,6 +655,43 @@ const LandingPage = () => {
                   </div>
                 </motion.article>
               </Reveal>
+            ))}
+          </div>
+        </section>
+
+        <section className="exercise-visual-showcase overflow-hidden py-16">
+          <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+            <Reveal>
+              <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-300">Exercise form library</p>
+                  <h2 className="mt-3 text-3xl font-bold md:text-4xl">Visual workouts that feel alive</h2>
+                </div>
+                <p className="max-w-xl text-sm leading-relaxed text-zinc-300 md:text-base">
+                  Real exercise anatomy references now move through the page with clean depth, glow, and hover motion so users instantly understand what GymForge trains.
+                </p>
+              </div>
+            </Reveal>
+          </div>
+
+          <div className="exercise-visual-track mt-8">
+            {duplicatedExerciseVisuals.map((exercise, index) => (
+              <motion.article
+                key={`${exercise.title}-${index}`}
+                className="exercise-visual-card"
+                whileHover={prefersReducedMotion ? undefined : { y: -10, rotateY: -4, scale: 1.02 }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.28 }}
+              >
+                <div className="exercise-visual-image">
+                  <img src={exercise.image} alt={`${exercise.title} muscle anatomy guide`} />
+                  <span>{String(index % exerciseVisuals.length + 1).padStart(2, "0")}</span>
+                </div>
+                <div className="exercise-visual-body">
+                  <p>{exercise.focus}</p>
+                  <h3>{exercise.title}</h3>
+                  <small>{exercise.cue}</small>
+                </div>
+              </motion.article>
             ))}
           </div>
         </section>

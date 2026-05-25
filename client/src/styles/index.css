@@ -1093,6 +1093,157 @@ select:focus {
   box-shadow: 0 0 18px rgba(255, 107, 0, 0.52);
 }
 
+.exercise-visual-showcase {
+  position: relative;
+  background:
+    linear-gradient(180deg, transparent, rgba(255, 107, 0, 0.04), transparent),
+    #0a0a0a;
+}
+
+.exercise-visual-showcase::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.24;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 52px 52px;
+  mask-image: linear-gradient(90deg, transparent, black 16%, black 84%, transparent);
+}
+
+.exercise-visual-track {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: max-content;
+  gap: 18px;
+  padding-inline: max(16px, calc((100vw - 1152px) / 2));
+  animation: exerciseVisualScroll 34s linear infinite;
+}
+
+.exercise-visual-showcase:hover .exercise-visual-track {
+  animation-play-state: paused;
+}
+
+.exercise-visual-card {
+  position: relative;
+  width: 250px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  background:
+    linear-gradient(145deg, rgba(255, 107, 0, 0.1), transparent 36%),
+    #121212;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.34);
+  transform-style: preserve-3d;
+}
+
+.exercise-visual-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(105deg, transparent 28%, rgba(255, 255, 255, 0.16), transparent 62%);
+  transform: translateX(-120%);
+  transition: transform 0.5s ease;
+  pointer-events: none;
+}
+
+.exercise-visual-card:hover::before,
+.exercise-visual-card:focus-within::before {
+  transform: translateX(120%);
+}
+
+.exercise-visual-image {
+  position: relative;
+  display: grid;
+  height: 250px;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(255, 107, 0, 0.12), transparent 46%),
+    #f5f5f5;
+}
+
+.exercise-visual-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  filter: contrast(1.05) saturate(0.9);
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.exercise-visual-card:hover .exercise-visual-image img {
+  transform: scale(1.08) translateY(-4px);
+  filter: contrast(1.12) saturate(1.02);
+}
+
+.exercise-visual-image span {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid rgba(255, 107, 0, 0.35);
+  border-radius: 50%;
+  background: rgba(10, 10, 10, 0.78);
+  color: #fb923c;
+  font-size: 0.75rem;
+  font-weight: 900;
+  backdrop-filter: blur(10px);
+}
+
+.exercise-visual-body {
+  position: relative;
+  min-height: 146px;
+  padding: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
+    #121212;
+}
+
+.exercise-visual-body::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: 0;
+  width: 72px;
+  height: 3px;
+  border-radius: 999px;
+  background: #ff6b00;
+  box-shadow: 0 0 20px rgba(255, 107, 0, 0.54);
+}
+
+.exercise-visual-body p {
+  color: #fb923c;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.exercise-visual-body h3 {
+  margin-top: 8px;
+  color: #fff;
+  font-size: 1.65rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.exercise-visual-body small {
+  display: block;
+  margin-top: 10px;
+  color: #a1a1aa;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
 .workout-player-shell {
   width: min(100%, 1480px);
   margin: 0 auto;
@@ -2186,6 +2337,11 @@ select:focus {
   to { transform: rotate(360deg) scale(1.02); }
 }
 
+@keyframes exerciseVisualScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 @keyframes demoLower {
   0%, 100% { transform: translateY(0) scaleY(1); }
   50% { transform: translateY(20px) scaleY(0.82); }
@@ -2430,6 +2586,28 @@ select:focus {
 
   .feature-radar-stats div {
     min-height: 62px;
+  }
+
+  .exercise-visual-track {
+    gap: 12px;
+    animation-duration: 26s;
+  }
+
+  .exercise-visual-card {
+    width: 214px;
+  }
+
+  .exercise-visual-image {
+    height: 210px;
+  }
+
+  .exercise-visual-body {
+    min-height: 142px;
+    padding: 16px;
+  }
+
+  .exercise-visual-body h3 {
+    font-size: 1.35rem;
   }
 
   .workout-player-shell {
