@@ -140,6 +140,54 @@ const exerciseVisuals = [
     image: "/images/exercises/pull-up.jpg",
     focus: "Back + Arms",
     cue: "Start from a dead hang, drive elbows down."
+  },
+  {
+    title: "Barbell Lunge",
+    image: "/images/exercises/barbell-lunge.jpg",
+    focus: "Quads + Glutes",
+    cue: "Step with control and keep your front knee tracking."
+  },
+  {
+    title: "Bodyweight Squat",
+    image: "/images/exercises/bodyweight-squat.jpg",
+    focus: "Legs + Mobility",
+    cue: "Sit hips back, keep chest lifted, and drive through heels."
+  },
+  {
+    title: "Barbell Calf Raise",
+    image: "/images/exercises/barbell-calf-raise.jpg",
+    focus: "Calves",
+    cue: "Pause at the top and lower through full range."
+  },
+  {
+    title: "Incline Cable Fly",
+    image: "/images/exercises/incline-cable-fly.jpg",
+    focus: "Upper Chest",
+    cue: "Open wide, then squeeze across the chest without rushing."
+  },
+  {
+    title: "Standing Curl",
+    image: "/images/exercises/standing-curl.jpg",
+    focus: "Biceps + Forearms",
+    cue: "Lock elbows close and avoid swinging your torso."
+  },
+  {
+    title: "Bulgarian Split Squat",
+    image: "/images/exercises/bulgarian-split-squat.jpg",
+    focus: "Glutes + Quads",
+    cue: "Drop straight down and push through the front foot."
+  },
+  {
+    title: "Cable Lateral Raise",
+    image: "/images/exercises/cable-lateral-raise.jpg",
+    focus: "Side Delts",
+    cue: "Lead with elbows and keep tension through the full arc."
+  },
+  {
+    title: "Cable Row",
+    image: "/images/exercises/cable-row.jpg",
+    focus: "Mid Back",
+    cue: "Pull elbows back, pause, then return with control."
   }
 ];
 
@@ -151,6 +199,20 @@ const formatTicker = (item, value) => {
   }
 
   return `${value.toLocaleString()}${item.suffix} ${item.label}`;
+};
+
+const getUniqueExerciseVisuals = (items) => {
+  const seen = new Set();
+
+  return items.filter((item) => {
+    const key = `${item.title}-${item.image}`;
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
 };
 
 const LandingPage = () => {
@@ -278,7 +340,8 @@ const LandingPage = () => {
 
   const duplicatedTicker = useMemo(() => [...tickerItems, ...tickerItems], []);
   const duplicatedTestimonials = useMemo(() => [...testimonials, ...testimonials], []);
-  const duplicatedExerciseVisuals = useMemo(() => [...exerciseVisuals, ...exerciseVisuals], []);
+  const uniqueExerciseVisuals = useMemo(() => getUniqueExerciseVisuals(exerciseVisuals), []);
+  const duplicatedExerciseVisuals = useMemo(() => [...uniqueExerciseVisuals, ...uniqueExerciseVisuals], [uniqueExerciseVisuals]);
   const activeInsight = featureInsights[activeInsightIndex];
 
   const clampVideoTransform = (nextTransform) => ({
@@ -684,7 +747,7 @@ const LandingPage = () => {
               >
                 <div className="exercise-visual-image">
                   <img src={exercise.image} alt={`${exercise.title} muscle anatomy guide`} />
-                  <span>{String(index % exerciseVisuals.length + 1).padStart(2, "0")}</span>
+                  <span>{String(index % uniqueExerciseVisuals.length + 1).padStart(2, "0")}</span>
                 </div>
                 <div className="exercise-visual-body">
                   <p>{exercise.focus}</p>
