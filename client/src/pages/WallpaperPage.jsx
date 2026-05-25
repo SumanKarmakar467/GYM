@@ -5,7 +5,53 @@ import EmptyState from "../components/EmptyState";
 import WallpaperGenerator from "../components/WallpaperGenerator";
 import AppNavbar from "../components/layout/AppNavbar";
 import useAuth from "../hooks/useAuth";
-import { demoWallpaper, isDemoAthlete } from "../utils/demoUserData";
+import { demoWallpaper, getDemoTodosForDate, isDemoAthlete } from "../utils/demoUserData";
+import { addDays, toYmd } from "../utils/date";
+
+const buildProgressDays = (todos = [], days = 126) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const start = addDays(today, -(days - 1));
+  const byDate = new Map();
+
+  todos.forEach((todo) => {
+    const key = String(todo.date || "");
+    if (!key) return;
+    const current = byDate.get(key) || { total: 0, completed: 0 };
+    current.total += 1;
+    if (todo.completed) current.completed += 1;
+    byDate.set(key, current);
+  });
+
+  return Array.from({ length: days }).map((_, index) => {
+    const date = addDays(start, index);
+    const key = toYmd(date);
+    const stats = byDate.get(key) || { total: 0, completed: 0 };
+    const isPast = key < toYmd(today);
+    const isToday = key === toYmd(today);
+    const percent = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+    const missed = stats.total > 0 && stats.completed < stats.total && isPast;
+    const emptyToday = isToday && stats.total === 0;
+
+    return {
+      date: key,
+      total: stats.total,
+      completed: stats.completed,
+      percent,
+      state: stats.total === 0 ? "blank" : missed ? "missed" : percent === 100 ? "done" : "partial",
+      urgent: missed || emptyToday
+    };
+  });
+};
+
+const buildDemoProgressTodos = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Array.from({ length: 126 }).flatMap((_, index) => {
+    const key = toYmd(addDays(today, -(125 - index)));
+    return getDemoTodosForDate(key);
+  });
+};
 
 const WallpaperPage = () => {
   const { user } = useAuth();
@@ -18,6 +64,7 @@ const WallpaperPage = () => {
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [hasSavedConfig, setHasSavedConfig] = useState(false);
+  const [progressDays, setProgressDays] = useState([]);
 
   useEffect(() => {
     let active = true;
@@ -57,6 +104,34 @@ const WallpaperPage = () => {
 
     return () => {
       active = false;
+    };
+  }, [demoMode]);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadProgress = async () => {
+      try {
+        if (demoMode) {
+          if (active) setProgressDays(buildProgressDays(buildDemoProgressTodos()));
+          return;
+        }
+
+        const { data } = await api.get("/todos");
+        if (active) setProgressDays(buildProgressDays(Array.isArray(data) ? data : []));
+      } catch {
+        if (active) setProgressDays(buildProgressDays([]));
+      }
+    };
+
+    loadProgress();
+    const interval = window.setInterval(loadProgress, 30000);
+    window.addEventListener("focus", loadProgress);
+
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", loadProgress);
     };
   }, [demoMode]);
 
@@ -171,6 +246,7 @@ const WallpaperPage = () => {
                 loadingRandom={loadingRandom}
                 saving={saving}
                 downloading={downloading}
+                progressDays={progressDays}
               />
             </>
           )}

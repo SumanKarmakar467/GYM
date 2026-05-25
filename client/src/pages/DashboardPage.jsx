@@ -254,9 +254,8 @@ const DashboardPage = () => {
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <p className="whitespace-nowrap font-cond text-2xl font-bold leading-none text-chalk">
-                      {todayPercent}% today
-                    </p>
+                    <p className="font-cond text-3xl font-bold leading-none text-chalk">{todayPercent}%</p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-mist">today</p>
                     <p className="mt-2 text-xs leading-none text-mist">{todayDone}/{todayTodos.length} done</p>
                   </div>
                 </div>
