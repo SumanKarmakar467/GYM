@@ -5,12 +5,16 @@ import api from "../api/api";
 import EmptyState from "../components/EmptyState";
 import SkeletonCard from "../components/SkeletonCard";
 import AppNavbar from "../components/layout/AppNavbar";
+import useAuth from "../hooks/useAuth";
 import { addDays, getStartOfWeek, toYmd } from "../utils/date";
+import { getDemoTodosForDate, getDemoWeekStatus, isDemoAthlete } from "../utils/demoUserData";
 
 const dayLetters = ["M", "T", "W", "T", "F", "S", "S"];
 
 const TodoListPage = () => {
+  const { user } = useAuth();
   const prefersReducedMotion = useReducedMotion();
+  const demoMode = isDemoAthlete(user);
   const todayKey = toYmd(new Date());
   const [selectedDate, setSelectedDate] = useState(todayKey);
   const [weekStatus, setWeekStatus] = useState({});
@@ -34,6 +38,10 @@ const TodoListPage = () => {
   }, []);
 
   const fetchTodosByDate = async (date) => {
+    if (demoMode) {
+      return getDemoTodosForDate(date);
+    }
+
     const { data } = await api.get("/todos", { params: { date } });
     return Array.isArray(data) ? data : [];
   };
@@ -41,6 +49,11 @@ const TodoListPage = () => {
   const refreshWeekStatus = async () => {
     setLoadingWeek(true);
     try {
+      if (demoMode) {
+        setWeekStatus(getDemoWeekStatus(weekDates));
+        return;
+      }
+
       const byDay = await Promise.all(
         weekDates.map(async (item) => {
           const list = await fetchTodosByDate(item.key);
@@ -71,6 +84,12 @@ const TodoListPage = () => {
 
     const bootstrap = async () => {
       try {
+        if (demoMode) {
+          setWeekStatus(getDemoWeekStatus(weekDates));
+          setTodos(getDemoTodosForDate(todayKey));
+          return;
+        }
+
         const [statusEntries, selectedTodos] = await Promise.all([
           Promise.all(
             weekDates.map(async (item) => {
@@ -100,7 +119,7 @@ const TodoListPage = () => {
     return () => {
       active = false;
     };
-  }, [todayKey, weekDates]);
+  }, [demoMode, todayKey, weekDates]);
 
   const onSelectDate = async (date) => {
     setSelectedDate(date);
@@ -155,6 +174,23 @@ const TodoListPage = () => {
     const exerciseName = newTodo.trim();
     if (!exerciseName || submitting) return;
 
+    if (demoMode) {
+      const item = {
+        _id: `demo-custom-${selectedDate}-${Date.now()}`,
+        date: selectedDate,
+        exerciseName,
+        completed: false
+      };
+      setTodos((prev) => [...prev, item]);
+      setWeekStatus((prev) => {
+        const current = prev[selectedDate] || { total: 0, completed: 0 };
+        return { ...prev, [selectedDate]: { ...current, total: current.total + 1 } };
+      });
+      setNewTodo("");
+      toast.success("Demo todo added.");
+      return;
+    }
+
     setSubmitting(true);
     try {
       await api.post("/todos", { date: selectedDate, exerciseName });
@@ -169,6 +205,21 @@ const TodoListPage = () => {
   };
 
   const toggleTodo = async (todo) => {
+    if (demoMode) {
+      setTodos((prev) => prev.map((item) => (item._id === todo._id ? { ...item, completed: !item.completed } : item)));
+      setWeekStatus((prev) => {
+        const current = prev[selectedDate] || { total: todos.length, completed: 0 };
+        return {
+          ...prev,
+          [selectedDate]: {
+            total: current.total,
+            completed: current.completed + (todo.completed ? -1 : 1)
+          }
+        };
+      });
+      return;
+    }
+
     try {
       await api.patch(`/todos/${todo._id}`, { completed: !todo.completed });
       await Promise.all([refreshTodosForDate(selectedDate), refreshWeekStatus()]);
@@ -178,6 +229,23 @@ const TodoListPage = () => {
   };
 
   const deleteTodo = async (todoId) => {
+    if (demoMode) {
+      const target = todos.find((todo) => todo._id === todoId);
+      setTodos((prev) => prev.filter((todo) => todo._id !== todoId));
+      setWeekStatus((prev) => {
+        const current = prev[selectedDate] || { total: todos.length, completed: 0 };
+        return {
+          ...prev,
+          [selectedDate]: {
+            total: Math.max(0, current.total - 1),
+            completed: Math.max(0, current.completed - (target?.completed ? 1 : 0))
+          }
+        };
+      });
+      toast.success("Removed from demo day.");
+      return;
+    }
+
     try {
       await api.delete(`/todos/${todoId}`);
       await Promise.all([refreshTodosForDate(selectedDate), refreshWeekStatus()]);
@@ -193,7 +261,9 @@ const TodoListPage = () => {
       <main className="mx-auto w-full max-w-5xl px-4 pb-10 md:px-6">
         <section className="card p-5 md:p-6">
           <h1 className="text-3xl font-bold">Todo Tracker</h1>
-          <p className="mt-2 text-sm text-textSecondary">Pick a day and stay accountable.</p>
+          <p className="mt-2 text-sm text-textSecondary">
+            {demoMode ? "One month of home-workout habits for 0dhonironaldo77@gmail.com." : "Pick a day and stay accountable."}
+          </p>
 
           <div className="mt-5 grid grid-cols-7 gap-2" role="tablist" aria-label="Week days" onKeyDown={onDayStripKeyDown}>
             {weekDates.map((item, index) => (

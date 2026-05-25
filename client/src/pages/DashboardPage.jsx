@@ -16,6 +16,7 @@ import { SkeletonGrid } from "../components/SkeletonCard";
 import AppNavbar from "../components/layout/AppNavbar";
 import useAuth from "../hooks/useAuth";
 import { addDays, getStartOfWeek, toYmd } from "../utils/date";
+import { getDemoTodoStats, getDemoTodosForDate, getDemoWeeklyData, isDemoAthlete } from "../utils/demoUserData";
 
 const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -40,6 +41,7 @@ const itemVariants = {
 const DashboardPage = () => {
   const { user } = useAuth();
   const prefersReducedMotion = useReducedMotion();
+  const demoMode = isDemoAthlete(user);
   const [stats, setStats] = useState(null);
   const [todayTodos, setTodayTodos] = useState([]);
   const [weeklyData, setWeeklyData] = useState([]);
@@ -61,6 +63,14 @@ const DashboardPage = () => {
 
       try {
         const todayKey = toYmd(new Date());
+        if (demoMode) {
+          const demoWeekly = getDemoWeeklyData();
+          setStats(getDemoTodoStats(demoWeekly));
+          setTodayTodos(getDemoTodosForDate(todayKey));
+          setWeeklyData(demoWeekly.map(({ day, percent }) => ({ day, percent })));
+          return;
+        }
+
         const [statsRes, todayRes] = await Promise.all([
           api.get("/todos/stats"),
           api.get("/todos", { params: { date: todayKey } })
@@ -118,7 +128,7 @@ const DashboardPage = () => {
     return () => {
       active = false;
     };
-  }, [weekDates]);
+  }, [demoMode, weekDates]);
 
   const streak = Number(stats?.streak || 0);
   const todayDone = todayTodos.filter((todo) => todo.completed).length;
@@ -135,6 +145,11 @@ const DashboardPage = () => {
       <main className="mx-auto w-full max-w-6xl px-4 pb-10 md:px-6">
         <section className="card p-5 md:p-7">
           <h1 className="text-3xl font-bold md:text-4xl">Welcome back, {user?.name || "Athlete"}!</h1>
+          {demoMode ? (
+            <p className="mt-2 text-sm text-textSecondary">
+              Demo month loaded for {user.email}: home workouts, streaks, todos, progress, and wallpaper are filled with realistic dummy content.
+            </p>
+          ) : null}
         </section>
 
         {loading ? (
@@ -155,7 +170,7 @@ const DashboardPage = () => {
               <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Streak</p>
               <p className="mt-3 text-4xl font-bold">{streak} Day Streak</p>
               <p className="mt-2 text-sm text-textSecondary">
-                {streak === 0 ? "Start your streak today." : "Momentum looks strong."}
+                {demoMode ? "24 active days across the last month." : streak === 0 ? "Start your streak today." : "Momentum looks strong."}
               </p>
             </>
           </motion.article>
@@ -164,7 +179,7 @@ const DashboardPage = () => {
             <>
               <p className="text-xs uppercase tracking-[0.18em] text-brandSecondary">Completion</p>
               <p className="mt-3 text-4xl font-bold">{todayPercent}%</p>
-              <p className="mt-2 text-sm text-textSecondary">Today task completion rate.</p>
+              <p className="mt-2 text-sm text-textSecondary">{demoMode ? "Home-workout checklist completion today." : "Today task completion rate."}</p>
             </>
           </motion.article>
 

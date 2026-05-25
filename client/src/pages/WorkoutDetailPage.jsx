@@ -5,6 +5,8 @@ import api from "../api/api";
 import EmptyState from "../components/EmptyState";
 import SkeletonCard, { SkeletonGrid } from "../components/SkeletonCard";
 import AppNavbar from "../components/layout/AppNavbar";
+import useAuth from "../hooks/useAuth";
+import { demoWorkoutPlan, isDemoAthlete } from "../utils/demoUserData";
 
 const parseRestSeconds = (restValue) => {
   if (typeof restValue === "number" && Number.isFinite(restValue)) {
@@ -63,11 +65,37 @@ const getDemoType = (exerciseName = "") => {
   return "general";
 };
 
+const demoLabels = {
+  lower: "Lower body tempo",
+  push: "Push strength path",
+  pull: "Back and biceps path",
+  cardio: "Conditioning rhythm",
+  general: "Full body control"
+};
+
 const DemoAnimation = ({ type }) => {
   return (
-    <div className="demo-stage">
+    <div className={`demo-stage demo-stage-3d demo-stage-${type}`}>
       <div className="demo-floor" />
-      <div className={`demo-person demo-${type}`} />
+      <div className="demo-grid" />
+      <div className="demo-rep-meter">
+        <span />
+      </div>
+      <div className={`demo-athlete demo-athlete-${type}`}>
+        <span className="demo-head" />
+        <span className="demo-torso" />
+        <span className="demo-arm demo-arm-left" />
+        <span className="demo-arm demo-arm-right" />
+        <span className="demo-leg demo-leg-left" />
+        <span className="demo-leg demo-leg-right" />
+        <span className="demo-muscle demo-muscle-chest" />
+        <span className="demo-muscle demo-muscle-core" />
+        <span className="demo-dumbbell demo-dumbbell-left" />
+        <span className="demo-dumbbell demo-dumbbell-right" />
+      </div>
+      <div className="demo-exercise-ghost demo-ghost-one" />
+      <div className="demo-exercise-ghost demo-ghost-two" />
+      <p className="demo-stage-label">{demoLabels[type] || demoLabels.general}</p>
     </div>
   );
 };
@@ -91,6 +119,7 @@ const cardVariants = {
 };
 
 const WorkoutDetailPage = () => {
+  const { user } = useAuth();
   const prefersReducedMotion = useReducedMotion();
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -108,6 +137,13 @@ const WorkoutDetailPage = () => {
     const loadPlan = async () => {
       setLoading(true);
       try {
+        if (isDemoAthlete(user)) {
+          if (active) {
+            setPlan(demoWorkoutPlan);
+          }
+          return;
+        }
+
         const { data } = await api.get("/workout/me");
         if (active) {
           setPlan(data);
@@ -124,7 +160,7 @@ const WorkoutDetailPage = () => {
     return () => {
       active = false;
     };
-  }, []);
+  }, [user]);
 
   const activeDay = useMemo(() => pickActiveWorkoutDay(plan), [plan]);
   const exercises = activeDay?.exercises || [];
@@ -406,7 +442,7 @@ const WorkoutDetailPage = () => {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h3 className="text-2xl font-bold">{demoExercise.name} Demo</h3>
-                  <p className="mt-1 text-sm text-textSecondary">Animated local guide. No external website embed.</p>
+                  <p className="mt-1 text-sm text-textSecondary">3D-style animated local guide for home training form.</p>
                 </div>
                 <button
                   type="button"
@@ -420,7 +456,7 @@ const WorkoutDetailPage = () => {
               <div className="mt-5 rounded-xl border border-borderSubtle bg-[#09121d] p-4">
                 <DemoAnimation type={getDemoType(demoExercise.name)} />
                 <p className="mt-4 text-sm text-textSecondary">
-                  Keep your core tight, use controlled tempo, and maintain full range of motion.
+                  Keep your core tight, use controlled tempo, and match the movement path before increasing reps.
                 </p>
               </div>
             </motion.div>

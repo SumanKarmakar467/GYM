@@ -4,9 +4,13 @@ import api from "../api/api";
 import EmptyState from "../components/EmptyState";
 import WallpaperGenerator from "../components/WallpaperGenerator";
 import AppNavbar from "../components/layout/AppNavbar";
+import useAuth from "../hooks/useAuth";
+import { demoWallpaper, isDemoAthlete } from "../utils/demoUserData";
 
 const WallpaperPage = () => {
+  const { user } = useAuth();
   const previewRef = useRef(null);
+  const demoMode = isDemoAthlete(user);
   const [quote, setQuote] = useState("");
   const [selectedStyle, setSelectedStyle] = useState("Dark");
   const [loading, setLoading] = useState(true);
@@ -21,6 +25,13 @@ const WallpaperPage = () => {
     const loadWallpaper = async () => {
       setLoading(true);
       try {
+        if (demoMode) {
+          setQuote(demoWallpaper.quote);
+          setSelectedStyle(demoWallpaper.style);
+          setHasSavedConfig(true);
+          return;
+        }
+
         const { data } = await api.get("/wallpaper");
         if (!active) {
           return;
@@ -47,11 +58,22 @@ const WallpaperPage = () => {
     return () => {
       active = false;
     };
-  }, []);
+  }, [demoMode]);
 
   const generateRandomQuote = async () => {
     setLoadingRandom(true);
     try {
+      if (demoMode) {
+        const demoQuotes = [
+          "One month in. No missed Mondays.",
+          "Home floor. Hard work. Real progress.",
+          "Earn the streak before the day ends.",
+          "Small room, big engine."
+        ];
+        setQuote(demoQuotes[Math.floor(Math.random() * demoQuotes.length)]);
+        return;
+      }
+
       const { data } = await api.get("/wallpaper/quote");
       setQuote(String(data?.quote || "No shortcuts. Just work."));
     } finally {
@@ -66,6 +88,11 @@ const WallpaperPage = () => {
 
     setSaving(true);
     try {
+      if (demoMode) {
+        setHasSavedConfig(true);
+        return;
+      }
+
       await api.post("/wallpaper", {
         quote: quote.trim(),
         style: selectedStyle
@@ -105,6 +132,11 @@ const WallpaperPage = () => {
         <section className="card p-6 md:p-8">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-brandSecondary">Wallpaper Studio</p>
           <h1 className="mt-2 text-3xl font-bold">Motivational Wallpaper Generator</h1>
+          {demoMode ? (
+            <p className="mt-2 text-sm text-textSecondary">
+              Saved dummy wallpaper setup for {user.email}, matching the one-month home-workout progress story.
+            </p>
+          ) : null}
         </section>
 
         <div className="mt-5">
