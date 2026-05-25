@@ -435,32 +435,50 @@ const LandingPage = () => {
               animate={prefersReducedMotion ? false : { opacity: 1, x: 0, scale: 1 }}
               transition={{ delay: prefersReducedMotion ? 0 : 0.35, duration: prefersReducedMotion ? 0 : 0.75, ease: "easeOut" }}
               className="hero-visual-shell"
-              aria-label="Athlete training in a gym"
+              aria-label="3D animated athlete performing a workout"
             >
               <div className="hero-visual-glow" />
-              <motion.img
-                src="/images/hero-gymforge-forge.webp"
-                alt="Athlete lifting a barbell beside a GymForge workout dashboard"
-                className="hero-visual-photo"
-                animate={prefersReducedMotion ? false : { y: [0, -16, 0], scale: [1, 1.025, 1] }}
-                transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
-              />
-              <motion.div
-                className="hero-visual-stat hero-visual-stat-top"
-                animate={prefersReducedMotion ? false : { y: [0, -8, 0] }}
-                transition={{ duration: 4.4, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <span>Today</span>
-                <strong>72%</strong>
-              </motion.div>
-              <motion.div
-                className="hero-visual-stat hero-visual-stat-bottom"
-                animate={prefersReducedMotion ? false : { y: [0, 10, 0] }}
-                transition={{ duration: 4.8, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <span>Streak</span>
-                <strong>14 Days</strong>
-              </motion.div>
+              <div className="hero-3d-scene">
+                <div className="hero-3d-grid" />
+                <div className="hero-3d-rings">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+                <div className="hero-3d-meter">
+                  <span />
+                </div>
+                <div className="hero-3d-athlete" aria-hidden="true">
+                  <span className="hero-3d-head" />
+                  <span className="hero-3d-neck" />
+                  <span className="hero-3d-torso" />
+                  <span className="hero-3d-arm hero-3d-arm-left" />
+                  <span className="hero-3d-arm hero-3d-arm-right" />
+                  <span className="hero-3d-forearm hero-3d-forearm-left" />
+                  <span className="hero-3d-forearm hero-3d-forearm-right" />
+                  <span className="hero-3d-leg hero-3d-leg-left" />
+                  <span className="hero-3d-leg hero-3d-leg-right" />
+                  <span className="hero-3d-shin hero-3d-shin-left" />
+                  <span className="hero-3d-shin hero-3d-shin-right" />
+                  <span className="hero-3d-bar" />
+                  <span className="hero-3d-plate hero-3d-plate-left" />
+                  <span className="hero-3d-plate hero-3d-plate-right" />
+                </div>
+                <div className="hero-3d-panel hero-3d-panel-left">
+                  <span>Workout</span>
+                  <strong>Push Power</strong>
+                  <small>4 sets · 12 reps</small>
+                </div>
+                <div className="hero-3d-panel hero-3d-panel-right">
+                  <span>Form</span>
+                  <strong>92%</strong>
+                  <small>Tempo locked</small>
+                </div>
+                <div className="hero-3d-status">
+                  <span />
+                  Live training demo
+                </div>
+              </div>
             </motion.div>
           </div>
 
