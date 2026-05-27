@@ -185,20 +185,21 @@ select:focus {
 .floating-dumbbells {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   overflow: hidden;
   pointer-events: none;
 }
 
 .floating-dumbbells span {
   position: absolute;
-  width: 82px;
-  height: 18px;
+  width: 96px;
+  height: 12px;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(255, 107, 0, 0.16), rgba(244, 244, 245, 0.2), rgba(255, 107, 0, 0.16));
-  opacity: 0.16;
-  filter: blur(0.2px);
-  animation: floatingDumbbell 16s linear infinite;
+  background:
+    linear-gradient(90deg, rgba(249, 115, 22, 0.64), rgba(255, 255, 255, 0.18) 42%, rgba(255, 255, 255, 0.18) 58%, rgba(249, 115, 22, 0.64));
+  opacity: 0.42;
+  filter: drop-shadow(0 0 16px rgba(249, 115, 22, 0.34));
+  animation: equipmentDrift 18s ease-in-out infinite, equipmentPulse 4.6s ease-in-out infinite;
 }
 
 .floating-dumbbells span::before,
@@ -206,14 +207,15 @@ select:focus {
   content: "";
   position: absolute;
   top: 50%;
-  width: 20px;
-  height: 40px;
-  border-radius: 6px;
-  background: rgba(255, 107, 0, 0.2);
+  width: 18px;
+  height: 46px;
+  border-radius: 5px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(249, 115, 22, 0.64), rgba(255, 255, 255, 0.08));
   transform: translateY(-50%);
   box-shadow:
-    0 0 0 5px rgba(255, 255, 255, 0.035),
-    0 0 22px rgba(255, 107, 0, 0.15);
+    0 0 0 5px rgba(249, 115, 22, 0.08),
+    0 0 28px rgba(249, 115, 22, 0.3);
 }
 
 .floating-dumbbells span::before {
@@ -274,6 +276,180 @@ select:focus {
   transform: rotate(-9deg);
   animation-duration: 20s;
   animation-delay: -10s;
+}
+
+.floating-dumbbells::before,
+.floating-dumbbells::after {
+  content: "";
+  position: absolute;
+  width: 42vw;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.3), transparent);
+  opacity: 0.5;
+  transform: rotate(-18deg);
+  animation: landingEnergyLine 7s ease-in-out infinite;
+}
+
+.floating-dumbbells::before {
+  left: -8vw;
+  top: 34%;
+}
+
+.floating-dumbbells::after {
+  right: -10vw;
+  top: 70%;
+  animation-delay: -3.5s;
+}
+
+.login-stage::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  background:
+    linear-gradient(115deg, transparent 20%, rgba(249, 115, 22, 0.12) 38%, transparent 50%),
+    linear-gradient(245deg, transparent 26%, rgba(255, 255, 255, 0.04) 46%, transparent 58%),
+    radial-gradient(circle at 50% 46%, rgba(249, 115, 22, 0.16), transparent 32%);
+  filter: blur(10px);
+  opacity: 0.84;
+  animation: loginForgeSweep 9s ease-in-out infinite alternate;
+}
+
+.login-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(90deg, rgba(249, 115, 22, 0.08) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(249, 115, 22, 0.055) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, transparent 0 22%, rgba(0, 0, 0, 0.24) 70%);
+  background-size: 120px 120px, 120px 120px, auto;
+  animation: loginGridShift 14s linear infinite;
+  pointer-events: none;
+}
+
+.login-bg-scan {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, transparent, rgba(249, 115, 22, 0.1), transparent);
+  height: 36%;
+  opacity: 0.34;
+  transform: translateY(-120%);
+  animation: loginScan 5.8s linear infinite;
+  pointer-events: none;
+}
+
+.login-bg-core {
+  z-index: 0;
+  animation: loginCorePulse 4s ease-in-out infinite;
+}
+
+.login-bg-rings {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.login-bg-rings span {
+  position: absolute;
+  width: 450px;
+  aspect-ratio: 1;
+  border: 1px solid rgba(249, 115, 22, 0.18);
+  border-radius: 999px;
+  box-shadow: 0 0 36px rgba(249, 115, 22, 0.12);
+  animation: loginRing 4.8s ease-out infinite;
+}
+
+.login-bg-rings span:nth-child(2) {
+  animation-delay: 1.4s;
+}
+
+.login-bg-rings span:nth-child(3) {
+  animation-delay: 2.8s;
+}
+
+.login-bg-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.login-bg-particles span {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #f97316;
+  box-shadow: 0 0 18px rgba(249, 115, 22, 0.9);
+  opacity: 0;
+  animation: loginParticle 6s ease-in-out infinite;
+}
+
+.login-bg-particles span:nth-child(1) { left: 18%; top: 28%; animation-delay: 0s; }
+.login-bg-particles span:nth-child(2) { left: 32%; top: 74%; animation-delay: 0.8s; }
+.login-bg-particles span:nth-child(3) { left: 42%; top: 19%; animation-delay: 1.6s; }
+.login-bg-particles span:nth-child(4) { left: 59%; top: 78%; animation-delay: 2.4s; }
+.login-bg-particles span:nth-child(5) { left: 68%; top: 31%; animation-delay: 3.2s; }
+.login-bg-particles span:nth-child(6) { left: 81%; top: 62%; animation-delay: 4s; }
+.login-bg-particles span:nth-child(7) { left: 12%; top: 58%; animation-delay: 4.8s; }
+.login-bg-particles span:nth-child(8) { left: 88%; top: 22%; animation-delay: 5.6s; }
+
+.login-bg-equipment {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.login-bg-equipment span {
+  position: absolute;
+  width: 124px;
+  height: 12px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(249, 115, 22, 0.68), rgba(255, 255, 255, 0.14) 42%, rgba(255, 255, 255, 0.14) 58%, rgba(249, 115, 22, 0.68));
+  opacity: 0.22;
+  filter: drop-shadow(0 0 22px rgba(249, 115, 22, 0.34));
+  animation: loginEquipmentPass 14s ease-in-out infinite;
+}
+
+.login-bg-equipment span::before,
+.login-bg-equipment span::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 52px;
+  border-radius: 5px;
+  background: rgba(249, 115, 22, 0.54);
+  transform: translateY(-50%);
+  box-shadow: 0 0 0 6px rgba(249, 115, 22, 0.07);
+}
+
+.login-bg-equipment span::before { left: -9px; }
+.login-bg-equipment span::after { right: -9px; }
+
+.login-bg-equipment span:nth-child(1) { left: 8%; top: 22%; transform: rotate(-18deg); animation-delay: -1s; }
+.login-bg-equipment span:nth-child(2) { left: 74%; top: 20%; transform: rotate(24deg); animation-delay: -5s; }
+.login-bg-equipment span:nth-child(3) { left: 11%; top: 78%; transform: rotate(17deg); animation-delay: -9s; }
+.login-bg-equipment span:nth-child(4) { left: 76%; top: 76%; transform: rotate(-22deg); animation-delay: -12s; }
+.login-bg-equipment span:nth-child(5) { left: 46%; top: 14%; width: 86px; transform: rotate(8deg); animation-delay: -7s; }
+
+.login-stage form {
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.58),
+    0 0 0 1px rgba(249, 115, 22, 0.22),
+    0 0 42px rgba(249, 115, 22, 0.12);
+  animation: slideUpFade 0.6s ease-out both, loginCardBreathe 5.6s ease-in-out 0.6s infinite;
 }
 
 .landing-nav {
@@ -2513,11 +2689,122 @@ select:focus {
 }
 
 @keyframes floatingDumbbell {
-  0% { margin-top: 0; opacity: 0.08; }
-  25% { opacity: 0.2; }
-  50% { margin-top: -34px; opacity: 0.16; }
-  75% { opacity: 0.22; }
-  100% { margin-top: 0; opacity: 0.08; }
+  0% { margin-top: 0; margin-left: 0; opacity: 0.18; }
+  25% { opacity: 0.46; }
+  50% { margin-top: -38px; margin-left: 16px; opacity: 0.34; }
+  75% { opacity: 0.52; }
+  100% { margin-top: 0; margin-left: 0; opacity: 0.18; }
+}
+
+@keyframes dumbbellGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.22));
+  }
+  50% {
+    filter: drop-shadow(0 0 26px rgba(249, 115, 22, 0.55));
+  }
+}
+
+@keyframes equipmentDrift {
+  0%, 100% {
+    translate: 0 0;
+    opacity: 0.22;
+  }
+  35% {
+    translate: 26px -18px;
+    opacity: 0.48;
+  }
+  70% {
+    translate: -14px 14px;
+    opacity: 0.34;
+  }
+}
+
+@keyframes equipmentPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.2));
+  }
+  50% {
+    filter: drop-shadow(0 0 30px rgba(249, 115, 22, 0.52));
+  }
+}
+
+@keyframes landingEnergyLine {
+  0%, 100% {
+    transform: translateX(-20px) rotate(-18deg);
+    opacity: 0.18;
+  }
+  50% {
+    transform: translateX(34px) rotate(-18deg);
+    opacity: 0.62;
+  }
+}
+
+@keyframes loginForgeSweep {
+  0% { transform: translateX(-4%) rotate(-3deg) scale(1); opacity: 0.5; }
+  100% { transform: translateX(4%) rotate(3deg) scale(1.04); opacity: 0.9; }
+}
+
+@keyframes loginGridShift {
+  from { background-position: 0 0, 0 0, center; }
+  to { background-position: 120px 60px, 60px 120px, center; }
+}
+
+@keyframes loginScan {
+  0% { transform: translateY(-130%); opacity: 0; }
+  14% { opacity: 0.34; }
+  78% { opacity: 0.24; }
+  100% { transform: translateY(290%); opacity: 0; }
+}
+
+@keyframes loginCorePulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.58; }
+  50% { transform: translate(-50%, -50%) scale(1.18); opacity: 0.95; }
+}
+
+@keyframes loginRing {
+  0% { transform: scale(0.42); opacity: 0; }
+  20% { opacity: 0.45; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes loginParticle {
+  0%, 100% { transform: translate3d(0, 18px, 0) scale(0.6); opacity: 0; }
+  20% { opacity: 0.75; }
+  55% { transform: translate3d(18px, -34px, 0) scale(1); opacity: 0.4; }
+  80% { opacity: 0; }
+}
+
+@keyframes loginEquipmentPass {
+  0%, 100% {
+    translate: 0 0;
+    opacity: 0.16;
+  }
+  35% {
+    translate: 38px -24px;
+    opacity: 0.38;
+  }
+  70% {
+    translate: -22px 20px;
+    opacity: 0.24;
+  }
+}
+
+@keyframes loginCardBreathe {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow:
+      0 30px 90px rgba(0, 0, 0, 0.58),
+      0 0 0 1px rgba(249, 115, 22, 0.22),
+      0 0 34px rgba(249, 115, 22, 0.1);
+  }
+  50% {
+    transform: translateY(-6px);
+    box-shadow:
+      0 34px 105px rgba(0, 0, 0, 0.64),
+      0 0 0 1px rgba(249, 115, 22, 0.34),
+      0 0 54px rgba(249, 115, 22, 0.2);
+  }
 }
 
 @keyframes heroGlow {

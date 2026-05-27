@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import FireButton from "../components/ui/FireButton";
 import useAuth from "../hooks/useAuth";
@@ -10,7 +10,7 @@ const adminEmail = String(import.meta.env.VITE_ADMIN_EMAIL || "").trim().toLower
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, login, loginAsAdmin, loginWithGoogle } = useAuth();
+  const { login, loginAsAdmin, loginWithGoogle } = useAuth();
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -36,10 +36,6 @@ const LoginPage = () => {
     const timer = window.setTimeout(() => setBanner(""), 3000);
     return () => window.clearTimeout(timer);
   }, [banner]);
-
-  if (user) {
-    return <Navigate to={getPostAuthRoute(user)} replace />;
-  }
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -74,7 +70,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-hidden bg-iron px-4 py-8 text-chalk">
+    <div className="login-stage relative min-h-screen overflow-hidden bg-iron px-4 py-8 text-chalk">
       {banner ? (
         <div className="fixed left-0 right-0 top-0 z-50 bg-fire px-4 py-3 text-center text-sm font-semibold text-white">
           <div className="mx-auto flex w-full max-w-5xl items-center justify-center gap-3">
@@ -94,8 +90,31 @@ const LoginPage = () => {
           backgroundSize: "40px 40px"
         }}
       />
+      <div className="login-bg-scan" aria-hidden="true" />
+      <div className="login-bg-rings" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="login-bg-particles" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="login-bg-equipment" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
       <div
-        className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full"
+        className="login-bg-core absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{ background: "radial-gradient(circle, rgba(255,69,0,0.1) 0%, transparent 70%)" }}
       />
 

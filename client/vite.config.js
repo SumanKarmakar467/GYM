@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      devOptions: { enabled: true, suppressWarnings: true },
+      devOptions: { enabled: false, suppressWarnings: true },
       includeAssets: [
         "favicon.svg",
         "apple-touch-icon.png",
