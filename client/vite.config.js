@@ -39,7 +39,7 @@ export default defineConfig({
           { src: "/icons/icon-72.png", sizes: "72x72", type: "image/png" },
           { src: "/icons/icon-96.png", sizes: "96x96", type: "image/png" },
           { src: "/icons/icon-128.png", sizes: "128x128", type: "image/png" },
-          { src: "/icons/icon-144.png", sizes: "144x144", type: "image/png" },
+          { src: "/icons/icon-144.png", sizes: "144x128", type: "image/png" },
           { src: "/icons/icon-152.png", sizes: "152x152", type: "image/png" },
           { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
           { src: "/icons/icon-384.png", sizes: "384x384", type: "image/png" },
@@ -92,7 +92,9 @@ export default defineConfig({
         clientsClaim: true,
         navigateFallback: null,
         offlineGoogleAnalytics: false,
-        additionalManifestEntries: [{ url: "/offline.html", revision: "1" }],
+        // ✅ REMOVED additionalManifestEntries — it was causing duplicate
+        // cache entries for /offline.html and conflicting with Workbox's
+        // auto-generated revision hash for the same file.
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.onrender\.com\/api\/auth\/me/i,
