@@ -452,6 +452,53 @@ select:focus {
   animation: slideUpFade 0.6s ease-out both, loginCardBreathe 5.6s ease-in-out 0.6s infinite;
 }
 
+.onboarding-aside {
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.onboarding-aside::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    radial-gradient(circle at 28% 18%, rgba(249, 115, 22, 0.28), transparent 28%);
+  background-size: 44px 44px, 44px 44px, auto;
+  opacity: 0.58;
+  mask-image: linear-gradient(to bottom, black 0%, transparent 88%);
+  animation: onboardingGridDrift 16s linear infinite;
+  pointer-events: none;
+}
+
+.onboarding-aside::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.08) 46%, transparent 58%),
+    linear-gradient(180deg, transparent 30%, rgba(0, 0, 0, 0.52));
+  transform: translateX(-60%) skewX(-12deg);
+  animation: onboardingLightSweep 7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.onboarding-aside-glow {
+  position: absolute;
+  inset: auto -20% 0 -10%;
+  z-index: 2;
+  height: 260px;
+  background:
+    radial-gradient(ellipse at 34% 52%, rgba(249, 115, 22, 0.32), transparent 55%),
+    radial-gradient(ellipse at 72% 50%, rgba(234, 179, 8, 0.16), transparent 58%);
+  filter: blur(22px);
+  animation: onboardingGlowPulse 5s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
 .landing-nav {
   transition: background-color 0.25s ease, backdrop-filter 0.25s ease, box-shadow 0.25s ease;
 }
@@ -610,15 +657,12 @@ select:focus {
   position: absolute;
   inset: 18px;
   z-index: 3;
-  display: grid;
-  grid-template-columns: 1.12fr 0.82fr 0.9fr;
-  grid-template-rows: 1fr 0.86fr;
-  gap: 12px;
+  display: block;
   transform: translateZ(34px);
 }
 
 .hero-collage-card {
-  position: relative;
+  position: absolute;
   overflow: hidden;
   min-width: 0;
   min-height: 0;
@@ -629,6 +673,8 @@ select:focus {
   box-shadow:
     0 18px 42px rgba(0, 0, 0, 0.38),
     0 0 0 1px rgba(255, 107, 0, 0.08);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, z-index 0.3s ease;
+  animation: collageCardGlow 5.8s ease-in-out infinite;
 }
 
 .hero-collage-card::after {
@@ -638,6 +684,17 @@ select:focus {
   background:
     linear-gradient(120deg, rgba(255, 107, 0, 0.18), transparent 36%),
     linear-gradient(180deg, transparent 48%, rgba(0, 0, 0, 0.62));
+  pointer-events: none;
+}
+
+.hero-collage-card::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  z-index: 2;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.16) 48%, transparent 64%);
+  transform: translateX(-70%) rotate(12deg);
+  animation: collageImageSweep 7s ease-in-out infinite;
   pointer-events: none;
 }
 
@@ -656,34 +713,60 @@ select:focus {
   filter: grayscale(0.35) contrast(1.2) brightness(0.96);
 }
 
+.hero-collage-card:hover {
+  z-index: 9;
+  border-color: rgba(249, 115, 22, 0.55);
+  box-shadow:
+    0 24px 58px rgba(0, 0, 0, 0.52),
+    0 0 34px rgba(249, 115, 22, 0.22);
+}
+
 .hero-collage-card-large {
-  grid-column: 1 / 2;
-  grid-row: 1 / 3;
+  left: 0;
+  top: 10%;
+  z-index: 2;
+  width: 31%;
+  height: 74%;
 }
 
 .hero-collage-card-tall {
-  grid-column: 2 / 3;
-  grid-row: 1 / 3;
+  left: 28%;
+  top: 3%;
+  z-index: 3;
+  width: 29%;
+  height: 86%;
+  animation-delay: -1.2s;
 }
 
 .hero-collage-card-small {
-  grid-column: 3 / 4;
-  grid-row: 1 / 2;
+  right: 1%;
+  top: 3%;
+  z-index: 4;
+  width: 34%;
+  height: 39%;
+  animation-delay: -2.4s;
 }
 
 .hero-collage-card-wide {
-  grid-column: 3 / 4;
-  grid-row: 2 / 3;
+  right: 1%;
+  bottom: 3%;
+  z-index: 3;
+  width: 34%;
+  height: 38%;
+  animation-delay: -3.6s;
 }
 
 .hero-collage-card-portrait {
-  position: absolute;
-  right: 9%;
-  bottom: 8%;
-  z-index: 4;
-  width: 34%;
-  height: 46%;
-  transform: rotate(-2deg);
+  left: 51%;
+  top: 43%;
+  z-index: 6;
+  width: 32%;
+  height: 41%;
+  animation-delay: -4.8s;
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.62),
+    0 0 0 1px rgba(249, 115, 22, 0.18),
+    0 0 30px rgba(249, 115, 22, 0.12);
 }
 
 .hero-collage-badge,
@@ -723,8 +806,8 @@ select:focus {
 }
 
 .hero-collage-stat {
-  left: 24px;
-  bottom: 22px;
+  left: 18px;
+  bottom: 18px;
   display: grid;
   gap: 3px;
   min-width: 170px;
@@ -2807,6 +2890,29 @@ select:focus {
   }
 }
 
+@keyframes onboardingGridDrift {
+  from { background-position: 0 0, 0 0, center; }
+  to { background-position: 88px 44px, 44px 88px, center; }
+}
+
+@keyframes onboardingLightSweep {
+  0%, 100% {
+    transform: translateX(-70%) skewX(-12deg);
+    opacity: 0;
+  }
+  42%, 58% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateX(70%) skewX(-12deg);
+  }
+}
+
+@keyframes onboardingGlowPulse {
+  from { transform: scale(0.96); opacity: 0.55; }
+  to { transform: scale(1.08); opacity: 0.95; }
+}
+
 @keyframes heroGlow {
   from { transform: scale(0.98); opacity: 0.65; }
   to { transform: scale(1.04); opacity: 1; }
@@ -2815,6 +2921,34 @@ select:focus {
 @keyframes heroFrameFloat {
   0%, 100% { transform: rotateY(-7deg) rotateX(3deg) translate3d(0, 0, 0); }
   50% { transform: rotateY(-5deg) rotateX(4deg) translate3d(0, -12px, 0); }
+}
+
+@keyframes collageCardGlow {
+  0%, 100% {
+    box-shadow:
+      0 18px 42px rgba(0, 0, 0, 0.38),
+      0 0 0 1px rgba(255, 107, 0, 0.08);
+  }
+  50% {
+    box-shadow:
+      0 22px 54px rgba(0, 0, 0, 0.48),
+      0 0 0 1px rgba(255, 107, 0, 0.2),
+      0 0 24px rgba(249, 115, 22, 0.12);
+  }
+}
+
+@keyframes collageImageSweep {
+  0%, 58%, 100% {
+    transform: translateX(-74%) rotate(12deg);
+    opacity: 0;
+  }
+  68% {
+    opacity: 0.75;
+  }
+  84% {
+    transform: translateX(74%) rotate(12deg);
+    opacity: 0;
+  }
 }
 
 @keyframes heroTrainingRing {
@@ -3080,9 +3214,20 @@ select:focus {
 
   .hero-collage-grid {
     inset: 12px;
+    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: 1fr 1fr 0.78fr;
     gap: 8px;
+  }
+
+  .hero-collage-card {
+    position: relative;
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+    width: auto;
+    height: auto;
   }
 
   .hero-collage-card-large {
@@ -3102,12 +3247,6 @@ select:focus {
 
   .hero-collage-card-wide,
   .hero-collage-card-portrait {
-    position: relative;
-    right: auto;
-    bottom: auto;
-    width: auto;
-    height: auto;
-    transform: none;
     grid-row: 3 / 4;
   }
 

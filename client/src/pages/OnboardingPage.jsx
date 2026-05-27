@@ -13,32 +13,36 @@ const bodyTypeOptions = [
     profileGoal: "athlete",
     workoutGoal: "Burn Fat",
     copy: "Sharp conditioning, visible definition, fast movement.",
-    image:
-      "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=900&q=80"
+    image: "/images/body-types/lean-athlete.jpg",
+    imagePosition: "center",
+    imageFit: "contain"
   },
   {
     label: "Muscular",
     profileGoal: "bodybuilder",
     workoutGoal: "Build Muscle",
     copy: "Balanced size, strong shape, classic hypertrophy work.",
-    image:
-      "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=900&q=80"
+    image: "/images/body-types/muscular.jpg",
+    imagePosition: "center",
+    imageFit: "contain"
   },
   {
     label: "Power and Strength",
     profileGoal: "powerlifter",
     workoutGoal: "Build Muscle",
     copy: "Heavy lifts, dense muscle, performance-first progression.",
-    image:
-      "https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=900&q=80"
+    image: "/images/body-types/power-strength.jpg",
+    imagePosition: "center",
+    imageFit: "contain"
   },
   {
     label: "Functional Endurance",
     profileGoal: "crossfit",
     workoutGoal: "Improve Endurance",
     copy: "Work capacity, stamina, strength that keeps moving.",
-    image:
-      "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=80"
+    image: "/images/body-types/functional-endurance.jpg",
+    imagePosition: "center",
+    imageFit: "contain"
   }
 ];
 
@@ -284,17 +288,18 @@ const OnboardingPage = () => {
       <main className="relative mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-6xl items-center">
         <form onSubmit={handleSubmit}>
           <GymCard className="grid overflow-hidden lg:grid-cols-[0.82fr_1.18fr]" hover={false}>
-            <aside className="relative min-h-[260px] border-b border-white/[0.06] bg-iron p-6 md:p-8 lg:border-b-0 lg:border-r">
+            <aside className="onboarding-aside relative min-h-[260px] border-b border-white/[0.06] bg-iron p-6 md:p-8 lg:border-b-0 lg:border-r">
               <div
-                className="absolute inset-0 opacity-50"
+                className="absolute inset-0 opacity-70"
                 style={{
                   backgroundImage:
-                    "linear-gradient(145deg, rgba(255,69,0,0.18), transparent 48%), url(https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1100&q=80)",
+                    "linear-gradient(145deg, rgba(255,69,0,0.22), transparent 48%), url(/images/hero-collage/front-pose.jpg)",
                   backgroundSize: "cover",
-                  backgroundPosition: "center"
+                  backgroundPosition: "center top"
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-iron via-iron/80 to-iron/25" />
+              <div className="absolute inset-0 bg-gradient-to-t from-iron via-iron/82 to-iron/20" />
+              <div className="onboarding-aside-glow" aria-hidden="true" />
               <div className="relative flex h-full flex-col justify-between gap-8">
                 <div>
                   <p className="font-body text-xs font-bold uppercase tracking-[3px] text-fire">Onboarding</p>
@@ -645,6 +650,10 @@ const ImageChoice = ({ option, active, onClick, compact = false }) => (
       src={option.image}
       alt=""
       className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+      style={{
+        objectFit: option.imageFit || "cover",
+        objectPosition: option.imagePosition || "center"
+      }}
       loading="lazy"
     />
     <div className="absolute inset-0 bg-gradient-to-t from-iron via-iron/55 to-transparent" />
