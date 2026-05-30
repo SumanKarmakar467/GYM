@@ -49,6 +49,7 @@ const sanitizeUser = (user) => ({
   avatar: user.avatar,
   dietPreference: user.dietPreference || "veg",
   isOnboarded: Boolean(user.isOnboarded),
+  hasPassword: Boolean(user.passwordHash),
   createdAt: user.createdAt
 });
 
@@ -134,8 +135,12 @@ export const login = async (req, res) => {
 
     const user = await User.findOne({ email }).select("+passwordHash +refreshToken");
 
-    if (!user || !user.passwordHash) {
+    if (!user) {
       return res.status(401).json({ message: "Invalid credentials." });
+    }
+
+    if (!user.passwordHash) {
+      return res.status(401).json({ message: "This account uses Google Sign-In. Continue with Google." });
     }
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
@@ -308,8 +313,8 @@ export const changePassword = async (req, res) => {
     const oldPassword = String(req.body?.oldPassword || "");
     const newPassword = String(req.body?.newPassword || "");
 
-    if (!oldPassword || !newPassword) {
-      return res.status(400).json({ message: "Old password and new password are required." });
+    if (!newPassword) {
+      return res.status(400).json({ message: "New password is required." });
     }
 
     if (newPassword.length < 8) {
@@ -318,8 +323,19 @@ export const changePassword = async (req, res) => {
 
     const user = await User.findById(req.user._id).select("+passwordHash");
 
-    if (!user || !user.passwordHash) {
+    if (!user) {
       return res.status(400).json({ message: "Password change is unavailable for this account." });
+    }
+
+    if (!user.passwordHash) {
+      user.passwordHash = await bcrypt.hash(newPassword, 12);
+      await user.save();
+
+      return res.json({ message: "Password added successfully." });
+    }
+
+    if (!oldPassword) {
+      return res.status(400).json({ message: "Old password is required." });
     }
 
     const isMatch = await bcrypt.compare(oldPassword, user.passwordHash);

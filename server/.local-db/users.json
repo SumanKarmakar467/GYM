@@ -11,5 +11,18 @@
     "name": "Hakkan",
     "email": "hakkan@123gmail.com",
     "passwordHash": "$2b$12$nAnr4aWuCHt5Eqz/4t8a0uVyM/KFk0mc0pwA6GfGtrVuokQRr.mtG"
+  },
+  {
+    "role": "user",
+    "googleId": "cXhZhKurZZTqtgDUHnXLTsdifV62",
+    "avatar": "https://lh3.googleusercontent.com/a/ACg8ocIxYKo5CkUSp5WWnouDKWuR_Rg3N8JvnpaMTiCu7qDyW3LbyA=s96-c",
+    "dietPreference": "veg",
+    "isOnboarded": false,
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMWIyMjY0MjBjNWMzM2Q0M2ZhZGMyZiIsInR5cGUiOiJyZWZyZXNoIiwiaWF0IjoxNzgwMTYzMTcyLCJleHAiOjE3ODA3Njc5NzJ9.hAuOXivKAR0dkai0G_mLGmAoht2bf7vJEhdcIYXmjko",
+    "_id": "6a1b226420c5c33d43fadc2f",
+    "createdAt": "2026-05-30T17:46:12.472Z",
+    "updatedAt": "2026-05-30T17:46:12.499Z",
+    "name": "Center Fruit",
+    "email": "fruitcenter67@gmail.com"
   }
 ]

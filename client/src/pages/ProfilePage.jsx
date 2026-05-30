@@ -71,6 +71,7 @@ const ProfilePage = () => {
 
   const onChangePassword = async (event) => {
     event.preventDefault();
+    const hasPassword = Boolean(profile?.hasPassword);
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       toast.error("New password and confirm password do not match.");
@@ -83,7 +84,8 @@ const ProfilePage = () => {
         oldPassword: passwordForm.oldPassword,
         newPassword: passwordForm.newPassword
       });
-      toast.success("Password updated.");
+      toast.success(hasPassword ? "Password updated." : "Password added.");
+      setProfile((prev) => (prev ? { ...prev, hasPassword: true } : prev));
       setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to update password.");
@@ -224,16 +226,18 @@ const ProfilePage = () => {
           )}
 
           <form onSubmit={onChangePassword} className="mt-8 rounded-2xl border border-borderSubtle bg-bgSecondary p-4">
-            <h2 className="text-xl font-semibold">Change Password</h2>
-            <div className="mt-4 grid gap-3 md:grid-cols-3">
-              <input
-                type="password"
-                placeholder="Old password"
-                className="input-field"
-                value={passwordForm.oldPassword}
-                onChange={(event) => setPasswordForm((prev) => ({ ...prev, oldPassword: event.target.value }))}
-                required
-              />
+            <h2 className="text-xl font-semibold">{profile?.hasPassword ? "Change Password" : "Set Password"}</h2>
+            <div className={`mt-4 grid gap-3 ${profile?.hasPassword ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
+              {profile?.hasPassword ? (
+                <input
+                  type="password"
+                  placeholder="Old password"
+                  className="input-field"
+                  value={passwordForm.oldPassword}
+                  onChange={(event) => setPasswordForm((prev) => ({ ...prev, oldPassword: event.target.value }))}
+                  required
+                />
+              ) : null}
               <input
                 type="password"
                 placeholder="New password"
@@ -253,7 +257,7 @@ const ProfilePage = () => {
             </div>
 
             <button type="submit" className="btn-primary mt-4" disabled={passwordSaving}>
-              {passwordSaving ? "Updating..." : "Update Password"}
+              {passwordSaving ? "Saving..." : profile?.hasPassword ? "Update Password" : "Set Password"}
             </button>
           </form>
         </section>

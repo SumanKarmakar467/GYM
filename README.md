@@ -18,9 +18,9 @@ GymForge is a full-stack MERN app for AI-generated physique plans and daily trai
 
 ## Environment
 
-Copy `.env.example` to `.env` and fill values.
-The Vite client reads variables from the repo root `.env` (configured via `client/vite.config.js` with `envDir: ".."`).
-For admin panel access, set `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and matching `VITE_ADMIN_EMAIL`.
+Backend environment values live in `server/.env`.
+Frontend environment values live in `client/.env`.
+For admin panel access, set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `server/.env`, and matching `VITE_ADMIN_EMAIL` in `client/.env`.
 
 ## Run Locally
 

@@ -1,0 +1,20 @@
+[
+  {
+    "metadata": {},
+    "_id": "6a1b226420c5c33d43fadc30",
+    "createdAt": "2026-05-30T17:46:12.482Z",
+    "updatedAt": "2026-05-30T17:46:12.483Z",
+    "userId": "6a1b226420c5c33d43fadc2f",
+    "type": "register",
+    "message": "Registered with Google."
+  },
+  {
+    "metadata": {},
+    "_id": "6a1b226420c5c33d43fadc31",
+    "createdAt": "2026-05-30T17:46:12.501Z",
+    "updatedAt": "2026-05-30T17:46:12.502Z",
+    "userId": "6a1b226420c5c33d43fadc2f",
+    "type": "login",
+    "message": "Logged in with Google."
+  }
+]

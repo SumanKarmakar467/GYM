@@ -9,7 +9,7 @@ const protect = async (req, res, next) => {
     }
 
     const decoded = verifyAccessToken(token);
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(decoded.id).select("+passwordHash");
 
     if (!user) {
       return res.status(401).json({ message: "Unauthorized" });

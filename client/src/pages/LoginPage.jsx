@@ -47,8 +47,8 @@ const LoginPage = () => {
       const target = location.state?.from || getPostAuthRoute(nextUser);
       toast.success("Welcome back.");
       navigate(target, { replace: true });
-    } catch {
-      toast.error("Invalid email or password.");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Invalid email or password.");
     } finally {
       setSubmitting(false);
     }
@@ -62,8 +62,8 @@ const LoginPage = () => {
       const target = location.state?.from || getPostAuthRoute(nextUser);
       toast.success("Welcome back.");
       navigate(target, { replace: true });
-    } catch {
-      toast.error("Invalid email or password.");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Invalid email or password.");
     } finally {
       setSubmitting(false);
     }

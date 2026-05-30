@@ -83,8 +83,15 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     let active = true;
+    const publicPaths = new Set(["/", "/login", "/register"]);
 
     const bootstrap = async () => {
+      if (publicPaths.has(window.location.pathname)) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
       try {
         await refreshUser();
       } catch {
