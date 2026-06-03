@@ -16,5 +16,14 @@
     "userId": "6a1b226420c5c33d43fadc2f",
     "type": "login",
     "message": "Logged in with Google."
+  },
+  {
+    "metadata": {},
+    "_id": "6a207c7210e03f5a54da3424",
+    "createdAt": "2026-06-03T19:11:46.649Z",
+    "updatedAt": "2026-06-03T19:11:46.662Z",
+    "userId": "6a207c7210e03f5a54da3423",
+    "type": "register",
+    "message": "Registered with Google."
   }
 ]

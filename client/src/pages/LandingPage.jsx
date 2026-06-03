@@ -6,6 +6,14 @@ import Reveal from "../components/Reveal";
 
 const words = ["Build Muscle.", "Burn Fat.", "Track Every Rep.", "Forge Your Legacy."];
 
+const heroSignals = [
+  { label: "Volume", value: "+18%" },
+  { label: "Protein", value: "148g" },
+  { label: "Streak", value: "14d" }
+];
+
+const heroPulseLines = ["Plan generated", "Workout synced", "Demo form ready", "Todo graph live"];
+
 const featureCards = [
   {
     icon: "🧠",
@@ -401,7 +409,13 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
-      <div className="floating-dumbbells" aria-hidden="true">
+      <div className="landing-kinetic-bg" aria-hidden="true">
+        <div className="kinetic-grid" />
+        <div className="kinetic-aurora" />
+        <div className="kinetic-ring kinetic-ring-one" />
+        <div className="kinetic-ring kinetic-ring-two" />
+        <div className="kinetic-beam kinetic-beam-one" />
+        <div className="kinetic-beam kinetic-beam-two" />
         <span />
         <span />
         <span />
@@ -544,6 +558,19 @@ const LandingPage = () => {
             >
               <div className="hero-visual-glow" />
               <div className="hero-collage-scene">
+                <div className="hero-scanline" aria-hidden="true" />
+                <div className="hero-holo-rings" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+                <div className="hero-particle-field" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                </div>
                 <div className="hero-collage-grid">
                   <motion.figure
                     className="hero-collage-card hero-collage-card-large"
@@ -583,12 +610,47 @@ const LandingPage = () => {
                 </div>
                 <div className="hero-collage-badge">
                   <span />
-                  Bodybuilding visual system
+                  Live training visual system
+                </div>
+                <div className="hero-signal-stack">
+                  {heroSignals.map((signal, index) => (
+                    <motion.div
+                      key={signal.label}
+                      className="hero-signal-chip"
+                      animate={prefersReducedMotion ? false : { y: [0, -7, 0], opacity: [0.82, 1, 0.82] }}
+                      transition={{ duration: 3.2 + index * 0.4, repeat: Infinity, ease: "easeInOut", delay: index * 0.18 }}
+                    >
+                      <span>{signal.label}</span>
+                      <strong>{signal.value}</strong>
+                    </motion.div>
+                  ))}
                 </div>
                 <div className="hero-collage-stat">
                   <span>Focus</span>
                   <strong>Hypertrophy</strong>
                   <small>Strength · Shape · Discipline</small>
+                </div>
+                <div className="hero-command-rail">
+                  {heroPulseLines.map((line, index) => (
+                    <motion.p
+                      key={line}
+                      animate={prefersReducedMotion ? false : { x: [0, 8, 0] }}
+                      transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut", delay: index * 0.22 }}
+                    >
+                      <span />
+                      {line}
+                    </motion.p>
+                  ))}
+                </div>
+                <div className="hero-waveform" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
                 </div>
               </div>
             </motion.div>

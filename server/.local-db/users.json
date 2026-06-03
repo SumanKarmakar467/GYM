@@ -24,5 +24,18 @@
     "updatedAt": "2026-05-30T17:46:12.499Z",
     "name": "Center Fruit",
     "email": "fruitcenter67@gmail.com"
+  },
+  {
+    "role": "user",
+    "googleId": "TNX0n7o1sJfyCuYVokvJYLDbKco2",
+    "avatar": "https://lh3.googleusercontent.com/a/ACg8ocJ6Bq5BeGgJIH8KY66VNuO9ullIcDKUcZ2rKQPXStEX25JVBg=s96-c",
+    "dietPreference": "veg",
+    "isOnboarded": false,
+    "refreshToken": null,
+    "_id": "6a207c7210e03f5a54da3423",
+    "createdAt": "2026-06-03T19:11:46.580Z",
+    "updatedAt": "2026-06-03T19:11:46.629Z",
+    "name": "Dhoni Ronaldo",
+    "email": "0dhonironaldo77@gmail.com"
   }
 ]
