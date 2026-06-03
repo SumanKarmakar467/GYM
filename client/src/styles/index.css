@@ -2368,6 +2368,46 @@ select:focus {
   white-space: nowrap;
 }
 
+.workout-3d-view-tabs {
+  position: absolute;
+  left: 50%;
+  top: 18px;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(82%, 260px);
+  transform: translateX(-50%);
+  gap: 6px;
+  border: 1px solid rgba(255, 107, 0, 0.24);
+  border-radius: 14px;
+  background: rgba(3, 7, 18, 0.74);
+  padding: 6px;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.36), inset 0 0 24px rgba(255, 107, 0, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.workout-3d-view-tabs button {
+  min-height: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #d4d4d8;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.workout-3d-view-tabs button:hover,
+.workout-3d-view-tabs button:focus-visible,
+.workout-3d-view-tabs button.is-active {
+  border-color: rgba(255, 107, 0, 0.75);
+  background: linear-gradient(135deg, rgba(255, 107, 0, 0.88), rgba(250, 204, 21, 0.78));
+  color: #070707;
+  box-shadow: 0 0 26px rgba(255, 107, 0, 0.36);
+}
+
 .workout-3d-rep {
   border: 1px solid rgba(255, 107, 0, 0.32);
   border-radius: 999px;
@@ -2381,10 +2421,52 @@ select:focus {
   white-space: nowrap;
 }
 
+.workout-3d-muscle-readout {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 118px;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 4px 12px;
+  border: 1px solid rgba(255, 107, 0, 0.28);
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(255, 107, 0, 0.18), transparent 45%),
+    rgba(3, 7, 18, 0.74);
+  padding: 12px 14px;
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.42), inset 0 0 28px rgba(255, 107, 0, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.workout-3d-muscle-readout span,
+.workout-3d-muscle-readout small {
+  color: #a1a1aa;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.workout-3d-muscle-readout strong {
+  color: #fff7ed;
+  font-size: 1.28rem;
+  font-weight: 1000;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.workout-3d-muscle-readout small {
+  justify-self: end;
+  color: #fb923c;
+}
+
 .workout-3d-hint {
   position: absolute;
   left: 50%;
-  top: 58px;
+  top: 70px;
   z-index: 3;
   transform: translateX(-50%);
   border: 1px solid rgba(255, 255, 255, 0.1);

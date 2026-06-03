@@ -60,7 +60,11 @@ const pickActiveWorkoutDay = (plan) => {
 
 const getDemoType = (exerciseName = "") => {
   const value = exerciseName.toLowerCase();
-  if (value.includes("squat") || value.includes("lunge")) return "lower";
+  if (value.includes("deadlift") || value.includes("rdl") || value.includes("romanian") || value.includes("hinge") || value.includes("hip thrust")) return "hinge";
+  if (value.includes("squat") || value.includes("lunge") || value.includes("leg press") || value.includes("step up") || value.includes("split squat")) return "lower";
+  if (value.includes("shoulder") || value.includes("overhead") || value.includes("lateral raise") || value.includes("arnold")) return "shoulder";
+  if (value.includes("curl") || value.includes("triceps") || value.includes("extension") || value.includes("pushdown") || value.includes("hammer")) return "arms";
+  if (value.includes("plank") || value.includes("crunch") || value.includes("sit up") || value.includes("hollow") || value.includes("leg raise") || value.includes("russian twist")) return "core";
   if (value.includes("press") || value.includes("push")) return "push";
   if (value.includes("row") || value.includes("pull") || value.includes("lat")) return "pull";
   if (value.includes("run") || value.includes("jump") || value.includes("burpee")) return "cardio";
@@ -69,16 +73,24 @@ const getDemoType = (exerciseName = "") => {
 
 const exerciseIcons = {
   lower: "L",
+  hinge: "H",
   push: "P",
   pull: "B",
+  shoulder: "S",
+  arms: "A",
+  core: "O",
   cardio: "C",
   general: "G"
 };
 
 const muscleProfiles = {
   lower: [["Quads", 92], ["Glutes", 84], ["Hamstrings", 70], ["Core", 45]],
+  hinge: [["Hamstrings", 90], ["Glutes", 86], ["Lower Back", 68], ["Core", 62]],
   push: [["Chest", 90], ["Shoulders", 74], ["Triceps", 82], ["Core", 38]],
   pull: [["Lats", 88], ["Upper Back", 82], ["Biceps", 68], ["Rear Delts", 58]],
+  shoulder: [["Shoulders", 92], ["Triceps", 64], ["Upper Chest", 46], ["Core", 58]],
+  arms: [["Biceps", 86], ["Triceps", 82], ["Forearms", 62], ["Shoulders", 36]],
+  core: [["Core", 96], ["Obliques", 78], ["Hip Flexors", 54], ["Shoulders", 42]],
   cardio: [["Heart Rate", 95], ["Leg Drive", 76], ["Core", 62], ["Calves", 55]],
   general: [["Full Body", 84], ["Core", 72], ["Glutes", 58], ["Shoulders", 45]]
 };
@@ -508,7 +520,7 @@ const WorkoutDetailPage = () => {
 
             <div className="workout-video-phone workout-3d-shell">
               {demoOpen ? (
-                <WorkoutThreeViewer type={selectedType} exerciseName={selectedName} />
+                <WorkoutThreeViewer type={selectedType} exerciseName={selectedName} muscles={musclesWorked} />
               ) : (
                 <div className="workout-demo-empty">
                   <span>3D</span>
