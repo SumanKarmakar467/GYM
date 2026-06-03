@@ -2320,6 +2320,24 @@ select:focus {
   line-height: 1.45;
 }
 
+.workout-week-note {
+  margin-top: 22px;
+  border: 1px solid rgba(255, 107, 0, 0.14);
+  border-radius: 0.75rem;
+  background:
+    linear-gradient(135deg, rgba(255, 107, 0, 0.08), transparent 42%),
+    rgba(255, 255, 255, 0.025);
+  padding: 16px;
+}
+
+.workout-day-focus-note {
+  margin-top: 12px;
+  color: #a1a1aa;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
 .workout-demo-item:hover,
 .workout-demo-item:focus-visible,
 .workout-demo-item.is-selected {

@@ -545,6 +545,13 @@ const WorkoutDetailPage = () => {
                 <strong>{activeDay.cooldown || "Mobility, walking, stretching, and breathing work."}</strong>
               </div>
             ) : null}
+
+            <div className="workout-week-note">
+              <p className="workout-panel-label">Focus Note</p>
+              <p className="workout-day-focus-note">
+                {activeDay.focus || (activeDay.isRestDay ? "Recovery day" : "Training day")}
+              </p>
+            </div>
           </section>
 
         </div>
