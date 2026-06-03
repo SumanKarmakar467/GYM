@@ -7,7 +7,6 @@ import api from "../api/api";
 import EmptyState from "../components/EmptyState";
 import AppNavbar from "../components/layout/AppNavbar";
 import SkeletonCard, { SkeletonGrid } from "../components/SkeletonCard";
-import WorkoutThreeViewer from "../components/workout/WorkoutThreeViewer";
 import useAuth from "../hooks/useAuth";
 import { addDays, toYmd } from "../utils/date";
 import { demoWorkoutPlan, isDemoAthlete } from "../utils/demoUserData";
@@ -135,8 +134,6 @@ const WorkoutDetailPage = () => {
   const [notesMap, setNotesMap] = useState({});
   const [restTimer, setRestTimer] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isPlayerExpanded, setIsPlayerExpanded] = useState(false);
-  const [pulseKey, setPulseKey] = useState("");
   const [timerBarWidth, setTimerBarWidth] = useState(100);
   const [workoutTodos, setWorkoutTodos] = useState([]);
   const [syncingKey, setSyncingKey] = useState("");
@@ -176,8 +173,7 @@ const WorkoutDetailPage = () => {
   }, [activeDay, plan]);
   const selectedExercise = exercises[selectedIndex] || exercises[0] || null;
   const selectedKey = selectedExercise ? getExerciseKey(activeDay, selectedIndex) : "";
-  const selectedName = getExerciseName(selectedExercise);
-  const selectedType = getDemoType(selectedName);
+  const selectedType = getDemoType(getExerciseName(selectedExercise));
   const selectedGuide = selectedExercise ? buildExerciseGuide(selectedExercise) : null;
   const musclesWorked = muscleProfiles[selectedType] || muscleProfiles.general;
   const selectedSets = getExerciseNumber(selectedExercise?.sets, 3);
@@ -297,8 +293,6 @@ const WorkoutDetailPage = () => {
     setWorkoutTodos((prev) => prev.map((todo) => (todo._id === linkedTodo?._id ? { ...todo, completed: done } : todo)));
 
     if (done) {
-      setPulseKey(key);
-      window.setTimeout(() => setPulseKey(""), 220);
       const seconds = parseRestSeconds(exercise.rest);
       setRestTimer({ exerciseKey: key, remaining: seconds, duration: seconds });
     } else if (restTimer?.exerciseKey === key) {
@@ -330,9 +324,6 @@ const WorkoutDetailPage = () => {
     setSelectedIndex(0);
     setRestTimer(null);
   };
-
-  const selectPreviousExercise = () => setSelectedIndex((current) => Math.max(0, current - 1));
-  const selectNextExercise = () => setSelectedIndex((current) => Math.min(totalExercises - 1, current + 1));
 
   const radius = 52;
   const circumference = 2 * Math.PI * radius;
@@ -375,7 +366,7 @@ const WorkoutDetailPage = () => {
   return (
     <div className="min-h-screen pb-24">
       <AppNavbar />
-      <main className={`workout-player-shell ${isPlayerExpanded ? "is-expanded" : ""}`}>
+      <main className="workout-player-shell">
         <section className="workout-player-topbar">
           <div>
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-brandSecondary">Week {activeDay.weekNumber}</p>
@@ -556,54 +547,6 @@ const WorkoutDetailPage = () => {
             ) : null}
           </section>
 
-          <section className="workout-demo-player" aria-label={`${selectedName} workout demo`}>
-            <div className="workout-now-playing">
-              <span />
-              {selectedExercise ? `3D Demo - ${selectedName}` : "Recovery Day"}
-            </div>
-
-            <div className="workout-video-phone workout-3d-shell">
-              {selectedExercise ? (
-                <WorkoutThreeViewer type={selectedType} exerciseName={selectedName} muscles={musclesWorked} />
-              ) : (
-                <div className="workout-demo-empty">
-                  <span>REST</span>
-                  <strong>{activeDay.dayName} recovery focus</strong>
-                  <small>{activeDay.cooldown || "Mobility, walking, stretching, and breathing work."}</small>
-                </div>
-              )}
-              <div className="workout-video-gradient">
-                <h2>{selectedName}</h2>
-                <div className="workout-video-tags">
-                  <span>{selectedGuide?.label || "Technique"}</span>
-                  <span>{selectedSets} sets</span>
-                  <span>{selectedReps} reps</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="workout-player-controls">
-              <button type="button" onClick={selectPreviousExercise} disabled={selectedIndex === 0}>Prev</button>
-              <button
-                type="button"
-                className="is-primary"
-                onClick={() => selectedExercise && toggleDone(selectedExercise, selectedIndex)}
-                disabled={!selectedExercise || syncingKey === selectedKey}
-                aria-pressed={Boolean(completedMap[selectedKey])}
-              >
-                {syncingKey === selectedKey ? "Syncing" : completedMap[selectedKey] ? "Completed" : "Mark Done"}
-              </button>
-              <button type="button" onClick={selectNextExercise} disabled={selectedIndex >= totalExercises - 1}>Next</button>
-              <button type="button" onClick={() => setIsPlayerExpanded((current) => !current)}>
-                {isPlayerExpanded ? "Exit" : "Fullscreen"}
-              </button>
-              {selectedExercise ? (
-                <a href={getYoutubeDemoUrl(selectedName)} target="_blank" rel="noreferrer">
-                  YouTube Posture
-                </a>
-              ) : null}
-            </div>
-          </section>
         </div>
       </main>
 
