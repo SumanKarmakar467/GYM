@@ -2368,6 +2368,19 @@ select:focus {
   white-space: nowrap;
 }
 
+.workout-3d-rep {
+  border: 1px solid rgba(255, 107, 0, 0.32);
+  border-radius: 999px;
+  background: rgba(8, 8, 8, 0.68);
+  padding: 6px 12px;
+  color: #fed7aa;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .workout-3d-hint {
   position: absolute;
   left: 50%;

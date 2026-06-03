@@ -16,32 +16,49 @@ const addDays = (date, days) => {
 };
 
 const foodImages = {
-  oats: "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=900&q=85",
-  paneer: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=900&q=85",
-  dal: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=900&q=85",
-  tofu: "https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&w=900&q=85",
-  eggs: "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=900&q=85",
-  chicken: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=900&q=85",
-  fish: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=85",
-  curd: "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=900&q=85",
-  salad: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=85",
-  chickpea: "https://images.unsplash.com/photo-1515543904379-3d757afe72e4?auto=format&fit=crop&w=900&q=85",
-  rice: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=900&q=85",
-  whey: "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?auto=format&fit=crop&w=900&q=85"
+  eggs: "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=900&q=88",
+  chicken: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=900&q=88",
+  fish: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=88",
+  prawns: "https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=900&q=88",
+  tuna: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=900&q=88",
+  turkey: "https://images.unsplash.com/photo-1574672280600-4accfa5b6f98?auto=format&fit=crop&w=900&q=88",
+  leanMeat: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=88",
+  salmon: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=900&q=88",
+  paneer: "https://images.unsplash.com/photo-1631452180539-96aca7d48617?auto=format&fit=crop&w=900&q=88",
+  tofu: "https://images.unsplash.com/photo-1609501676725-7186f017a4b7?auto=format&fit=crop&w=900&q=88",
+  dal: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=900&q=88",
+  chickpea: "https://images.unsplash.com/photo-1515543904379-3d757afe72e4?auto=format&fit=crop&w=900&q=88",
+  rajma: "https://images.unsplash.com/photo-1603105037880-880cd4edfb0d?auto=format&fit=crop&w=900&q=88",
+  sprout: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=88",
+  oats: "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=900&q=88",
+  curd: "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=900&q=88",
+  quinoa: "https://images.unsplash.com/photo-1505576399279-565b52d4ac71?auto=format&fit=crop&w=900&q=88",
+  peanutButter: "https://images.unsplash.com/photo-1621939514649-280e2ee25f60?auto=format&fit=crop&w=900&q=88",
+  rice: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=900&q=88",
+  sweetPotato: "https://images.unsplash.com/photo-1579123521334-44e68095cd7a?auto=format&fit=crop&w=900&q=88"
 };
 
-const vegFoods = [
-  { key: "breakfast-oats-curd", meal: "Breakfast", name: "Greek curd oats bowl", protein: 28, fiber: 9, calories: 430, image: foodImages.oats, note: "Oats, curd, banana, chia, almonds." },
-  { key: "lunch-paneer-dal", meal: "Lunch", name: "Paneer dal power plate", protein: 42, fiber: 14, calories: 680, image: foodImages.paneer, note: "Paneer, dal, rice, cucumber salad." },
-  { key: "snack-whey-chickpea", meal: "Snack", name: "Whey + roasted chana", protein: 34, fiber: 8, calories: 310, image: foodImages.whey, note: "Fast protein with high-fiber crunch." },
-  { key: "dinner-tofu-salad", meal: "Dinner", name: "Tofu greens bowl", protein: 36, fiber: 13, calories: 520, image: foodImages.tofu, note: "Tofu, mixed vegetables, quinoa or roti." }
-];
-
-const nonVegFoods = [
-  { key: "breakfast-eggs-oats", meal: "Breakfast", name: "Eggs and oats plate", protein: 34, fiber: 8, calories: 470, image: foodImages.eggs, note: "3 eggs, oats, fruit, black coffee." },
-  { key: "lunch-chicken-rice", meal: "Lunch", name: "Chicken rice training bowl", protein: 52, fiber: 9, calories: 720, image: foodImages.chicken, note: "Grilled chicken, rice, dal, salad." },
-  { key: "snack-curd-chickpea", meal: "Snack", name: "Curd and chickpea bowl", protein: 24, fiber: 10, calories: 330, image: foodImages.curd, note: "Curd, chickpeas, onion, tomato, lemon." },
-  { key: "dinner-fish-greens", meal: "Dinner", name: "Fish with greens", protein: 46, fiber: 11, calories: 560, image: foodImages.fish, note: "Fish, vegetables, roti or sweet potato." }
+const foods = [
+  { key: "egg-plate", meal: "Non-Veg", name: "Egg Plate", protein: 13, carbs: 1, fiber: 0, calories: 155, image: foodImages.eggs, note: "Boiled or scrambled eggs for fast complete protein." },
+  { key: "grilled-chicken", meal: "Non-Veg", name: "Grilled Chicken", protein: 31, carbs: 0, fiber: 0, calories: 165, image: foodImages.chicken, note: "Lean chicken breast for muscle repair." },
+  { key: "fish-fillet", meal: "Non-Veg", name: "Fish Fillet", protein: 26, carbs: 0, fiber: 0, calories: 206, image: foodImages.fish, note: "High protein fish with healthy fats." },
+  { key: "prawn-bowl", meal: "Non-Veg", name: "Prawns", protein: 24, carbs: 0, fiber: 0, calories: 99, image: foodImages.prawns, note: "Light seafood protein for lean meals." },
+  { key: "tuna-bowl", meal: "Non-Veg", name: "Tuna Bowl", protein: 29, carbs: 0, fiber: 0, calories: 132, image: foodImages.tuna, note: "Dense protein with low calories." },
+  { key: "turkey-slices", meal: "Non-Veg", name: "Turkey Slices", protein: 29, carbs: 0, fiber: 0, calories: 147, image: foodImages.turkey, note: "Lean poultry option for high-protein plates." },
+  { key: "lean-meat", meal: "Non-Veg", name: "Lean Meat", protein: 26, carbs: 0, fiber: 0, calories: 250, image: foodImages.leanMeat, note: "Controlled portion meat for strength phases." },
+  { key: "salmon-steak", meal: "Non-Veg", name: "Salmon", protein: 25, carbs: 0, fiber: 0, calories: 208, image: foodImages.salmon, note: "Protein plus omega fats for recovery." },
+  { key: "paneer-cubes", meal: "Veg", name: "Paneer", protein: 18, carbs: 3, fiber: 0, calories: 265, image: foodImages.paneer, note: "Classic vegetarian protein for lunch or dinner." },
+  { key: "tofu-bowl", meal: "Veg", name: "Tofu", protein: 17, carbs: 3, fiber: 2, calories: 144, image: foodImages.tofu, note: "Light plant protein that pairs well with vegetables." },
+  { key: "dal-bowl", meal: "Veg", name: "Dal", protein: 9, carbs: 20, fiber: 8, calories: 116, image: foodImages.dal, note: "Everyday Indian protein with high fiber." },
+  { key: "roasted-chana", meal: "Veg", name: "Roasted Chana", protein: 19, carbs: 60, fiber: 17, calories: 360, image: foodImages.chickpea, note: "Crunchy high-fiber vegetarian snack." },
+  { key: "rajma-bowl", meal: "Veg", name: "Rajma", protein: 9, carbs: 23, fiber: 6, calories: 127, image: foodImages.rajma, note: "Kidney beans for carbs, fiber, and protein." },
+  { key: "sprout-salad", meal: "Veg", name: "Sprout Salad", protein: 8, carbs: 14, fiber: 5, calories: 105, image: foodImages.sprout, note: "Fresh sprouts for micronutrients and crunch." },
+  { key: "oats-bowl", meal: "Common", name: "Oats Bowl", protein: 13, carbs: 68, fiber: 10, calories: 389, image: foodImages.oats, note: "Slow carbs and fiber for training energy." },
+  { key: "greek-curd", meal: "Common", name: "Greek Curd", protein: 10, carbs: 4, fiber: 0, calories: 98, image: foodImages.curd, note: "Easy protein that supports daily targets." },
+  { key: "quinoa-bowl", meal: "Common", name: "Quinoa Bowl", protein: 4, carbs: 21, fiber: 3, calories: 120, image: foodImages.quinoa, note: "Balanced carb base with extra minerals." },
+  { key: "peanut-butter", meal: "Common", name: "Peanut Butter", protein: 25, carbs: 20, fiber: 6, calories: 588, image: foodImages.peanutButter, note: "Calorie-dense add-on for bulking phases." },
+  { key: "rice-bowl", meal: "Common", name: "Rice Bowl", protein: 3, carbs: 28, fiber: 1, calories: 130, image: foodImages.rice, note: "Simple carb source for workout fuel." },
+  { key: "sweet-potato", meal: "Common", name: "Sweet Potato", protein: 2, carbs: 20, fiber: 3, calories: 86, image: foodImages.sweetPotato, note: "Clean carbs and fiber for steady energy." }
 ];
 
 const goalLabel = {
@@ -68,14 +85,15 @@ const getTargets = (profile, user) => {
   };
 };
 
-const scaleFoods = (foods, targets) => {
-  const baseProtein = foods.reduce((sum, food) => sum + food.protein, 0);
+const scaleFoods = (items, targets) => {
+  const baseProtein = items.reduce((sum, food) => sum + food.protein, 0);
   const factor = baseProtein > 0 ? targets.proteinGrams / baseProtein : 1;
-  return foods.map((food) => ({
+  return items.map((food) => ({
     ...food,
-    protein: Math.round(food.protein * factor),
-    fiber: Math.max(2, Math.round(food.fiber * Math.min(1.35, Math.max(0.85, factor)))),
-    calories: Math.round(food.calories * Math.min(1.25, Math.max(0.85, factor)))
+    protein: Math.max(1, Math.round(food.protein * factor)),
+    carbs: Math.max(0, Math.round(food.carbs * Math.min(1.2, Math.max(0.9, factor)))),
+    fiber: Math.max(0, Math.round(food.fiber * Math.min(1.25, Math.max(0.9, factor)))),
+    calories: Math.round(food.calories * Math.min(1.2, Math.max(0.9, factor)))
   }));
 };
 
@@ -89,7 +107,7 @@ export const getDietPlan = async (req, res) => {
     const date = String(req.query.date || toYmd(new Date()));
     const profile = await OnboardingProfile.findOne({ userId: req.user._id });
     const targets = getTargets(profile, req.user);
-    const foods = scaleFoods(targets.dietPreference === "non-veg" ? nonVegFoods : vegFoods, targets);
+    const scaledFoods = scaleFoods(foods, targets);
     const log = await getTodayLog(req.user._id, date);
     const completedKeys = Array.isArray(log.completedKeys) ? log.completedKeys : [];
     const historyStart = addDays(new Date(`${date}T00:00:00`), -13);
@@ -103,20 +121,20 @@ export const getDietPlan = async (req, res) => {
       return {
         date: day,
         completed: count,
-        total: foods.length,
-        percent: foods.length ? Math.round((count / foods.length) * 100) : 0
+        total: scaledFoods.length,
+        percent: scaledFoods.length ? Math.round((count / scaledFoods.length) * 100) : 0
       };
     });
 
     return res.json({
       profile: targets,
-      foods,
+      foods: scaledFoods,
       today: {
         date,
         completedKeys,
         completed: completedKeys.length,
-        total: foods.length,
-        percent: foods.length ? Math.round((completedKeys.length / foods.length) * 100) : 0
+        total: scaledFoods.length,
+        percent: scaledFoods.length ? Math.round((completedKeys.length / scaledFoods.length) * 100) : 0
       },
       history
     });

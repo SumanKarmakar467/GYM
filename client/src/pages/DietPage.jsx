@@ -34,6 +34,7 @@ const DietPage = () => {
     const completed = foods.filter((food) => completedKeys.has(food.key));
     return {
       protein: completed.reduce((sum, food) => sum + Number(food.protein || 0), 0),
+      carbs: completed.reduce((sum, food) => sum + Number(food.carbs || 0), 0),
       fiber: completed.reduce((sum, food) => sum + Number(food.fiber || 0), 0),
       calories: completed.reduce((sum, food) => sum + Number(food.calories || 0), 0)
     };
@@ -56,7 +57,7 @@ const DietPage = () => {
   return (
     <div className="min-h-screen">
       <AppNavbar />
-      <main className="mx-auto w-full max-w-6xl px-4 pb-10 md:px-6">
+      <main className="mx-auto w-full max-w-7xl px-4 pb-10 md:px-6">
         <section className="card overflow-hidden p-6 md:p-8">
           <motion.div
             initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
@@ -71,8 +72,9 @@ const DietPage = () => {
                 Track every meal like a workout set.
               </p>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               <Metric label="Protein" value={`${totals.protein}/${diet?.profile?.proteinGrams || 0}g`} />
+              <Metric label="Carbs" value={`${totals.carbs}g`} />
               <Metric label="Fiber" value={`${totals.fiber}/${diet?.profile?.fiberGrams || 0}g`} />
               <Metric label="Calories" value={`${totals.calories}/${diet?.profile?.calories || 0}`} />
             </div>
@@ -80,8 +82,8 @@ const DietPage = () => {
         </section>
 
         {loading ? (
-          <section className="mt-5 grid gap-4 md:grid-cols-2">
-            {[1, 2, 3, 4].map((item) => <div key={item} className="card h-72 animate-pulse bg-white/5" />)}
+          <section className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+            {Array.from({ length: 20 }).map((_, item) => <div key={item} className="card h-72 animate-pulse bg-white/5" />)}
           </section>
         ) : null}
 
@@ -93,7 +95,7 @@ const DietPage = () => {
               <TargetCard title="Today" value={`${diet.today.percent}%`} caption={`${diet.today.completed}/${diet.today.total} meals maintained`} tone={diet.today.percent === 100 ? "green" : diet.today.percent === 0 ? "red" : "orange"} />
             </section>
 
-            <section className="mt-5 grid gap-5 md:grid-cols-2">
+            <section className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
               {diet.foods.map((food, index) => {
                 const done = completedKeys.has(food.key);
                 return (
@@ -107,28 +109,37 @@ const DietPage = () => {
                     }`}
                     style={{ clipPath: "polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px))" }}
                   >
-                    <div className="relative h-52 overflow-hidden">
-                      <img src={food.image} alt={food.name} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-iron via-iron/35 to-transparent" />
-                      <div className="absolute left-4 top-4 rounded-full bg-black/55 px-3 py-1 text-xs font-bold uppercase tracking-[2px] text-white">{food.meal}</div>
+                    <div className="relative h-56 overflow-hidden">
+                      <img
+                        src={food.image}
+                        alt={`${food.name} nutrition food`}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-iron via-iron/45 to-black/5" />
+                      <div className="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-[10px] font-bold uppercase tracking-[2px] text-white">{food.meal}</div>
+                      <div className="absolute bottom-3 left-3 right-3 grid grid-cols-3 gap-2">
+                        <FoodMacro label="Protein" value={`${food.protein}g`} tone="protein" />
+                        <FoodMacro label="Carbs" value={`${food.carbs || 0}g`} tone="carbs" />
+                        <FoodMacro label="Fiber" value={`${food.fiber}g`} tone="fiber" />
+                      </div>
                       <button
                         type="button"
                         onClick={() => toggleFood(food)}
                         disabled={updatingKey === food.key}
-                        className={`absolute bottom-4 right-4 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[2px] transition ${
+                        className={`absolute right-3 top-3 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[2px] transition ${
                           done ? "bg-emerald-500 text-black" : "bg-fire text-white hover:bg-ember"
                         }`}
                       >
-                        {updatingKey === food.key ? "Saving" : done ? "Maintained" : "Mark Done"}
+                        {updatingKey === food.key ? "Saving" : done ? "Done" : "Add"}
                       </button>
                     </div>
-                    <div className="p-5">
-                      <h2 className="text-2xl font-bold">{food.name}</h2>
-                      <p className="mt-2 text-sm leading-6 text-textSecondary">{food.note}</p>
-                      <div className="mt-4 grid grid-cols-3 gap-2 text-center text-sm">
-                        <Mini label="Protein" value={`${food.protein}g`} />
-                        <Mini label="Fiber" value={`${food.fiber}g`} />
-                        <Mini label="Energy" value={food.calories} />
+                    <div className="p-4">
+                      <h2 className="line-clamp-1 text-xl font-bold">{food.name}</h2>
+                      <p className="mt-2 min-h-[48px] text-xs leading-5 text-textSecondary">{food.note}</p>
+                      <div className="mt-3 grid grid-cols-2 gap-2 text-center text-xs">
+                        <Mini label="Calories" value={food.calories} />
+                        <Mini label="Status" value={done ? "Done" : "Open"} />
                       </div>
                     </div>
                   </motion.article>
@@ -184,5 +195,21 @@ const Mini = ({ label, value }) => (
     <p className="mt-1 font-bold text-chalk">{value}</p>
   </div>
 );
+
+const FoodMacro = ({ label, value, tone }) => {
+  const toneClass =
+    tone === "protein"
+      ? "border-fire/45 bg-fire/20 text-orange-100"
+      : tone === "carbs"
+        ? "border-sky-300/35 bg-sky-400/15 text-sky-100"
+        : "border-emerald-300/35 bg-emerald-400/15 text-emerald-100";
+
+  return (
+    <div className={`rounded-lg border px-2 py-2 text-center backdrop-blur-md ${toneClass}`}>
+      <p className="text-[9px] font-black uppercase tracking-[0.16em]">{label}</p>
+      <p className="mt-1 text-base font-black leading-none">{value}</p>
+    </div>
+  );
+};
 
 export default DietPage;

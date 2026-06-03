@@ -1,4 +1,4 @@
-import { Html, OrbitControls, PerspectiveCamera, useAnimations, useGLTF } from "@react-three/drei";
+import { ContactShadows, Html, OrbitControls, PerspectiveCamera, Sparkles, useAnimations, useGLTF } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Component, Suspense, useEffect, useMemo, useRef } from "react";
 
@@ -46,12 +46,18 @@ const AnimatedFallbackHuman = ({ type }) => {
   const torso = useRef(null);
   const leftArm = useRef(null);
   const rightArm = useRef(null);
+  const leftForearm = useRef(null);
+  const rightForearm = useRef(null);
   const leftLeg = useRef(null);
   const rightLeg = useRef(null);
+  const leftShin = useRef(null);
+  const rightShin = useRef(null);
+  const head = useRef(null);
   const accent = colorByType[type] || colorByType.general;
 
   useFrame(({ clock }) => {
     const pose = getPose(type, clock.elapsedTime);
+    const wave = Math.sin(clock.elapsedTime * (type === "cardio" ? 4.4 : 2.6));
 
     if (group.current) {
       group.current.position.y = pose.y;
@@ -60,6 +66,8 @@ const AnimatedFallbackHuman = ({ type }) => {
     if (torso.current) torso.current.rotation.x = pose.torsoX;
     if (leftArm.current) leftArm.current.rotation.z = -pose.armZ;
     if (rightArm.current) rightArm.current.rotation.z = pose.armZ;
+    if (leftForearm.current) leftForearm.current.rotation.z = -0.22 - Math.max(0, wave) * 0.42;
+    if (rightForearm.current) rightForearm.current.rotation.z = 0.22 + Math.max(0, wave) * 0.42;
     if (leftLeg.current) {
       leftLeg.current.rotation.x = pose.legX;
       leftLeg.current.rotation.z = pose.legZ || 0.08;
@@ -68,42 +76,137 @@ const AnimatedFallbackHuman = ({ type }) => {
       rightLeg.current.rotation.x = pose.legX;
       rightLeg.current.rotation.z = -(pose.legZ || 0.08);
     }
+    if (leftShin.current) leftShin.current.rotation.x = -0.24 - Math.max(0, wave) * 0.34;
+    if (rightShin.current) rightShin.current.rotation.x = -0.24 - Math.max(0, wave) * 0.34;
+    if (head.current) head.current.rotation.y = Math.sin(clock.elapsedTime * 1.2) * 0.18;
   });
 
   return (
-    <group ref={group} position={[0, -0.78, 0]} scale={1.08}>
-      <mesh position={[0, 0.58, 0]}>
-        <sphereGeometry args={[0.18, 32, 32]} />
-        <meshStandardMaterial color="#f8fafc" roughness={0.52} />
+    <group ref={group} position={[0, -0.82, 0]} scale={1.08}>
+      <mesh ref={head} position={[0, 0.92, 0]}>
+        <sphereGeometry args={[0.17, 40, 40]} />
+        <meshStandardMaterial color="#f8fafc" roughness={0.42} metalness={0.02} />
       </mesh>
-      <mesh ref={torso} position={[0, 0.2, 0]}>
-        <capsuleGeometry args={[0.22, 0.58, 16, 32]} />
-        <meshStandardMaterial color={accent} metalness={0.08} roughness={0.36} />
+      <mesh position={[0, 0.75, 0]}>
+        <capsuleGeometry args={[0.075, 0.16, 16, 24]} />
+        <meshStandardMaterial color="#e5e7eb" roughness={0.46} />
       </mesh>
-      <group ref={leftArm} position={[-0.27, 0.32, 0]}>
+      <mesh ref={torso} position={[0, 0.36, 0]}>
+        <capsuleGeometry args={[0.25, 0.7, 24, 42]} />
+        <meshStandardMaterial color={accent} metalness={0.12} roughness={0.28} emissive={accent} emissiveIntensity={0.08} />
+      </mesh>
+      <mesh position={[0, -0.06, 0]}>
+        <sphereGeometry args={[0.22, 28, 28]} />
+        <meshStandardMaterial color="#27272a" roughness={0.44} />
+      </mesh>
+
+      <mesh position={[-0.13, 0.5, 0.22]}>
+        <sphereGeometry args={[0.055, 18, 18]} />
+        <meshStandardMaterial color="#fff7ed" emissive="#f97316" emissiveIntensity={0.2} />
+      </mesh>
+      <mesh position={[0.13, 0.5, 0.22]}>
+        <sphereGeometry args={[0.055, 18, 18]} />
+        <meshStandardMaterial color="#fff7ed" emissive="#f97316" emissiveIntensity={0.2} />
+      </mesh>
+
+      <group ref={leftArm} position={[-0.32, 0.52, 0]}>
+        <mesh position={[0, -0.22, 0]}>
+          <capsuleGeometry args={[0.065, 0.42, 16, 28]} />
+          <meshStandardMaterial color="#f4f4f5" roughness={0.42} />
+        </mesh>
+        <group ref={leftForearm} position={[0, -0.46, 0]}>
+          <mesh position={[0, -0.18, 0]}>
+            <capsuleGeometry args={[0.055, 0.34, 16, 28]} />
+            <meshStandardMaterial color="#e5e7eb" roughness={0.48} />
+          </mesh>
+          <mesh position={[0, -0.4, 0]}>
+            <sphereGeometry args={[0.065, 18, 18]} />
+            <meshStandardMaterial color="#f8fafc" roughness={0.46} />
+          </mesh>
+        </group>
+      </group>
+      <group ref={rightArm} position={[0.32, 0.52, 0]}>
+        <mesh position={[0, -0.22, 0]}>
+          <capsuleGeometry args={[0.065, 0.42, 16, 28]} />
+          <meshStandardMaterial color="#f4f4f5" roughness={0.42} />
+        </mesh>
+        <group ref={rightForearm} position={[0, -0.46, 0]}>
+          <mesh position={[0, -0.18, 0]}>
+            <capsuleGeometry args={[0.055, 0.34, 16, 28]} />
+            <meshStandardMaterial color="#e5e7eb" roughness={0.48} />
+          </mesh>
+          <mesh position={[0, -0.4, 0]}>
+            <sphereGeometry args={[0.065, 18, 18]} />
+            <meshStandardMaterial color="#f8fafc" roughness={0.46} />
+          </mesh>
+        </group>
+      </group>
+
+      <group ref={leftLeg} position={[-0.13, -0.22, 0]}>
         <mesh position={[0, -0.28, 0]}>
-          <capsuleGeometry args={[0.055, 0.52, 12, 24]} />
-          <meshStandardMaterial color="#e5e7eb" roughness={0.48} />
+          <capsuleGeometry args={[0.075, 0.52, 16, 28]} />
+          <meshStandardMaterial color="#e5e7eb" roughness={0.46} />
         </mesh>
+        <group ref={leftShin} position={[0, -0.56, 0]}>
+          <mesh position={[0, -0.28, 0]}>
+            <capsuleGeometry args={[0.065, 0.54, 16, 28]} />
+            <meshStandardMaterial color="#d4d4d8" roughness={0.5} />
+          </mesh>
+          <mesh position={[0, -0.58, 0.06]} scale={[1.45, 0.45, 0.9]}>
+            <sphereGeometry args={[0.08, 20, 20]} />
+            <meshStandardMaterial color="#f8fafc" roughness={0.42} />
+          </mesh>
+        </group>
       </group>
-      <group ref={rightArm} position={[0.27, 0.32, 0]}>
+      <group ref={rightLeg} position={[0.13, -0.22, 0]}>
         <mesh position={[0, -0.28, 0]}>
-          <capsuleGeometry args={[0.055, 0.52, 12, 24]} />
-          <meshStandardMaterial color="#e5e7eb" roughness={0.48} />
+          <capsuleGeometry args={[0.075, 0.52, 16, 28]} />
+          <meshStandardMaterial color="#e5e7eb" roughness={0.46} />
         </mesh>
+        <group ref={rightShin} position={[0, -0.56, 0]}>
+          <mesh position={[0, -0.28, 0]}>
+            <capsuleGeometry args={[0.065, 0.54, 16, 28]} />
+            <meshStandardMaterial color="#d4d4d8" roughness={0.5} />
+          </mesh>
+          <mesh position={[0, -0.58, 0.06]} scale={[1.45, 0.45, 0.9]}>
+            <sphereGeometry args={[0.08, 20, 20]} />
+            <meshStandardMaterial color="#f8fafc" roughness={0.42} />
+          </mesh>
+        </group>
       </group>
-      <group ref={leftLeg} position={[-0.12, -0.2, 0]}>
-        <mesh position={[0, -0.36, 0]}>
-          <capsuleGeometry args={[0.07, 0.7, 12, 24]} />
-          <meshStandardMaterial color="#d1d5db" roughness={0.5} />
-        </mesh>
-      </group>
-      <group ref={rightLeg} position={[0.12, -0.2, 0]}>
-        <mesh position={[0, -0.36, 0]}>
-          <capsuleGeometry args={[0.07, 0.7, 12, 24]} />
-          <meshStandardMaterial color="#d1d5db" roughness={0.5} />
-        </mesh>
-      </group>
+    </group>
+  );
+};
+
+const MotionGuide = ({ type }) => {
+  const guide = useRef(null);
+  const accent = colorByType[type] || colorByType.general;
+
+  useFrame(({ clock }) => {
+    if (guide.current) {
+      guide.current.rotation.y = clock.elapsedTime * 0.26;
+      guide.current.position.y = -0.12 + Math.sin(clock.elapsedTime * 1.8) * 0.05;
+    }
+  });
+
+  return (
+    <group ref={guide}>
+      <mesh position={[0, -0.08, -0.12]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.72, 0.008, 8, 96]} />
+        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.95} transparent opacity={0.6} />
+      </mesh>
+      <mesh position={[0, 0.36, -0.18]} rotation={[0, 0, Math.PI / 2]}>
+        <torusGeometry args={[0.48, 0.006, 8, 96]} />
+        <meshStandardMaterial color="#ffffff" emissive={accent} emissiveIntensity={0.28} transparent opacity={0.22} />
+      </mesh>
+      <mesh position={[-0.72, 0.16, -0.22]} rotation={[0.1, 0, -0.42]}>
+        <capsuleGeometry args={[0.012, 0.62, 8, 16]} />
+        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.75} transparent opacity={0.38} />
+      </mesh>
+      <mesh position={[0.72, 0.16, -0.22]} rotation={[0.1, 0, 0.42]}>
+        <capsuleGeometry args={[0.012, 0.62, 8, 16]} />
+        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.75} transparent opacity={0.38} />
+      </mesh>
     </group>
   );
 };
@@ -155,18 +258,23 @@ const Scene = ({ type, exerciseName }) => {
 
   return (
     <>
-      <PerspectiveCamera makeDefault position={[0, 0.75, 3.25]} fov={42} />
-      <ambientLight intensity={0.92} />
-      <directionalLight position={[3, 3, 3]} intensity={1.45} />
-      <pointLight position={[-2, 1.5, 2]} intensity={1.8} color={accent} />
+      <PerspectiveCamera makeDefault position={[0, 0.62, 3.75]} fov={36} />
+      <ambientLight intensity={0.62} />
+      <directionalLight position={[3.5, 4, 3]} intensity={1.8} />
+      <directionalLight position={[-3, 2.2, -2]} intensity={0.72} color="#38bdf8" />
+      <pointLight position={[-2, 1.5, 2]} intensity={2.4} color={accent} />
+      <spotLight position={[0, 4, 2.4]} angle={0.42} penumbra={0.7} intensity={2.2} color="#ffffff" />
+      <Sparkles count={52} speed={0.45} opacity={0.45} color={accent} size={2.2} scale={[3.2, 2.4, 2.2]} />
+      <MotionGuide type={type} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.45, 0]}>
-        <circleGeometry args={[1.45, 96]} />
-        <meshStandardMaterial color="#111111" roughness={0.74} metalness={0.16} />
+        <circleGeometry args={[1.72, 128]} />
+        <meshStandardMaterial color="#0b0b0b" roughness={0.74} metalness={0.22} />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.43, 0]}>
-        <ringGeometry args={[1.08, 1.12, 96]} />
-        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.8} />
+        <ringGeometry args={[1.26, 1.31, 128]} />
+        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={1.25} />
       </mesh>
+      <ContactShadows position={[0, -1.42, 0]} opacity={0.45} scale={4.2} blur={2.6} far={2.6} />
       <ModelBoundary type={type} fallback={<AnimatedFallbackHuman type={type} />}>
         <Suspense fallback={<AnimatedFallbackHuman type={type} />}>
           <MixamoModel type={type} />
@@ -175,7 +283,10 @@ const Scene = ({ type, exerciseName }) => {
       <Html position={[0, 1.33, 0]} center>
         <div className="workout-3d-label">{exerciseName}</div>
       </Html>
-      <OrbitControls enablePan={false} minDistance={2.2} maxDistance={4.8} maxPolarAngle={Math.PI / 1.75} />
+      <Html position={[0, -1.18, 0.92]} center>
+        <div className="workout-3d-rep">Live form path</div>
+      </Html>
+      <OrbitControls enablePan={false} minDistance={2.25} maxDistance={5} maxPolarAngle={Math.PI / 1.72} />
     </>
   );
 };
