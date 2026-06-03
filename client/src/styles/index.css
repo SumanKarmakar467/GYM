@@ -1838,7 +1838,7 @@ select:focus {
 
 .workout-demo-layout {
   display: grid;
-  grid-template-columns: 220px minmax(430px, 1fr) 250px;
+  grid-template-columns: 250px minmax(310px, 0.82fr) minmax(430px, 1.18fr);
   min-height: calc(100vh - 156px);
   margin-top: 12px;
   overflow: hidden;
@@ -1854,11 +1854,17 @@ select:focus {
 }
 
 .workout-demo-sidebar {
+  order: 2;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .workout-demo-inspector {
+  order: 1;
   border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.workout-demo-player {
+  order: 3;
 }
 
 .workout-panel-label {
@@ -1877,7 +1883,7 @@ select:focus {
 
 .workout-demo-item {
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) 12px;
+  grid-template-columns: 30px minmax(0, 1fr);
   align-items: center;
   gap: 10px;
   width: 100%;
@@ -1888,6 +1894,58 @@ select:focus {
   padding: 9px;
   color: #f8fafc;
   text-align: left;
+}
+
+.workout-circle-check {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid rgba(255, 107, 0, 0.58);
+  border-radius: 999px;
+  background: rgba(255, 107, 0, 0.08);
+  color: #080808;
+  font-size: 0.64rem;
+  font-weight: 900;
+}
+
+.workout-demo-item.is-done .workout-circle-check {
+  border-color: #22c55e;
+  background: #22c55e;
+}
+
+.workout-list-main {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  text-align: left;
+}
+
+.workout-view-demo-btn {
+  grid-column: 1 / -1;
+  justify-self: end;
+  min-height: 32px;
+  border: 1px solid rgba(255, 107, 0, 0.54);
+  border-radius: 0.45rem;
+  background: rgba(255, 107, 0, 0.08);
+  padding: 0 12px;
+  color: #ff6b00;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.workout-view-demo-btn:hover,
+.workout-view-demo-btn:focus-visible {
+  background: #ff6b00;
+  color: #080808;
 }
 
 .workout-demo-item:hover,
@@ -1994,6 +2052,97 @@ select:focus {
   border-inline: 12px solid #d4d4d4;
   background: #090909;
   box-shadow: 0 32px 72px rgba(0, 0, 0, 0.62);
+}
+
+.workout-3d-shell {
+  border-color: #111827;
+}
+
+.workout-3d-viewer {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(255, 107, 0, 0.22), transparent 32%),
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    #050505;
+  background-size: auto, 34px 34px, 34px 34px, auto;
+}
+
+.workout-3d-viewer canvas {
+  display: block;
+}
+
+.workout-3d-label {
+  max-width: 220px;
+  border: 1px solid rgba(255, 107, 0, 0.42);
+  border-radius: 999px;
+  background: rgba(8, 8, 8, 0.72);
+  padding: 7px 12px;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.workout-3d-hint {
+  position: absolute;
+  left: 50%;
+  top: 58px;
+  z-index: 3;
+  transform: translateX(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.52);
+  padding: 5px 10px;
+  color: #a1a1aa;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.workout-demo-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 10px;
+  padding: 34px;
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% 36%, rgba(255, 107, 0, 0.2), transparent 34%),
+    #050505;
+}
+
+.workout-demo-empty span {
+  display: grid;
+  width: 78px;
+  height: 78px;
+  margin: 0 auto;
+  place-items: center;
+  border: 1px solid rgba(255, 107, 0, 0.44);
+  border-radius: 999px;
+  color: #ff6b00;
+  font-family: "Barlow Condensed", "Barlow", sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.workout-demo-empty strong {
+  color: #fff;
+  font-size: 1.35rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.workout-demo-empty small {
+  color: #a1a1aa;
+  line-height: 1.45;
 }
 
 .workout-video-phone .demo-stage-3d {

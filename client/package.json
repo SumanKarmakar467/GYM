@@ -13,6 +13,8 @@
     "generate-screenshots": "node scripts/generate-screenshots.mjs"
   },
   "dependencies": {
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.17.10",
     "@tanstack/react-query": "^5.68.0",
     "axios": "^1.8.1",
     "canvas-confetti": "^1.9.3",
@@ -23,7 +25,8 @@
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.6.0",
     "react-router-dom": "^6.30.1",
-    "recharts": "^3.8.1"
+    "recharts": "^3.8.1",
+    "three": "^0.164.1"
   },
   "devDependencies": {
     "@types/react": "^18.3.18",
