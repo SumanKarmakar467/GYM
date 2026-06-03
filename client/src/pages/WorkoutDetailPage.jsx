@@ -36,26 +36,22 @@ const formatTimer = (seconds) => {
   return `${mins}:${String(secs).padStart(2, "0")}`;
 };
 
-const pickActiveWorkoutDay = (plan) => {
-  if (!plan?.weeks?.length) return null;
+const getWeekDays = (plan, weekIndex = 0) => {
+  const week = plan?.weeks?.[weekIndex];
+  if (!week) return [];
 
-  for (const [weekIndex, week] of plan.weeks.entries()) {
-    for (const [dayIndex, day] of (week.days || []).entries()) {
-      if (Array.isArray(day.exercises) && day.exercises.length > 0) {
-        return {
-          weekNumber: week.weekNumber,
-          weekIndex,
-          dayNumber: dayIndex + 1,
-          dayIndex,
-          dayName: day.dayName,
-          focus: day.focus,
-          exercises: day.exercises
-        };
-      }
-    }
-  }
-
-  return null;
+  return (week.days || []).map((day, dayIndex) => ({
+    weekNumber: week.weekNumber,
+    weekIndex,
+    dayNumber: dayIndex + 1,
+    dayIndex,
+    dayName: day.dayName,
+    focus: day.focus,
+    isRestDay: Boolean(day.isRestDay),
+    warmup: day.warmup,
+    exercises: Array.isArray(day.exercises) ? day.exercises : [],
+    cooldown: day.cooldown
+  }));
 };
 
 const getDemoType = (exerciseName = "") => {
@@ -116,6 +112,20 @@ const getDifficulty = (exercise, type) => {
   return Math.max(2, Math.min(5, base + (sets >= 4 ? 1 : 0) + (reps >= 15 ? 1 : 0)));
 };
 
+const getYoutubeDemoUrl = (exerciseName = "") => {
+  const query = encodeURIComponent(`${exerciseName} proper form exercise tutorial`);
+  return `https://www.youtube.com/results?search_query=${query}`;
+};
+
+const getExerciseKey = (day, exerciseIndex) => `${day?.weekNumber || 0}-${day?.dayNumber || 0}-${exerciseIndex}`;
+
+const getWorkoutDateForDay = (plan, day) => {
+  if (!plan?.generatedAt || !day) return toYmd(new Date());
+  const startDate = new Date(plan.generatedAt);
+  startDate.setHours(0, 0, 0, 0);
+  return toYmd(addDays(startDate, day.weekIndex * 7 + day.dayIndex));
+};
+
 const listVariants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.08 } }
@@ -141,6 +151,8 @@ const WorkoutDetailPage = () => {
   const [timerBarWidth, setTimerBarWidth] = useState(100);
   const [workoutTodos, setWorkoutTodos] = useState([]);
   const [syncingKey, setSyncingKey] = useState("");
+  const [selectedWeekIndex, setSelectedWeekIndex] = useState(0);
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const didCelebrateRef = useRef(false);
 
   useEffect(() => {
@@ -167,16 +179,14 @@ const WorkoutDetailPage = () => {
     };
   }, [user]);
 
-  const activeDay = useMemo(() => pickActiveWorkoutDay(plan), [plan]);
+  const weekDays = useMemo(() => getWeekDays(plan, selectedWeekIndex), [plan, selectedWeekIndex]);
+  const activeDay = weekDays[selectedDayIndex] || weekDays[0] || null;
   const exercises = activeDay?.exercises || [];
   const workoutDate = useMemo(() => {
-    if (!plan?.generatedAt || !activeDay) return toYmd(new Date());
-    const startDate = new Date(plan.generatedAt);
-    startDate.setHours(0, 0, 0, 0);
-    return toYmd(addDays(startDate, activeDay.weekIndex * 7 + activeDay.dayIndex));
-  }, [activeDay, plan?.generatedAt]);
+    return getWorkoutDateForDay(plan, activeDay);
+  }, [activeDay, plan]);
   const selectedExercise = exercises[selectedIndex] || exercises[0] || null;
-  const selectedKey = selectedExercise ? `${activeDay?.weekNumber || 0}-${selectedIndex}` : "";
+  const selectedKey = selectedExercise ? getExerciseKey(activeDay, selectedIndex) : "";
   const selectedName = getExerciseName(selectedExercise);
   const selectedType = getDemoType(selectedName);
   const selectedGuide = selectedExercise ? buildExerciseGuide(selectedExercise) : null;
@@ -188,7 +198,7 @@ const WorkoutDetailPage = () => {
   const selectedDifficulty = getDifficulty(selectedExercise || {}, selectedType);
   const totalExercises = exercises.length;
   const completedExercises = exercises.reduce((count, _exercise, index) => {
-    const key = `${activeDay?.weekNumber || 0}-${index}`;
+    const key = getExerciseKey(activeDay, index);
     return completedMap[key] ? count + 1 : count;
   }, 0);
 
@@ -196,22 +206,32 @@ const WorkoutDetailPage = () => {
     const map = new Map();
     workoutTodos.forEach((todo) => {
       const exerciseIndex = Number(todo.exerciseIndex);
-      if (todo.weekNum !== activeDay?.weekNumber || !Number.isFinite(exerciseIndex)) return;
-      map.set(`${todo.weekNum}-${exerciseIndex}`, todo);
+      if (todo.weekNum !== activeDay?.weekNumber || todo.dayNum !== activeDay?.dayNumber || !Number.isFinite(exerciseIndex)) return;
+      map.set(getExerciseKey(activeDay, exerciseIndex), todo);
     });
     return map;
-  }, [activeDay?.weekNumber, workoutTodos]);
+  }, [activeDay, workoutTodos]);
+
+  useEffect(() => {
+    setSelectedWeekIndex(0);
+    setSelectedDayIndex(0);
+  }, [plan?._id, plan?.generatedAt]);
 
   useEffect(() => {
     setSelectedIndex(0);
     setDemoOpen(false);
-  }, [activeDay?.weekNumber, activeDay?.dayName]);
+    setRestTimer(null);
+  }, [activeDay?.weekNumber, activeDay?.dayIndex, activeDay?.dayName]);
 
   useEffect(() => {
     let active = true;
 
     const loadWorkoutTodos = async () => {
-      if (!activeDay || isDemoAthlete(user)) return;
+      if (!activeDay || isDemoAthlete(user)) {
+        setWorkoutTodos([]);
+        setCompletedMap({});
+        return;
+      }
 
       try {
         const { data } = await api.get("/todos", { params: { date: workoutDate } });
@@ -222,8 +242,8 @@ const WorkoutDetailPage = () => {
         setCompletedMap(() => {
           const next = {};
           items.forEach((todo) => {
-            if (todo.weekNum === activeDay.weekNumber && Number.isFinite(Number(todo.exerciseIndex))) {
-              next[`${activeDay.weekNumber}-${Number(todo.exerciseIndex)}`] = Boolean(todo.completed);
+            if (todo.weekNum === activeDay.weekNumber && todo.dayNum === activeDay.dayNumber && Number.isFinite(Number(todo.exerciseIndex))) {
+              next[getExerciseKey(activeDay, Number(todo.exerciseIndex))] = Boolean(todo.completed);
             }
           });
           return next;
@@ -281,7 +301,7 @@ const WorkoutDetailPage = () => {
   }, [restTimer?.exerciseKey]);
 
   const toggleDone = async (exercise, index) => {
-    const key = `${activeDay?.weekNumber || 0}-${index}`;
+    const key = getExerciseKey(activeDay, index);
     const done = !completedMap[key];
     const linkedTodo = todoByExerciseKey.get(key);
 
@@ -389,6 +409,29 @@ const WorkoutDetailPage = () => {
           </div>
         </section>
 
+        <section className="workout-week-strip" aria-label="Select workout day">
+          {weekDays.slice(0, 7).map((day) => {
+            const selected = day.dayIndex === selectedDayIndex;
+            const dayDate = getWorkoutDateForDay(plan, day);
+            const exerciseCount = day.exercises.length;
+
+            return (
+              <button
+                key={`${day.weekNumber}-${day.dayNumber}`}
+                type="button"
+                className={`workout-day-pill ${selected ? "is-active" : ""} ${day.isRestDay || exerciseCount === 0 ? "is-rest" : ""}`}
+                onClick={() => setSelectedDayIndex(day.dayIndex)}
+                aria-pressed={selected}
+              >
+                <span>Day {day.dayNumber}</span>
+                <strong>{day.dayName}</strong>
+                <small>{day.focus}</small>
+                <em>{day.isRestDay || exerciseCount === 0 ? "Recovery" : `${exerciseCount} workouts`} - {dayDate}</em>
+              </button>
+            );
+          })}
+        </section>
+
         <div className="workout-demo-layout">
           <aside className="workout-demo-inspector">
             <p className="workout-panel-label">Muscles Worked</p>
@@ -472,7 +515,7 @@ const WorkoutDetailPage = () => {
               {exercises.map((exercise, index) => {
                 const name = getExerciseName(exercise);
                 const type = getDemoType(name);
-                const key = `${activeDay.weekNumber}-${index}`;
+                const key = getExerciseKey(activeDay, index);
                 const done = Boolean(completedMap[key]);
                 const selected = index === selectedIndex;
 
@@ -506,10 +549,26 @@ const WorkoutDetailPage = () => {
                     <button type="button" className="workout-view-demo-btn" onClick={() => openExerciseDemo(index)}>
                       View Demo
                     </button>
+                    <a
+                      className="workout-youtube-btn"
+                      href={getYoutubeDemoUrl(name)}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`Open YouTube proper form videos for ${name}`}
+                    >
+                      YouTube
+                    </a>
                   </motion.article>
                 );
               })}
             </motion.div>
+
+            {exercises.length === 0 ? (
+              <div className="workout-rest-state">
+                <span>Recovery Day</span>
+                <strong>{activeDay.cooldown || "Mobility, walking, stretching, and breathing work."}</strong>
+              </div>
+            ) : null}
           </section>
 
           <section className="workout-demo-player" aria-label={`${selectedName} workout demo`}>
@@ -544,7 +603,7 @@ const WorkoutDetailPage = () => {
                 type="button"
                 className="is-primary"
                 onClick={() => selectedExercise && toggleDone(selectedExercise, selectedIndex)}
-                disabled={syncingKey === selectedKey}
+                disabled={!selectedExercise || syncingKey === selectedKey}
                 aria-pressed={Boolean(completedMap[selectedKey])}
               >
                 {syncingKey === selectedKey ? "Syncing" : completedMap[selectedKey] ? "Completed" : "Mark Done"}
@@ -553,6 +612,11 @@ const WorkoutDetailPage = () => {
               <button type="button" onClick={() => setIsPlayerExpanded((current) => !current)}>
                 {isPlayerExpanded ? "Exit" : "Fullscreen"}
               </button>
+              {selectedExercise ? (
+                <a href={getYoutubeDemoUrl(selectedName)} target="_blank" rel="noreferrer">
+                  YouTube Posture
+                </a>
+              ) : null}
               {demoOpen ? <button type="button" onClick={() => setDemoOpen(false)}>Close Demo</button> : null}
             </div>
           </section>
