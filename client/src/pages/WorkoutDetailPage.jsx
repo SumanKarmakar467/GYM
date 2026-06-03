@@ -126,16 +126,6 @@ const getWorkoutDateForDay = (plan, day) => {
   return toYmd(addDays(startDate, day.weekIndex * 7 + day.dayIndex));
 };
 
-const listVariants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08 } }
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.34 } }
-};
-
 const WorkoutDetailPage = () => {
   const { user } = useAuth();
   const prefersReducedMotion = useReducedMotion();
@@ -145,7 +135,6 @@ const WorkoutDetailPage = () => {
   const [notesMap, setNotesMap] = useState({});
   const [restTimer, setRestTimer] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [demoOpen, setDemoOpen] = useState(false);
   const [isPlayerExpanded, setIsPlayerExpanded] = useState(false);
   const [pulseKey, setPulseKey] = useState("");
   const [timerBarWidth, setTimerBarWidth] = useState(100);
@@ -219,7 +208,6 @@ const WorkoutDetailPage = () => {
 
   useEffect(() => {
     setSelectedIndex(0);
-    setDemoOpen(false);
     setRestTimer(null);
   }, [activeDay?.weekNumber, activeDay?.dayIndex, activeDay?.dayName]);
 
@@ -333,9 +321,14 @@ const WorkoutDetailPage = () => {
     }
   };
 
-  const openExerciseDemo = (index) => {
+  const selectExercise = (index) => {
     setSelectedIndex(index);
-    setDemoOpen(true);
+  };
+
+  const selectDay = (dayIndex) => {
+    setSelectedDayIndex(dayIndex);
+    setSelectedIndex(0);
+    setRestTimer(null);
   };
 
   const selectPreviousExercise = () => setSelectedIndex((current) => Math.max(0, current - 1));
@@ -420,7 +413,7 @@ const WorkoutDetailPage = () => {
                 key={`${day.weekNumber}-${day.dayNumber}`}
                 type="button"
                 className={`workout-day-pill ${selected ? "is-active" : ""} ${day.isRestDay || exerciseCount === 0 ? "is-rest" : ""}`}
-                onClick={() => setSelectedDayIndex(day.dayIndex)}
+                onClick={() => selectDay(day.dayIndex)}
                 aria-pressed={selected}
               >
                 <span>Day {day.dayNumber}</span>
@@ -506,10 +499,8 @@ const WorkoutDetailPage = () => {
               <p className="text-sm text-textSecondary">{completedExercises}/{totalExercises} done</p>
             </div>
 
-            <motion.div
-              variants={listVariants}
-              initial={prefersReducedMotion ? false : "hidden"}
-              animate={prefersReducedMotion ? false : "show"}
+            <div
+              key={`${activeDay.weekNumber}-${activeDay.dayNumber}`}
               className="workout-demo-list"
             >
               {exercises.map((exercise, index) => {
@@ -520,11 +511,8 @@ const WorkoutDetailPage = () => {
                 const selected = index === selectedIndex;
 
                 return (
-                  <motion.article
+                  <article
                     key={key}
-                    variants={cardVariants}
-                    animate={{ scale: pulseKey === key ? 1.01 : 1 }}
-                    transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
                     className={`workout-demo-item ${selected ? "is-selected" : ""} ${done ? "is-done" : ""}`}
                   >
                     <button
@@ -538,7 +526,7 @@ const WorkoutDetailPage = () => {
                       {done ? "OK" : ""}
                     </button>
 
-                    <button type="button" className="workout-list-main" onClick={() => setSelectedIndex(index)}>
+                    <button type="button" className="workout-list-main" onClick={() => selectExercise(index)}>
                       <span className="workout-demo-icon">{exerciseIcons[type] || "G"}</span>
                       <span className="min-w-0">
                         <strong>{name}</strong>
@@ -546,9 +534,6 @@ const WorkoutDetailPage = () => {
                       </span>
                     </button>
 
-                    <button type="button" className="workout-view-demo-btn" onClick={() => openExerciseDemo(index)}>
-                      View Demo
-                    </button>
                     <a
                       className="workout-youtube-btn"
                       href={getYoutubeDemoUrl(name)}
@@ -558,10 +543,10 @@ const WorkoutDetailPage = () => {
                     >
                       YouTube
                     </a>
-                  </motion.article>
+                  </article>
                 );
               })}
-            </motion.div>
+            </div>
 
             {exercises.length === 0 ? (
               <div className="workout-rest-state">
@@ -574,17 +559,17 @@ const WorkoutDetailPage = () => {
           <section className="workout-demo-player" aria-label={`${selectedName} workout demo`}>
             <div className="workout-now-playing">
               <span />
-              {demoOpen ? `3D Demo - ${selectedName}` : "Select View Demo"}
+              {selectedExercise ? `3D Demo - ${selectedName}` : "Recovery Day"}
             </div>
 
             <div className="workout-video-phone workout-3d-shell">
-              {demoOpen ? (
+              {selectedExercise ? (
                 <WorkoutThreeViewer type={selectedType} exerciseName={selectedName} muscles={musclesWorked} />
               ) : (
                 <div className="workout-demo-empty">
-                  <span>3D</span>
-                  <strong>View the correct form before your first rep</strong>
-                  <small>Use View Demo beside any workout to load the interactive human animation.</small>
+                  <span>REST</span>
+                  <strong>{activeDay.dayName} recovery focus</strong>
+                  <small>{activeDay.cooldown || "Mobility, walking, stretching, and breathing work."}</small>
                 </div>
               )}
               <div className="workout-video-gradient">
@@ -617,7 +602,6 @@ const WorkoutDetailPage = () => {
                   YouTube Posture
                 </a>
               ) : null}
-              {demoOpen ? <button type="button" onClick={() => setDemoOpen(false)}>Close Demo</button> : null}
             </div>
           </section>
         </div>
