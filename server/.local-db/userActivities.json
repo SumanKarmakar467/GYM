@@ -25,5 +25,77 @@
     "userId": "6a207c7210e03f5a54da3423",
     "type": "register",
     "message": "Registered with Google."
+  },
+  {
+    "metadata": {},
+    "_id": "6a225d4d1e4d99c0efd46611",
+    "createdAt": "2026-06-05T05:23:25.063Z",
+    "updatedAt": "2026-06-05T05:23:25.129Z",
+    "userId": "6a207c7210e03f5a54da3423",
+    "type": "login",
+    "message": "Logged in with Google."
+  },
+  {
+    "metadata": {},
+    "_id": "6a225eec1e4d99c0efd46613",
+    "createdAt": "2026-06-05T05:30:20.114Z",
+    "updatedAt": "2026-06-05T05:30:20.117Z",
+    "userId": "6a225eec1e4d99c0efd46612",
+    "type": "register",
+    "message": "Registered with email and password."
+  },
+  {
+    "metadata": {},
+    "_id": "6a225f161e4d99c0efd46614",
+    "createdAt": "2026-06-05T05:31:02.374Z",
+    "updatedAt": "2026-06-05T05:31:02.401Z",
+    "userId": "6a225eec1e4d99c0efd46612",
+    "type": "login",
+    "message": "Logged in with email and password."
+  },
+  {
+    "metadata": {},
+    "_id": "6a2260a3bd5934a97dacaf53",
+    "createdAt": "2026-06-05T05:37:39.688Z",
+    "updatedAt": "2026-06-05T05:37:39.695Z",
+    "userId": "6a225eec1e4d99c0efd46612",
+    "type": "login",
+    "message": "Logged in with email and password."
+  },
+  {
+    "metadata": {},
+    "_id": "6a2260fd71e425fd5054d550",
+    "createdAt": "2026-06-05T05:39:09.633Z",
+    "updatedAt": "2026-06-05T05:39:09.731Z",
+    "userId": "6a225eec1e4d99c0efd46612",
+    "type": "login",
+    "message": "Logged in with email and password."
+  },
+  {
+    "metadata": {},
+    "_id": "6a22629c6f1e0fa622768afe",
+    "createdAt": "2026-06-05T05:46:04.800Z",
+    "updatedAt": "2026-06-05T05:46:04.802Z",
+    "userId": "6a225eec1e4d99c0efd46612",
+    "type": "login",
+    "message": "Logged in with email and password."
+  },
+  {
+    "metadata": {},
+    "_id": "6a2262b7a55c93297eada80b",
+    "createdAt": "2026-06-05T05:46:31.808Z",
+    "updatedAt": "2026-06-05T05:46:31.809Z",
+    "userId": "6a225eec1e4d99c0efd46612",
+    "type": "login",
+    "message": "Logged in with email and password."
+  },
+  {
+    "metadata": {},
+    "_id": "6a2262f36d54219ff15b231d",
+    "createdAt": "2026-06-05T05:47:31.280Z",
+    "updatedAt": "2026-06-05T05:47:31.282Z",
+    "userId": "6a225eec1e4d99c0efd46612",
+    "type": "login",
+    "message": "Logged in with email and password."
   }
 ]

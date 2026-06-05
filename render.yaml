@@ -24,3 +24,11 @@ services:
         sync: false
       - key: PORT
         value: 5000
+      - key: NODE_ENV
+        value: production
+      - key: DISABLE_LOCAL_DB_FALLBACK
+        value: "true"
+      - key: RETRY_MONGO
+        value: "true"
+      - key: MONGO_DNS_SERVERS
+        value: 1.1.1.1,8.8.8.8

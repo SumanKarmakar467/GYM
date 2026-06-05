@@ -2,6 +2,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import mongoose from "mongoose";
 import path from "path";
 import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
@@ -67,7 +68,11 @@ app.use(passport.initialize());
 app.use(rateLimiter);
 
 app.get("/api/health", (req, res) => {
-  res.json({ ok: true, timestamp: new Date().toISOString() });
+  res.json({
+    ok: true,
+    timestamp: new Date().toISOString(),
+    database: mongoose.connection.readyState === 1 ? "mongodb" : "local-json-fallback"
+  });
 });
 
 app.get("/health", (req, res) => {
@@ -108,9 +113,19 @@ const connectWithRetry = async () => {
 
 const start = async () => {
   const port = Number(process.env.PORT) || 5000;
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     // eslint-disable-next-line no-console
     console.log(`GymForge server running on port ${port}`);
+  });
+
+  server.on("error", (error) => {
+    if (error?.code === "EADDRINUSE") {
+      // eslint-disable-next-line no-console
+      console.error(`Port ${port} is already in use. Stop the existing server or set a different PORT.`);
+      process.exit(1);
+    }
+
+    throw error;
   });
 
   await connectWithRetry();

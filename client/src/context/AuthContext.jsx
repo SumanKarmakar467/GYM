@@ -59,8 +59,15 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await api.post("/auth/logout");
-    } finally {
+    } catch {
+      // Local session cleanup still has to happen if the API is unavailable.
+    }
+
+    try {
       await signOut(auth);
+    } catch {
+      // Firebase may already be signed out; server cookies are the primary session.
+    } finally {
       localStorage.removeItem("token");
       setUser(null);
     }

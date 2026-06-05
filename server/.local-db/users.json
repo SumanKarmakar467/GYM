@@ -31,11 +31,25 @@
     "avatar": "https://lh3.googleusercontent.com/a/ACg8ocJ6Bq5BeGgJIH8KY66VNuO9ullIcDKUcZ2rKQPXStEX25JVBg=s96-c",
     "dietPreference": "veg",
     "isOnboarded": false,
-    "refreshToken": null,
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMjA3YzcyMTBlMDNmNWE1NGRhMzQyMyIsInR5cGUiOiJyZWZyZXNoIiwiaWF0IjoxNzgwNjM3MDA1LCJleHAiOjE3ODEyNDE4MDV9.Htipl8YBTNipQkplsB0bf4piVaozaikGnkX6RO9LZM4",
     "_id": "6a207c7210e03f5a54da3423",
     "createdAt": "2026-06-03T19:11:46.580Z",
-    "updatedAt": "2026-06-03T19:11:46.629Z",
+    "updatedAt": "2026-06-05T05:23:25.034Z",
     "name": "Dhoni Ronaldo",
     "email": "0dhonironaldo77@gmail.com"
+  },
+  {
+    "role": "user",
+    "googleId": null,
+    "avatar": "",
+    "dietPreference": "veg",
+    "isOnboarded": false,
+    "refreshToken": null,
+    "_id": "6a225eec1e4d99c0efd46612",
+    "createdAt": "2026-06-05T05:30:20.065Z",
+    "updatedAt": "2026-06-05T05:47:31.292Z",
+    "name": "LinkedIn Demo",
+    "email": "linkedin-demo@gymforge.local",
+    "passwordHash": "$2b$12$MeTxjNYETprrLG.7.u.hwu6RN0EtR6t5jdFaMeQGjmb4ukuDda0qm"
   }
 ]
