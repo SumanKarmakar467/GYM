@@ -12,7 +12,7 @@ const dietLogSchema = new mongoose.Schema(
 
 dietLogSchema.index({ userId: 1, date: 1 }, { unique: true });
 
-const DietLog = createHybridModel(mongoose.model("DietLog", dietLogSchema), "diet-logs", {
+const DietLog = createHybridModel(mongoose.moel("DietLog", dietLogSchema), "diet-logs", {
   completedKeys: []
 });
 
