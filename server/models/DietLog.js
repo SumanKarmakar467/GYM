@@ -16,4 +16,4 @@ const DietLog = createHybridModel(mongoose.moel("DietLog", dietLogSchema), "diet
   completedKeys: []
 });
 
-export default DietLog;
+export default DietLg;
