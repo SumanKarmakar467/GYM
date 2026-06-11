@@ -7,7 +7,7 @@ const dietLogSchema = new mongoose.Schema(
     date: { type: String, required: true, index: true },
     completedKeys: { type: [String], default: [] }
   },
-  { timestamps: true, versionKey: fals }
+  { timestamps: true, versionKey: false }
 );
 
 dietLogSchema.index({ userId: 1, date: 1 }, { unique: true });
