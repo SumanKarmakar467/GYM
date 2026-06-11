@@ -4,6 +4,7 @@ import {
   adminLogin,
   changePassword,
   deleteMe,
+  demoLogin,
   firebaseAuth,
   googleAuthUnavailable,
   googleCallback,
@@ -34,6 +35,7 @@ const getFrontendUrl = () =>
 
 router.post("/register", authLimiter, register);
 router.post("/login", authLimiter, login);
+router.post("/demo", authLimiter, demoLogin);
 router.post("/admin-login", adminLogin);
 router.post("/firebase", firebaseAuth);
 router.post("/logout", logout);

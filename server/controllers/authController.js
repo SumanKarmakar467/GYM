@@ -41,6 +41,193 @@ const getAdminPassword = () => String(process.env.ADMIN_PASSWORD || "");
 
 const isAdminEmail = (email) => getAdminEmails().has(normalizeEmail(email));
 
+const isDemoLoginEnabled = () => process.env.ENABLE_DEMO_LOGIN !== "false";
+
+const buildDemoPlan = (userId) => ({
+  userId,
+  planName: "Demo Muscle Builder",
+  goal: "Build Muscle",
+  level: "Intermediate",
+  daysPerWeek: "",
+  durationLabel: "1 month",
+  equipment: "Full Gym",
+  environment: "gym",
+  durationWeeks: 4,
+  generatedAt: new Date(),
+  weeks: Array.from({ length: 4 }).map((_, weekIndex) => ({
+    weekNumber: weekIndex + 1,
+    theme: weekIndex === 0 ? "Foundation" : "Progressive Overload",
+    days: [
+      {
+        dayName: "Monday",
+        focus: "Push Strength",
+        isRestDay: false,
+        warmup: "5 min incline walk + shoulder mobility",
+        exercises: [
+          { name: "Barbell Bench Press", sets: 4, reps: "6-8", rest: "90s", notes: "Control the eccentric." },
+          { name: "Dumbbell Shoulder Press", sets: 3, reps: "8-10", rest: "75s", notes: "Keep ribs down." },
+          { name: "Incline Cable Fly", sets: 3, reps: "12-15", rest: "60s", notes: "Squeeze at the top." }
+        ],
+        cooldown: "Chest and triceps stretch"
+      },
+      {
+        dayName: "Tuesday",
+        focus: "Pull Hypertrophy",
+        isRestDay: false,
+        warmup: "Band pull-aparts + light rows",
+        exercises: [
+          { name: "Lat Pulldown", sets: 4, reps: "8-12", rest: "75s", notes: "Drive elbows down." },
+          { name: "Cable Row", sets: 3, reps: "10-12", rest: "75s", notes: "Pause on each rep." },
+          { name: "Incline Curl", sets: 3, reps: "10-12", rest: "60s", notes: "Slow negative." }
+        ],
+        cooldown: "Lat and biceps stretch"
+      },
+      {
+        dayName: "Wednesday",
+        focus: "Lower Body",
+        isRestDay: false,
+        warmup: "Bike + hip mobility",
+        exercises: [
+          { name: "Bodyweight Squat", sets: 4, reps: "12-15", rest: "60s", notes: "Full depth." },
+          { name: "Bulgarian Split Squat", sets: 3, reps: "8-10 each", rest: "75s", notes: "Stay balanced." },
+          { name: "Barbell Calf Raise", sets: 4, reps: "12-15", rest: "45s", notes: "Pause at peak." }
+        ],
+        cooldown: "Quad and hamstring stretch"
+      },
+      {
+        dayName: "Thursday",
+        focus: "Recovery",
+        isRestDay: true,
+        warmup: "Easy walk",
+        exercises: [],
+        cooldown: "10 min mobility flow"
+      },
+      {
+        dayName: "Friday",
+        focus: "Upper Volume",
+        isRestDay: false,
+        warmup: "Dynamic upper body mobility",
+        exercises: [
+          { name: "Dumbbell Press", sets: 3, reps: "10-12", rest: "75s", notes: "Smooth tempo." },
+          { name: "Pull-up", sets: 4, reps: "AMRAP", rest: "90s", notes: "Use assistance if needed." },
+          { name: "Cable Lateral Raise", sets: 3, reps: "12-15", rest: "45s", notes: "Lead with elbows." }
+        ],
+        cooldown: "Shoulder mobility"
+      },
+      {
+        dayName: "Saturday",
+        focus: "Conditioning",
+        isRestDay: false,
+        warmup: "5 min easy cardio",
+        exercises: [
+          { name: "Push-up", sets: 4, reps: "12-20", rest: "45s", notes: "Keep a straight line." },
+          { name: "Barbell Lunge", sets: 3, reps: "10 each", rest: "60s", notes: "Soft landing." },
+          { name: "Core / Finisher", sets: 3, reps: "45s", rest: "45s", notes: "Stay braced." }
+        ],
+        cooldown: "Full-body stretch"
+      },
+      {
+        dayName: "Sunday",
+        focus: "Rest & Mobility",
+        isRestDay: true,
+        warmup: "Breathing reset",
+        exercises: [],
+        cooldown: "Light stretching"
+      }
+    ]
+  }))
+});
+
+const formatDateYmd = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const seedDemoTodos = async (userId, plan) => {
+  const existing = await TodoItem.countDocuments({ userId });
+  if (existing > 0) {
+    return;
+  }
+
+  const startDate = new Date();
+  startDate.setHours(0, 0, 0, 0);
+
+  const todos = [];
+  plan.weeks.forEach((week, weekIndex) => {
+    week.days.forEach((day, dayIndex) => {
+      if (day.isRestDay) {
+        return;
+      }
+
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + weekIndex * 7 + dayIndex);
+
+      day.exercises.forEach((exercise, exerciseIndex) => {
+        todos.push({
+          userId,
+          date: formatDateYmd(date),
+          weekNum: week.weekNumber,
+          dayNum: dayIndex + 1,
+          exerciseId: `demo-w${week.weekNumber}-d${dayIndex + 1}-e${exerciseIndex + 1}`,
+          exerciseName: exercise.name,
+          exerciseIndex,
+          completed: weekIndex === 0 && dayIndex < 2,
+          completedAt: weekIndex === 0 && dayIndex < 2 ? new Date() : null
+        });
+      });
+    });
+  });
+
+  if (todos.length > 0) {
+    await TodoItem.insertMany(todos);
+  }
+};
+
+const ensureDemoAccount = async () => {
+  const email = normalizeEmail(process.env.DEMO_EMAIL || "demo@gymforge.app");
+  let user = await User.findOne({ email }).select("+refreshToken");
+
+  if (!user) {
+    user = await User.create({
+      name: "Demo Athlete",
+      email,
+      role: "user",
+      dietPreference: "non-veg",
+      isOnboarded: true
+    });
+    user = await User.findById(user._id).select("+refreshToken");
+  } else if (!user.isOnboarded) {
+    user.isOnboarded = true;
+    await user.save();
+  }
+
+  await OnboardingProfile.findOneAndUpdate(
+    { userId: user._id },
+    {
+      userId: user._id,
+      age: 24,
+      weightKg: 74,
+      heightCm: 176,
+      gender: "male",
+      goal: "bodybuilder",
+      environment: "gym",
+      durationWeeks: 4,
+      dietPreference: "non-veg"
+    },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+
+  let plan = await WorkoutPlan.findOne({ userId: user._id });
+  if (!plan) {
+    plan = await WorkoutPlan.create(buildDemoPlan(user._id));
+  }
+
+  await seedDemoTodos(user._id, plan);
+  return user;
+};
+
 const sanitizeUser = (user) => ({
   id: user._id,
   name: user.name,
@@ -156,6 +343,28 @@ export const login = async (req, res) => {
     // eslint-disable-next-line no-console
     console.error("Login failed:", error?.message || error);
     return res.status(500).json({ message: "Login failed." });
+  }
+};
+
+export const demoLogin = async (req, res) => {
+  try {
+    if (!isDemoLoginEnabled()) {
+      return res.status(404).json({ message: "Demo login is not enabled." });
+    }
+
+    if (!isDatabaseConnected()) {
+      return databaseUnavailableResponse(res);
+    }
+
+    const user = await ensureDemoAccount();
+    await issueAuthTokens(res, user);
+    await recordActivity(user._id, "demo_login", "Started demo session.");
+
+    return res.json({ user: sanitizeUser(user) });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("Demo login failed:", error?.message || error);
+    return res.status(500).json({ message: "Demo login failed." });
   }
 };
 

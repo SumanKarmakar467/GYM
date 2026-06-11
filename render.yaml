@@ -32,3 +32,7 @@ services:
         value: "true"
       - key: MONGO_DNS_SERVERS
         value: 1.1.1.1,8.8.8.8
+      - key: ENABLE_DEMO_LOGIN
+        value: "true"
+      - key: DEMO_EMAIL
+        value: demo@gymforge.app

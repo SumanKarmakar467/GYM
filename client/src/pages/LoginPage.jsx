@@ -10,7 +10,7 @@ const adminEmail = String(import.meta.env.VITE_ADMIN_EMAIL || "").trim().toLower
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, loginAsAdmin, loginWithGoogle } = useAuth();
+  const { login, loginDemo, loginAsAdmin, loginWithGoogle } = useAuth();
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -64,6 +64,21 @@ const LoginPage = () => {
       navigate(target, { replace: true });
     } catch (error) {
       toast.error(error.response?.data?.message || "Invalid email or password.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setSubmitting(true);
+
+    try {
+      const nextUser = await loginDemo();
+      const target = location.state?.from || getPostAuthRoute(nextUser);
+      toast.success("Demo mode ready.");
+      navigate(target, { replace: true });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Demo login is unavailable.");
     } finally {
       setSubmitting(false);
     }
@@ -174,6 +189,15 @@ const LoginPage = () => {
           >
             <span className="font-bold text-fire">G</span>
             Sign in with Google
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDemoLogin}
+            disabled={submitting}
+            className="mt-3 flex w-full items-center justify-center border border-fire/40 bg-fire/10 px-4 py-3 text-sm font-semibold text-chalk hover:bg-fire/20 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            Try Demo
           </button>
 
           <p className="mt-5 text-center text-sm text-mist">

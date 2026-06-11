@@ -38,6 +38,8 @@ mongodb+srv://USER:PASSWORD@CLUSTER.mongodb.net/gymforge?retryWrites=true&w=majo
 4. Keep `DISABLE_LOCAL_DB_FALLBACK=false` and `RETRY_MONGO=true` on Render. The app will keep working with the local JSON fallback if Atlas is temporarily blocked, and it will retry MongoDB in the background.
 5. Check `/api/health`. It reports `database: "mongodb"` when Atlas is connected, or `database: "local-json-fallback"` when the fallback is active.
 
+For portfolio reviews, keep `ENABLE_DEMO_LOGIN=true`. The login page includes a **Try Demo** button that creates a seeded demo user, profile, workout plan, and todos in whichever database is active.
+
 ## Run Locally
 
 1. `cd server && npm install`

@@ -38,6 +38,12 @@ export const AuthProvider = ({ children }) => {
     return data.user;
   };
 
+  const loginDemo = async () => {
+    const { data } = await api.post("/auth/demo");
+    setUser(data.user);
+    return data.user;
+  };
+
   const loginWithGoogle = async () => {
     const credential = await signInWithPopup(auth, googleProvider);
     if (credential.user?.displayName) {
@@ -133,7 +139,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, register, login, loginAsAdmin, loginWithGoogle, logout, refreshUser, setUser }),
+    () => ({ user, loading, register, login, loginDemo, loginAsAdmin, loginWithGoogle, logout, refreshUser, setUser }),
     [user, loading]
   );
 
