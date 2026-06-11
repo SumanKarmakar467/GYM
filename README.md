@@ -21,6 +21,22 @@ GymForge is a full-stack MERN app for AI-generated physique plans and daily trai
 Backend environment values live in `server/.env`.
 Frontend environment values live in `client/.env`.
 For admin panel access, set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `server/.env`, and matching `VITE_ADMIN_EMAIL` in `client/.env`.
+Use `server/.env.example` as the backend template. Never commit real `.env` files or API keys.
+
+## MongoDB Atlas Deployment
+
+If Render logs say `Could not connect to any servers in your MongoDB Atlas cluster`, Atlas is blocking the server IP or the Mongo URI is wrong.
+
+1. In MongoDB Atlas, open **Security > Network Access**.
+2. For a portfolio/demo deployment on Render, add `0.0.0.0/0` so Render's changing outbound IPs can connect. For a stricter production setup, use a paid/static outbound IP provider and whitelist only that IP.
+3. In Render, set `MONGO_URI` to a full Atlas URI that includes the database name, for example:
+
+```text
+mongodb+srv://USER:PASSWORD@CLUSTER.mongodb.net/gymforge?retryWrites=true&w=majority&appName=Cluster0
+```
+
+4. Keep `DISABLE_LOCAL_DB_FALLBACK=false` and `RETRY_MONGO=true` on Render. The app will keep working with the local JSON fallback if Atlas is temporarily blocked, and it will retry MongoDB in the background.
+5. Check `/api/health`. It reports `database: "mongodb"` when Atlas is connected, or `database: "local-json-fallback"` when the fallback is active.
 
 ## Run Locally
 

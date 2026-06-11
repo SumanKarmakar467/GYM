@@ -18,6 +18,7 @@ import wallpaperRoutes from "./routes/wallpaperRoutes.js";
 import workoutRoutes from "./routes/workoutRoutes.js";
 import errorHandler from "./middleware/errorHandler.js";
 import rateLimiter from "./middleware/rateLimiter.js";
+import { isLocalDataFallbackActive } from "./utils/localModel.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -68,10 +69,15 @@ app.use(passport.initialize());
 app.use(rateLimiter);
 
 app.get("/api/health", (req, res) => {
+  const mongoConnected = mongoose.connection.readyState === 1;
+  const localFallbackActive = isLocalDataFallbackActive();
+
   res.json({
     ok: true,
     timestamp: new Date().toISOString(),
-    database: mongoose.connection.readyState === 1 ? "mongodb" : "local-json-fallback"
+    database: mongoConnected ? "mongodb" : localFallbackActive ? "local-json-fallback" : "unavailable",
+    mongoConnected,
+    localFallbackActive
   });
 });
 

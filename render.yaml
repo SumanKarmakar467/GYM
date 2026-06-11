@@ -27,7 +27,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: DISABLE_LOCAL_DB_FALLBACK
-        value: "true"
+        value: "false"
       - key: RETRY_MONGO
         value: "true"
       - key: MONGO_DNS_SERVERS
