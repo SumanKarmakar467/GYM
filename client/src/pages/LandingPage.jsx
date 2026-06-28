@@ -14,23 +14,134 @@ const heroSignals = [
 
 const heroPulseLines = ["Plan generated", "Workout synced", "Demo form ready", "Todo graph live"];
 
+const AIWorkoutPreview = () => (
+  <div style={{ background: "#0d0d0d", height: "100%", padding: "14px 16px", display: "flex", flexDirection: "column", gap: "10px", fontFamily: "inherit" }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <span style={{ background: "linear-gradient(90deg,#f97316,#fb923c)", color: "#000", fontSize: "8px", fontWeight: "800", padding: "3px 8px", borderRadius: "4px", letterSpacing: "0.14em" }}>AI PLAN BUILDER</span>
+      <span style={{ fontSize: "8px", color: "#52525b", letterSpacing: "0.1em" }}>GymForge</span>
+    </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+      {[["Goal", "Build Muscle"], ["Level", "Intermediate"], ["Equipment", "Full Gym"], ["Days/week", "4"]].map(([label, val]) => (
+        <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#161616", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "6px", padding: "5px 9px" }}>
+          <span style={{ fontSize: "9px", color: "#71717a" }}>{label}</span>
+          <span style={{ fontSize: "9px", color: "#e4e4e7", fontWeight: "600" }}>{val}</span>
+        </div>
+      ))}
+    </div>
+    <div style={{ flex: 1, background: "#111", border: "1px solid rgba(249,115,22,0.25)", borderRadius: "8px", padding: "10px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+        <span style={{ fontSize: "8px", color: "#f97316", fontWeight: "700", letterSpacing: "0.12em" }}>GENERATED PLAN · PUSH DAY</span>
+        <span style={{ fontSize: "7px", color: "#3f3f46", background: "#1c1c1c", padding: "2px 5px", borderRadius: "3px" }}>4 wk</span>
+      </div>
+      {[["Bench Press", "4 × 10", "85%"], ["Incline DB Press", "3 × 12", "70%"], ["Cable Fly", "3 × 15", "65%"], ["Tricep Pushdown", "3 × 12", "75%"]].map(([name, sets, load]) => (
+        <div key={name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "5px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#f97316", flexShrink: 0 }} />
+            <span style={{ fontSize: "9px", color: "#d4d4d8" }}>{name}</span>
+          </div>
+          <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+            <span style={{ fontSize: "8px", color: "#a1a1aa" }}>{sets}</span>
+            <span style={{ fontSize: "7px", color: "#f97316", background: "rgba(249,115,22,0.1)", padding: "1px 4px", borderRadius: "3px" }}>{load}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+      <div style={{ flex: 1, height: "3px", borderRadius: "99px", background: "#1c1c1c", overflow: "hidden" }}>
+        <div style={{ width: "72%", height: "100%", background: "linear-gradient(90deg,#f97316,#fb923c)", borderRadius: "99px" }} />
+      </div>
+      <span style={{ fontSize: "8px", color: "#f97316", fontWeight: "700" }}>72%</span>
+      <span style={{ fontSize: "8px", color: "#52525b" }}>volume</span>
+    </div>
+  </div>
+);
+
+const TodoTrackerPreview = () => (
+  <div style={{ background: "#0d0d0d", height: "100%", padding: "14px 16px", display: "flex", flexDirection: "column", gap: "10px", fontFamily: "inherit" }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <span style={{ fontSize: "9px", fontWeight: "800", color: "#e4e4e7", letterSpacing: "0.12em" }}>TODAY&apos;S TRACKER</span>
+      <div style={{ display: "flex", gap: "4px" }}>
+        <span style={{ fontSize: "7px", color: "#f97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", padding: "2px 6px", borderRadius: "4px", fontWeight: "700" }}>🔥 14d streak</span>
+      </div>
+    </div>
+    <div style={{ fontSize: "8px", color: "#52525b", letterSpacing: "0.1em" }}>Workout · Water · Meals · Recovery</div>
+    <div style={{ display: "flex", flexDirection: "column", gap: "5px", flex: 1 }}>
+      {[
+        { label: "Push day strength session", done: true },
+        { label: "Protein target completed", done: true },
+        { label: "2.5L water intake", done: true },
+        { label: "Mobility before sleep", done: false, active: true },
+        { label: "Log bodyweight", done: false },
+        { label: "10k steps", done: false },
+      ].map(({ label, done, active }) => (
+        <div key={label} style={{ display: "flex", alignItems: "center", gap: "8px", background: done ? "rgba(249,115,22,0.05)" : active ? "rgba(255,255,255,0.03)" : "transparent", border: `1px solid ${done ? "rgba(249,115,22,0.15)" : active ? "rgba(255,255,255,0.08)" : "transparent"}`, borderRadius: "6px", padding: "5px 8px" }}>
+          <div style={{ width: "14px", height: "14px", borderRadius: "4px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: done ? "#f97316" : active ? "rgba(249,115,22,0.15)" : "#1c1c1c", border: done ? "none" : "1px solid rgba(255,255,255,0.1)" }}>
+            {done && <span style={{ fontSize: "8px", color: "#000", fontWeight: "900" }}>✓</span>}
+            {active && !done && <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#f97316", display: "block" }} />}
+          </div>
+          <span style={{ fontSize: "9px", color: done ? "#a1a1aa" : active ? "#e4e4e7" : "#52525b", textDecoration: done ? "line-through" : "none" }}>{label}</span>
+        </div>
+      ))}
+    </div>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", gap: "4px" }}>
+        {[1, 2, 3, 4, 5, 6, 7].map((d) => (
+          <div key={d} style={{ width: "8px", height: "8px", borderRadius: "2px", background: d <= 5 ? "#f97316" : "#1c1c1c" }} />
+        ))}
+      </div>
+      <span style={{ fontSize: "8px", color: "#52525b" }}>3 / 6 done</span>
+    </div>
+  </div>
+);
+
+const WallpaperPreview = () => (
+  <div style={{ position: "relative", height: "100%", overflow: "hidden", background: "linear-gradient(160deg,#0a0a0a 0%,#1a0800 45%,#2d0f00 100%)" }}>
+    <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 90%, rgba(249,115,22,0.45) 0%, transparent 65%)" }} />
+    <svg viewBox="0 0 400 200" style={{ position: "absolute", bottom: 0, left: 0, right: 0, width: "100%", height: "55%" }} preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="mtnGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#f97316" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="#7c2d12" stopOpacity="0.6" />
+        </linearGradient>
+        <linearGradient id="mtnGrad2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#1c1c1c" stopOpacity="0.95" />
+          <stop offset="100%" stopColor="#0a0a0a" stopOpacity="1" />
+        </linearGradient>
+      </defs>
+      <polygon points="0,200 80,60 140,120 200,30 260,90 320,50 400,140 400,200" fill="url(#mtnGrad)" />
+      <polygon points="0,200 60,110 120,150 180,80 240,130 300,90 380,160 400,200" fill="url(#mtnGrad2)" />
+    </svg>
+    <div style={{ position: "absolute", top: "18%", left: "50%", transform: "translateX(-50%)", width: "80%", textAlign: "center" }}>
+      <div style={{ fontSize: "7px", color: "#f97316", fontWeight: "700", letterSpacing: "0.22em", marginBottom: "8px" }}>FORGE MODE</div>
+      <div style={{ fontSize: "13px", fontWeight: "800", color: "#fff", lineHeight: 1.3, textShadow: "0 2px 12px rgba(0,0,0,0.8)" }}>The Iron Doesn&apos;t<br />Lie. Neither Do You.</div>
+      <div style={{ marginTop: "8px", fontSize: "8px", color: "#fb923c", letterSpacing: "0.1em" }}>Build Muscle · 4 days/week</div>
+    </div>
+    <div style={{ position: "absolute", top: "10px", right: "10px" }}>
+      <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "radial-gradient(circle at 38% 35%, #ffd700 0%, #f97316 45%, #7c2d12 100%)", boxShadow: "0 0 12px rgba(249,115,22,0.7)" }} />
+    </div>
+    <div style={{ position: "absolute", bottom: "10px", left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: "5px" }}>
+      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.5)", letterSpacing: "0.14em" }}>Custom motivational wallpaper</span>
+    </div>
+  </div>
+);
+
 const featureCards = [
   {
     icon: "🧠",
     title: "AI Workout Generator",
-    image: "/images/feature-ai-workout.webp",
+    Preview: AIWorkoutPreview,
     description: "Enter your goal, experience, equipment, and schedule. GymForge turns it into a structured plan with clear exercise targets."
   },
   {
     icon: "✅",
     title: "Daily Todo Tracker",
-    image: "/images/feature-todo-tracker.webp",
+    Preview: TodoTrackerPreview,
     description: "Every workout becomes a focused daily checklist so you can finish reps, habits, recovery, and streak goals without guessing."
   },
   {
     icon: "🖼️",
     title: "Motivational Wallpapers",
-    image: "/images/feature-wallpapers.webp",
+    Preview: WallpaperPreview,
     description: "Create lock-screen style motivation from your training goal, so the plan follows you even before you open the app."
   }
 ];
@@ -772,13 +883,7 @@ const LandingPage = () => {
                   className="feature-card rounded-2xl border border-white/10 bg-[#141414] p-4"
                 >
                   <div className="feature-card-media">
-                    <motion.img
-                      src={feature.image}
-                      alt={`${feature.title} preview`}
-                      className="h-full w-full object-cover"
-                      whileHover={prefersReducedMotion ? undefined : { scale: 1.06 }}
-                      transition={{ duration: prefersReducedMotion ? 0 : 0.35 }}
-                    />
+                    <feature.Preview />
                   </div>
                   <div className="mt-5 flex items-start gap-3">
                     <motion.div
