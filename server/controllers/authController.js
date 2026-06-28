@@ -240,11 +240,17 @@ const sanitizeUser = (user) => ({
   createdAt: user.createdAt
 });
 
-const isDatabaseConnected = () => mongoose.connection.readyState === 1 || isLocalDataFallbackActive();
+const isDatabaseConnected = () => {
+  if (mongoose.connection.readyState === 1) return true;
+  // In production the local JSON fallback is disabled, so treat a non-connected
+  // state as unavailable rather than silently routing to ephemeral storage.
+  if (process.env.NODE_ENV === "production") return false;
+  return isLocalDataFallbackActive();
+};
 
 const databaseUnavailableResponse = (res) =>
   res.status(503).json({
-    message: "Database is not connected. Check MONGO_URI and MongoDB Atlas Network Access IP whitelist."
+    message: "Service temporarily unavailable. The database is still starting up — please try again in a few seconds."
   });
 
 const issueAuthTokens = async (res, user) => {

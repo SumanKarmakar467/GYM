@@ -68,6 +68,23 @@ app.use(cookieParser());
 app.use(passport.initialize());
 app.use(rateLimiter);
 
+// In production, block non-health API requests until MongoDB is connected.
+// This prevents the cold-start race where Render boots the server before the
+// DB connection is ready and registrations silently land in local JSON storage.
+app.use("/api", (req, res, next) => {
+  const isHealthCheck = req.path === "/health" || req.path.startsWith("/health");
+  if (
+    !isHealthCheck &&
+    process.env.NODE_ENV === "production" &&
+    mongoose.connection.readyState !== 1
+  ) {
+    return res.status(503).json({
+      message: "Service starting up. Database not yet connected — please try again in a few seconds."
+    });
+  }
+  return next();
+});
+
 app.get("/api/health", (req, res) => {
   const mongoConnected = mongoose.connection.readyState === 1;
   const localFallbackActive = isLocalDataFallbackActive();

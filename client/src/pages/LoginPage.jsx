@@ -37,6 +37,18 @@ const LoginPage = () => {
     return () => window.clearTimeout(timer);
   }, [banner]);
 
+  const getErrorMessage = (error, fallback) => {
+    const status = error.response?.status;
+    const serverMessage = error.response?.data?.message;
+    if (status === 503) {
+      return "Server is waking up — please try again in a few seconds.";
+    }
+    if (status === 429) {
+      return "Too many attempts. Please wait a minute and try again.";
+    }
+    return serverMessage || fallback;
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSubmitting(true);
@@ -48,7 +60,7 @@ const LoginPage = () => {
       toast.success("Welcome back.");
       navigate(target, { replace: true });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Invalid email or password.");
+      toast.error(getErrorMessage(error, "Invalid email or password."));
     } finally {
       setSubmitting(false);
     }
@@ -63,7 +75,7 @@ const LoginPage = () => {
       toast.success("Welcome back.");
       navigate(target, { replace: true });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Invalid email or password.");
+      toast.error(getErrorMessage(error, "Google sign-in failed. Please try again."));
     } finally {
       setSubmitting(false);
     }
@@ -78,7 +90,7 @@ const LoginPage = () => {
       toast.success("Demo mode ready.");
       navigate(target, { replace: true });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Demo login is unavailable.");
+      toast.error(getErrorMessage(error, "Demo login is unavailable."));
     } finally {
       setSubmitting(false);
     }

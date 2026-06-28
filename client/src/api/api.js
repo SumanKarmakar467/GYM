@@ -2,7 +2,7 @@ import axios from "axios";
 
 const normalizeApiBaseUrl = () => {
   const defaultApi = import.meta.env.PROD
-    ? "https://gymforge-server.onrender.com/api"
+    ? "https://gym-p9ku.onrender.com/api"
     : import.meta.env.VITE_LOCAL_API_URL || "http://localhost:5000/api";
   const defaultLocalApi = defaultApi.trim();
   const configuredApi = (import.meta.env.VITE_API_URL || defaultLocalApi).trim();

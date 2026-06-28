@@ -1,6 +1,7 @@
 import { addDays, getStartOfWeek, toYmd } from "./date";
 
-export const DEMO_EMAIL = "0dhonironaldo77@gmail.com";
+// Must match the server's DEMO_EMAIL env var (default: "demo@gymforge.app").
+export const DEMO_EMAIL = import.meta.env.VITE_DEMO_EMAIL || "demo@gymforge.app";
 
 export const isDemoAthlete = (user) => String(user?.email || "").toLowerCase() === DEMO_EMAIL;
 

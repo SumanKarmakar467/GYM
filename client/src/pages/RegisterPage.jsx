@@ -92,7 +92,16 @@ const RegisterPage = () => {
       toast.success("Account created. Let's forge your plan.");
       finishWelcome("/onboarding");
     } catch (error) {
-      const message = error.response?.data?.message || "Backend server is not running. Start the server with npm run dev.";
+      const status = error.response?.status;
+      const serverMessage = error.response?.data?.message;
+      let message;
+      if (status === 503) {
+        message = "Server is waking up — please try again in a few seconds.";
+      } else if (status === 429) {
+        message = "Too many attempts. Please wait a minute and try again.";
+      } else {
+        message = serverMessage || "Registration failed. Please try again.";
+      }
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -106,8 +115,9 @@ const RegisterPage = () => {
       setWelcomeActive(true);
       toast.success("Welcome back.");
       finishWelcome(getPostAuthRoute(nextUser));
-    } catch {
-      toast.error("Failed to continue with Google.");
+    } catch (error) {
+      const status = error.response?.status;
+      toast.error(status === 503 ? "Server is waking up — please try again in a few seconds." : "Failed to continue with Google.");
     } finally {
       setSubmitting(false);
     }

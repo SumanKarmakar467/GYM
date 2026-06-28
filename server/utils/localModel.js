@@ -7,8 +7,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const dataDir = path.resolve(__dirname, "../.local-db");
 
-const shouldUseLocal = () =>
-  process.env.DISABLE_LOCAL_DB_FALLBACK !== "true" && mongoose.connection.readyState !== 1;
+const shouldUseLocal = () => {
+  // Never use local fallback in production — Render's filesystem is ephemeral and
+  // silently storing data there causes a race: registrations written to JSON during
+  // cold-start are lost once MongoDB connects, making those users unable to log in.
+  if (process.env.NODE_ENV === "production") return false;
+  if (process.env.DISABLE_LOCAL_DB_FALLBACK === "true") return false;
+  return mongoose.connection.readyState !== 1;
+};
 
 const ensureDataDir = () => {
   if (!fs.existsSync(dataDir)) {
