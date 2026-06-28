@@ -4,6 +4,109 @@ import { Link, useNavigate } from "react-router-dom";
 import DownloadAppButton from "../components/DownloadAppButton";
 import Reveal from "../components/Reveal";
 
+const ParticleMesh = () => {
+  const canvasRef = useRef(null);
+  const mouse = useRef({ x: -9999, y: -9999 });
+  const prefersReduced = useReducedMotion();
+
+  useEffect(() => {
+    if (prefersReduced) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let raf;
+    let pts = [];
+    const LINK = 160;
+
+    const populate = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const n = Math.min(72, Math.floor((canvas.width * canvas.height) / 14000));
+      pts = Array.from({ length: n }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.24,
+        vy: (Math.random() - 0.5) * 0.24,
+        r: Math.random() * 1.5 + 0.4,
+        phase: Math.random() * Math.PI * 2,
+      }));
+    };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const { x: mx, y: my } = mouse.current;
+
+      for (const p of pts) {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        p.phase += 0.016;
+      }
+
+      for (let i = 0; i < pts.length; i++) {
+        for (let j = i + 1; j < pts.length; j++) {
+          const dx = pts[i].x - pts[j].x;
+          const dy = pts[i].y - pts[j].y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < LINK * LINK) {
+            const d = Math.sqrt(d2);
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(249,115,22,${(1 - d / LINK) * 0.13})`;
+            ctx.lineWidth = 0.6;
+            ctx.moveTo(pts[i].x, pts[i].y);
+            ctx.lineTo(pts[j].x, pts[j].y);
+            ctx.stroke();
+          }
+        }
+
+        const dm = Math.hypot(pts[i].x - mx, pts[i].y - my);
+        const near = dm < 130;
+        const pulse = 0.28 + Math.sin(pts[i].phase) * 0.12;
+        const opacity = near ? Math.max(pulse, (1 - dm / 130) * 0.9) : pulse * 0.65;
+        const radius = near ? pts[i].r * (1 + (1 - dm / 130) * 1.8) : pts[i].r;
+
+        if (near && dm < 80) {
+          const grd = ctx.createRadialGradient(pts[i].x, pts[i].y, 0, pts[i].x, pts[i].y, 14);
+          grd.addColorStop(0, `rgba(251,146,60,${opacity * 0.55})`);
+          grd.addColorStop(1, "rgba(249,115,22,0)");
+          ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, 14, 0, Math.PI * 2);
+          ctx.fillStyle = grd; ctx.fill();
+        }
+
+        ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(249,115,22,${opacity})`; ctx.fill();
+      }
+
+      raf = requestAnimationFrame(draw);
+    };
+
+    const onMouse = (e) => { mouse.current = { x: e.clientX, y: e.clientY }; };
+    const onLeave = () => { mouse.current = { x: -9999, y: -9999 }; };
+    const onResize = () => populate();
+
+    populate();
+    raf = requestAnimationFrame(draw);
+    window.addEventListener("mousemove", onMouse);
+    window.addEventListener("mouseleave", onLeave);
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("mousemove", onMouse);
+      window.removeEventListener("mouseleave", onLeave);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [prefersReduced]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      aria-hidden="true"
+      style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}
+    />
+  );
+};
+
 const words = ["Build Muscle.", "Burn Fat.", "Track Every Rep.", "Forge Your Legacy."];
 
 const heroSignals = [
@@ -346,6 +449,9 @@ const LandingPage = () => {
   const [counters, setCounters] = useState(
     Object.fromEntries(tickerItems.map((item) => [item.id, 0]))
   );
+  const [spotlight, setSpotlight] = useState({ x: -9999, y: -9999 });
+  const [heroParallax, setHeroParallax] = useState({ x: 0, y: 0 });
+  const heroSectionRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => {
@@ -457,6 +563,28 @@ const LandingPage = () => {
     return () => window.clearInterval(interval);
   }, [prefersReducedMotion]);
 
+  useEffect(() => {
+    if (prefersReducedMotion) return undefined;
+    const onMove = (e) => setSpotlight({ x: e.clientX, y: e.clientY });
+    const onLeave = () => setSpotlight({ x: -9999, y: -9999 });
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseleave", onLeave);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseleave", onLeave);
+    };
+  }, [prefersReducedMotion]);
+
+  const handleHeroMouseMove = (e) => {
+    if (prefersReducedMotion || !heroSectionRef.current) return;
+    const rect = heroSectionRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+    const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+    setHeroParallax({ x: x * 10, y: y * 6 });
+  };
+
+  const handleHeroMouseLeave = () => setHeroParallax({ x: 0, y: 0 });
+
   const duplicatedTicker = useMemo(() => [...tickerItems, ...tickerItems], []);
   const duplicatedTestimonials = useMemo(() => [...testimonials, ...testimonials], []);
   const uniqueExerciseVisuals = useMemo(() => getUniqueExerciseVisuals(exerciseVisuals), []);
@@ -520,20 +648,15 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
-      <div className="landing-kinetic-bg" aria-hidden="true">
-        <div className="kinetic-grid" />
-        <div className="kinetic-aurora" />
-        <div className="kinetic-ring kinetic-ring-one" />
-        <div className="kinetic-ring kinetic-ring-two" />
-        <div className="kinetic-beam kinetic-beam-one" />
-        <div className="kinetic-beam kinetic-beam-two" />
-        <span />
-        <span />
-        <span />
-        <span />
-        <span />
-        <span />
-      </div>
+      <ParticleMesh />
+      <div className="page-depth-layer" aria-hidden="true" />
+      {!prefersReducedMotion && (
+        <div
+          className="cursor-spotlight"
+          aria-hidden="true"
+          style={{ left: spotlight.x, top: spotlight.y }}
+        />
+      )}
       <motion.header
         initial={prefersReducedMotion ? false : { opacity: 0, y: -20 }}
         animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
@@ -608,9 +731,14 @@ const LandingPage = () => {
       </motion.header>
 
       <main>
-        <section className="relative flex min-h-screen items-center overflow-hidden px-4 md:px-6">
-          <div className="hero-orb-primary pointer-events-none absolute left-[6%] top-1/4 h-[600px] w-[600px] rounded-full bg-[radial-gradient(circle,rgba(249,115,22,0.15)_0%,rgba(249,115,22,0.05)_40%,transparent_70%)]" />
-          <div className="hero-orb-secondary pointer-events-none absolute right-[8%] top-[18%] h-[300px] w-[300px] rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.18)_0%,rgba(168,85,247,0.05)_45%,transparent_75%)]" />
+        <section
+          ref={heroSectionRef}
+          className="relative flex min-h-screen items-center overflow-hidden px-4 md:px-6"
+          onMouseMove={handleHeroMouseMove}
+          onMouseLeave={handleHeroMouseLeave}
+        >
+          <div className="hero-ambient-left pointer-events-none absolute left-0 top-0 h-full w-1/2" aria-hidden="true" />
+          <div className="hero-ambient-right pointer-events-none absolute right-0 top-0 h-full w-1/2" aria-hidden="true" />
 
           <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-12 py-24 lg:grid-cols-[minmax(0,0.95fr)_minmax(360px,0.8fr)]">
             <div>
@@ -618,18 +746,18 @@ const LandingPage = () => {
                 initial={prefersReducedMotion ? false : { opacity: 0, y: -16 }}
                 animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
                 transition={{ delay: prefersReducedMotion ? 0 : 0.1, duration: prefersReducedMotion ? 0 : 0.6 }}
-                className="inline-flex items-center gap-2 rounded-full border border-orange-400/30 bg-orange-500/10 px-4 py-2 text-xs uppercase tracking-[0.16em] text-orange-200"
+                className="hero-badge-pill inline-flex items-center gap-2 rounded-full border border-orange-400/25 bg-orange-500/8 px-4 py-2 text-xs uppercase tracking-[0.18em] text-orange-300"
               >
-                <span className="h-2 w-2 rounded-full bg-orange-400" style={{ animation: "blink 1s infinite" }} />
-                <span>AI-Powered Fitness Platform</span>
+                <span className="hero-badge-dot h-1.5 w-1.5 rounded-full bg-orange-400" />
+                AI-Powered Fitness Platform
               </motion.div>
 
-              <div className="mt-6 max-w-4xl">
-                <h1 className="min-h-[4rem] text-4xl font-bold leading-tight md:min-h-[5rem] md:text-6xl">
-                  {typed}
+              <div className="mt-7 max-w-4xl">
+                <h1 className="min-h-[4rem] text-4xl font-bold leading-[1.08] tracking-tight md:min-h-[5rem] md:text-[3.8rem]">
+                  <span className="hero-typed-gradient">{typed}</span>
                   <span className="ml-1 text-orange-400" style={{ animation: "blink 1s infinite" }}>|</span>
                 </h1>
-                <h2 className="mt-2 text-3xl font-bold text-zinc-100 md:text-5xl" style={{ animation: "fadeUp 0.9s 0.2s both" }}>
+                <h2 className="mt-2 text-3xl font-bold leading-tight text-white/90 md:text-5xl" style={{ animation: "fadeUp 0.9s 0.2s both" }}>
                   Your Best Body.
                 </h2>
               </div>
@@ -638,25 +766,39 @@ const LandingPage = () => {
                 initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
                 animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
                 transition={{ delay: prefersReducedMotion ? 0 : 0.4, duration: prefersReducedMotion ? 0 : 0.7 }}
-                className="mt-6 max-w-2xl text-base text-zinc-300 md:text-lg"
+                className="mt-6 max-w-xl text-base leading-relaxed text-zinc-400 md:text-lg"
               >
-                AI-powered workout plans, habit tracking, and motivation - built for athletes who mean it.
+                AI-powered workout plans, habit tracking, and motivation — built for athletes who mean it.
               </motion.p>
 
               <motion.div
                 initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
                 animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
                 transition={{ delay: prefersReducedMotion ? 0 : 0.6, duration: prefersReducedMotion ? 0 : 0.7 }}
-                className="mt-10 flex flex-wrap gap-3"
+                className="mt-10 flex flex-wrap items-center gap-3"
               >
                 <button
                   type="button"
                   onClick={() => navigate("/register")}
-                  className="hero-primary-btn rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-6 py-3 text-sm font-semibold text-black"
+                  className="hero-primary-btn hero-cta-main rounded-xl bg-gradient-to-r from-orange-500 to-orange-400 px-7 py-3.5 text-sm font-semibold text-black"
                 >
                   Start For Free →
                 </button>
                 <DownloadAppButton variant="hero" />
+              </motion.div>
+
+              <motion.div
+                initial={prefersReducedMotion ? false : { opacity: 0 }}
+                animate={prefersReducedMotion ? false : { opacity: 1 }}
+                transition={{ delay: prefersReducedMotion ? 0 : 0.9, duration: prefersReducedMotion ? 0 : 0.7 }}
+                className="mt-10 flex items-center gap-6"
+              >
+                {[["12K+", "Athletes"], ["98%", "Success Rate"], ["100%", "Free"]].map(([val, label]) => (
+                  <div key={label} className="hero-mini-stat">
+                    <strong>{val}</strong>
+                    <span>{label}</span>
+                  </div>
+                ))}
               </motion.div>
             </div>
 
@@ -664,6 +806,10 @@ const LandingPage = () => {
               initial={prefersReducedMotion ? false : { opacity: 0, x: 60, scale: 0.96 }}
               animate={prefersReducedMotion ? false : { opacity: 1, x: 0, scale: 1 }}
               transition={{ delay: prefersReducedMotion ? 0 : 0.35, duration: prefersReducedMotion ? 0 : 0.75, ease: "easeOut" }}
+              style={prefersReducedMotion ? {} : {
+                transform: `perspective(1200px) rotateY(${-7 + heroParallax.x * 0.5}deg) rotateX(${3 - heroParallax.y * 0.4}deg)`,
+                transition: "transform 0.15s ease-out",
+              }}
               className="hero-visual-shell"
               aria-label="Animated bodybuilding image collage"
             >
@@ -773,7 +919,7 @@ const LandingPage = () => {
             transition={{ delay: prefersReducedMotion ? 0 : 1.2, duration: prefersReducedMotion ? 0 : 0.5 }}
             className="absolute bottom-10 left-1/2 -translate-x-1/2"
           >
-            <div className="flex flex-col items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-zinc-400">
+            <div className="flex flex-col items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-zinc-500">
               <div className="scroll-mouse">
                 <span className="scroll-mouse-dot" />
               </div>
@@ -866,43 +1012,45 @@ const LandingPage = () => {
           </Reveal>
         </section>
 
-        <section id="features" className="mx-auto w-full max-w-6xl px-4 py-20 md:px-6">
+        <section id="features" className="mx-auto w-full max-w-6xl px-4 py-24 md:px-6">
           <Reveal>
-            <h2 className="text-3xl font-bold md:text-4xl">Why Athletes Pick GymForge</h2>
+            <p className="section-kicker">Core Features</p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">Why Athletes Pick <span className="text-gradient-fire">GymForge</span></h2>
           </Reveal>
           <Reveal delay={100}>
-            <p className="mt-3 max-w-2xl text-zinc-300">Everything you need to plan, track, and execute your transformation without friction.</p>
+            <p className="mt-4 max-w-2xl text-zinc-400">Everything you need to plan, track, and execute your transformation without friction.</p>
           </Reveal>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
             {featureCards.map((feature, index) => (
-              <Reveal key={feature.title} delay={index * 100}>
+              <Reveal key={feature.title} delay={index * 120}>
                 <motion.article
-                  whileHover={prefersReducedMotion ? undefined : { y: -6, borderColor: "rgba(249,115,22,0.4)" }}
-                  transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
-                  className="feature-card rounded-2xl border border-white/10 bg-[#141414] p-4"
+                  whileHover={prefersReducedMotion ? undefined : { y: -8, transition: { duration: 0.3, ease: [0.34, 1.56, 0.64, 1] } }}
+                  className="feature-card-premium group rounded-2xl border border-white/8 bg-[#111]/80 p-5 backdrop-blur-sm"
                 >
-                  <div className="feature-card-media">
+                  <div className="feature-card-media-premium overflow-hidden rounded-xl border border-white/6">
                     <feature.Preview />
                   </div>
                   <div className="mt-5 flex items-start gap-3">
                     <motion.div
-                      whileHover={prefersReducedMotion ? undefined : { scale: 1.1, rotate: 5 }}
-                      transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
-                      className="inline-grid h-11 w-11 flex-shrink-0 place-items-center rounded-xl bg-orange-500/15 text-xl"
+                      whileHover={prefersReducedMotion ? undefined : { scale: 1.12, rotate: 6 }}
+                      transition={{ duration: prefersReducedMotion ? 0 : 0.25, ease: "backOut" }}
+                      className="inline-grid h-11 w-11 flex-shrink-0 place-items-center rounded-xl bg-orange-500/12 text-xl ring-1 ring-orange-500/20"
                     >
                       {feature.icon}
                     </motion.div>
                     <div>
-                      <h3 className="text-xl font-semibold">{feature.title}</h3>
-                      <p className="mt-2 text-sm leading-relaxed text-zinc-300">{feature.description}</p>
+                      <h3 className="text-lg font-semibold tracking-tight text-white">{feature.title}</h3>
+                      <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{feature.description}</p>
                     </div>
                   </div>
+                  <div className="feature-card-shimmer" aria-hidden="true" />
                 </motion.article>
               </Reveal>
             ))}
           </div>
         </section>
+        <div className="premium-section-divider" aria-hidden="true" />
 
         <section className="exercise-visual-showcase overflow-hidden py-16">
           <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
@@ -1107,17 +1255,22 @@ const LandingPage = () => {
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-6xl px-4 pb-20 md:px-6">
+        <section className="mx-auto w-full max-w-6xl px-4 pb-24 md:px-6">
           <Reveal>
-            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#141414] p-8 text-center md:p-10">
-              <div className="cta-spin-overlay pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(249,115,22,0.25)_0%,transparent_65%)]" />
+            <div className="cta-premium-card relative overflow-hidden rounded-3xl p-10 text-center md:p-14">
+              <div className="cta-premium-glow" aria-hidden="true" />
+              <div className="cta-premium-grid" aria-hidden="true" />
+              <div className="cta-premium-ring cta-ring-1" aria-hidden="true" />
+              <div className="cta-premium-ring cta-ring-2" aria-hidden="true" />
               <div className="relative z-10">
-                <p className="text-2xl font-bold md:text-3xl">100% Free. No credit card. No BS.</p>
-                <div style={{ display: "flex", gap: "14px", flexWrap: "wrap", justifyContent: "center", marginTop: "24px" }}>
+                <p className="section-kicker mb-4">Ready to start?</p>
+                <p className="text-3xl font-bold tracking-tight text-white md:text-4xl">100% Free. No credit card.<br /><span className="text-gradient-fire">No BS.</span></p>
+                <p className="mx-auto mt-4 max-w-sm text-sm text-zinc-400">Join 12,400+ athletes already training smarter with GymForge.</p>
+                <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                   <button
                     type="button"
                     onClick={() => navigate("/register")}
-                    className="hero-primary-btn inline-flex rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-6 py-3 text-sm font-semibold text-black"
+                    className="hero-primary-btn hero-cta-main inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-orange-400 px-8 py-3.5 text-sm font-semibold text-black"
                   >
                     Create Your Account →
                   </button>
@@ -1129,13 +1282,13 @@ const LandingPage = () => {
         </section>
       </main>
 
-      <footer className="border-t border-white/10 px-4 py-8 text-sm text-zinc-400 md:px-6">
+      <footer className="border-t border-white/6 px-4 py-8 text-sm text-zinc-500 md:px-6">
         <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-3 md:flex-row md:items-center">
-          <p>© 2025 GymForge. Built for athletes.</p>
-          <div className="flex items-center gap-4">
-            <a href="https://github.com/SumanKarmakar467/GYM" target="_blank" rel="noreferrer" className="landing-nav-link hover:text-orange-300 focus-visible:text-orange-300">GitHub</a>
-            <a href="#" className="landing-nav-link hover:text-orange-300 focus-visible:text-orange-300">Privacy</a>
-            <a href="#" className="landing-nav-link hover:text-orange-300 focus-visible:text-orange-300">Terms</a>
+          <p className="font-heading text-base text-orange-400/70">GymForge <span className="text-zinc-600">— Built for athletes.</span></p>
+          <div className="flex items-center gap-5">
+            <a href="https://github.com/SumanKarmakar467/GYM" target="_blank" rel="noreferrer" className="landing-nav-link hover:text-orange-400 focus-visible:text-orange-400 transition-colors">GitHub</a>
+            <a href="#" className="landing-nav-link hover:text-orange-400 focus-visible:text-orange-400 transition-colors">Privacy</a>
+            <a href="#" className="landing-nav-link hover:text-orange-400 focus-visible:text-orange-400 transition-colors">Terms</a>
           </div>
         </div>
       </footer>
